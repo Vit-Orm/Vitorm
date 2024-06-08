@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Vit.Orm.Sql.Translator
 {
-    public class SqlTranslator : ISqlTranslator
+    public abstract class SqlTranslator : ISqlTranslator
     {
 
         public DbContext dbContext { get; private set; }
@@ -113,75 +113,8 @@ namespace Vit.Orm.Sql.Translator
 
 
 
-
-
-
-
-
-        public virtual string PrepareCreate(IEntityDescriptor entityDescriptor)
-        {
-            /* //sql
-CREATE TABLE `user` (
-  `id` int NOT NULL PRIMARY KEY,
-  `name` varchar(100) DEFAULT NULL,
-  `birth` date DEFAULT NULL,
-  `fatherId` int DEFAULT NULL,
-  `motherId` int DEFAULT NULL
-) ;
-              */
-            List<string> sqlFields = new();
-
-            // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY");
-
-            // #2 columns
-            if (entityDescriptor.columns != null)
-            {
-                foreach (var column in entityDescriptor.columns)
-                {
-                    sqlFields.Add(GetColumnSql(column));
-                }
-            }
-
-            return $@"
-CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
-{string.Join(",\r\n  ", sqlFields)}
-)";
-
-
-            #region GetColumnSql
-            string GetColumnSql(IColumnDescriptor column)
-            {
-                bool nullable = false;
-
-                var type = column.type;
-                if (type.IsGenericType)
-                {
-                    nullable = true;
-                    type = type.GetGenericArguments()[0];
-                }
-                // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {GetDbType(type)} {(nullable ? "DEFAULT NULL" : "NOT NULL")}";
-            }
-            
-            #endregion
-
-        }
-       protected virtual string GetDbType(Type type)
-        {
-            if (type == typeof(DateTime))
-                return "DATETIME";
-
-            if (type == typeof(string))
-                return "TEXT";
-
-            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal))
-                return "REAL";
-
-            if (type == typeof(bool) || type.Name.ToLower().Contains("int")) return "INTEGER";
-
-            throw new NotSupportedException("unsupported column type:" + type.Name);
-        }
+        public abstract string PrepareCreate(IEntityDescriptor entityDescriptor);
+        protected abstract string GetDbType(Type type);
 
 
         public virtual string PrepareGet<Entity>(DbSet<Entity> dbSet)
@@ -204,15 +137,9 @@ CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
             return (sql, query.sqlParam, query.dataReader);
         }
 
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(CombinedStream combinedStream)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(CombinedStream combinedStream);
 
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(CombinedStream combinedStream)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(CombinedStream combinedStream);
 
         public virtual (string sql, Func<Entity, Dictionary<string, object>> GetSqlParams) PrepareAdd<Entity>(DbSet<Entity> dbSet)
         {
@@ -222,11 +149,13 @@ CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
               */
             var entityDescriptor = dbSet.entityDescriptor;
 
+            var columns = entityDescriptor.columns;
+
             // #1 GetSqlParams 
             Func<Entity, Dictionary<string, object>> GetSqlParams = (entity) =>
                 {
                     var sqlParam = new Dictionary<string, object>();
-                    foreach (var column in entityDescriptor.allColumns)
+                    foreach (var column in columns)
                     {
                         var columnName = column.name;
                         var value = column.Get(entity);
@@ -241,11 +170,11 @@ CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
             List<string> valueParams = new List<string>();
             string columnName;
 
-            foreach (var column in entityDescriptor.allColumns)
+            foreach (var column in columns)
             {
                 columnName = column.name;
 
-                columnNames.Add( DelimitIdentifier(columnName));
+                columnNames.Add(DelimitIdentifier(columnName));
                 valueParams.Add(GenerateParameterName(columnName));
             }
             #endregion

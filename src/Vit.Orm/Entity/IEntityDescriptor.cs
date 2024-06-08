@@ -10,10 +10,13 @@
         public IColumnDescriptor key { get; }
 
         /// <summary>
-        /// not include primary key
+        /// columns except primary key
         /// </summary>
         public IColumnDescriptor[] columns { get; }
 
+        /// <summary>
+        /// columns including primary key
+        /// </summary>
         public IColumnDescriptor[] allColumns { get; }
     }
 }

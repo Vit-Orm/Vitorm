@@ -65,9 +65,15 @@ namespace Vit.Orm.Sql
             var sqlParam = GetSqlParams(entity);
 
             // #3 execute
-            var affectedRowCount = dbContext.Execute(sql: sql, param: (object)sqlParam);
+            var newKeyValue = dbContext.ExecuteScalar(sql: sql, param: (object)sqlParam);
 
-            return affectedRowCount == 1 ? entity : default;
+            if (newKeyValue != null)
+            {
+                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
+                newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
+                entityDescriptor.key.Set(entity, newKeyValue);
+            }
+            return entity;
         }
 
         public override void AddRange(IEnumerable<Entity> entitys)
@@ -78,11 +84,17 @@ namespace Vit.Orm.Sql
             // #2 execute
             var affectedRowCount = 0;
 
+            var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
             foreach (var entity in entitys)
             {
                 var sqlParam = GetSqlParams(entity);
-                if (dbContext.Execute(sql: sql, param: (object)sqlParam) == 1)
-                    affectedRowCount++;
+                var newKeyValue = dbContext.ExecuteScalar(sql: sql, param: (object)sqlParam);
+                if (newKeyValue != null)
+                {
+                    newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
+                    entityDescriptor.key.Set(entity, newKeyValue);
+                }
+                affectedRowCount++;
             }
         }
 

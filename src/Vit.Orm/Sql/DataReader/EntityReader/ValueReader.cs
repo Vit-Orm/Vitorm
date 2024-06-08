@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
-
 namespace Vit.Orm.Sql.DataReader
 {
 

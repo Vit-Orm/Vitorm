@@ -40,6 +40,13 @@ namespace Vit.Orm.Sql
                 return SqlDbSetConstructor.CreateDbSet(this, entityType, entityDescriptor);
             };
         }
+        public void Init(ISqlTranslator sqlTranslator, Func<IDbConnection> createDbConnection, Func<Type, IDbSet> dbSetCreator)
+        {
+            this.sqlTranslator = sqlTranslator;
+            this.createDbConnection = createDbConnection;
+
+            this.dbSetCreator = dbSetCreator;
+        }
 
         protected Stack<TransactionWrap> transactions;
         protected IDbTransaction GetCurrentTransaction()

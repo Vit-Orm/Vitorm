@@ -2,10 +2,9 @@
 
 using Vit.Orm.Sql;
 using Vit.Extensions;
-using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ConfigurationManager;
 
-namespace Vit.Orm.SqlServer.MsTest
+namespace Vit.Orm.MsTest
 {
     [Table("User")]
     public class User
@@ -24,20 +23,19 @@ namespace Vit.Orm.SqlServer.MsTest
     public class DataSource
     {
         static string connectionString = Appsettings.json.GetStringByPath("App.Db.ConnectionString");
-        public static DbContext CreateDbContext(string dbName = "DataSource")
-        { 
-            var dbContext = new SqlDbContext();
-            dbContext.UseMysql(connectionString);
-            return dbContext; 
-        }
- 
-        public static DbContext CreateFormatedDbContext(string dbName = "DataSource")
+
+        public static SqlDbContext CreateDbContext()
         {
             var dbContext = new SqlDbContext();
-            dbContext.UseMysql(connectionString);
+            dbContext.UseSqlServer(connectionString);
+
+            dbContext.BeginTransaction();
 
             var userSet = dbContext.DbSet<User>();
-            //userSet.Create();
+
+            dbContext.Execute(sql: "IF OBJECT_ID(N'User', N'U') IS  NOT  NULL \r\nDROP TABLE [User];");
+
+            userSet.Create();
 
             var users = new List<User> {
                     new User {   name="u1", fatherId=4, motherId=6 },

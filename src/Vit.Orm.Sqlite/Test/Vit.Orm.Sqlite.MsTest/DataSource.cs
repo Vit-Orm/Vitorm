@@ -3,7 +3,7 @@
 using Vit.Orm.Sql;
 using Vit.Extensions;
 
-namespace Vit.Orm.Sqlite.MsTest
+namespace Vit.Orm.MsTest
 {
     [Table("User")]
     public class User
@@ -21,28 +21,20 @@ namespace Vit.Orm.Sqlite.MsTest
 
     public class DataSource
     {
-        public static DbContext CreateDbContext(string dbName = "DataSource")
+        public static SqlDbContext CreateDbContext()
         {
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{dbName}.db");
-            var dbContext = new SqlDbContext();
-            dbContext.UseSqlite($"data source={filePath}");
-            return dbContext;
-            //return CreateFormatedDbContext(dbName);
-        }
-
-        public static DbContext CreateFormatedDbContext(string dbName = "DataSource")
-        {
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{dbName}.db");
+            var guid = Guid.NewGuid().ToString();
+            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{guid}.sqlite.db");
             if (File.Exists(filePath)) File.Delete(filePath);
             File.WriteAllBytes(filePath, new byte[0]);
 
 
             var connectionString = $"data source={filePath}";
-            //connectionString = $"Data Source={dbName};Mode=Memory;Cache=Shared";
-            //connectionString = $"Data Source=:memory:";
 
             var dbContext = new SqlDbContext();
             dbContext.UseSqlite(connectionString);
+
+            dbContext.BeginTransaction();
 
             var userSet = dbContext.DbSet<User>();
             userSet.Create();

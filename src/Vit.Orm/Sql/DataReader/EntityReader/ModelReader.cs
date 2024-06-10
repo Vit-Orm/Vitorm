@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Orm.Entity;
+using Vit.Orm.Sql.SqlTranslate;
 
 namespace Vit.Orm.Sql.DataReader
 {
@@ -14,17 +16,11 @@ namespace Vit.Orm.Sql.DataReader
 
         List<EntityPropertyReader> proppertyReaders = new();
 
-        public ModelReader(EntityReader entityReader, ISqlTranslator sqlTranslator, ExpressionNode_Member member, string argUniqueKey, string argName, Type argType)
+        public ModelReader(EntityReader entityReader, ISqlTranslateService sqlTranslator, string tableName, string argUniqueKey, string argName, Type argType, IEntityDescriptor entityDescriptor)
         {
             this.argUniqueKey = argUniqueKey;
             this.argName = argName;
             this.argType = argType;
-
-            var entityDescriptor = sqlTranslator.GetEntityDescriptor(argType);
-
-            // 1: {"nodeType":"Member","parameterName":"a0","memberName":"id"}
-            // 2: {"nodeType":"Member","objectValue":{"parameterName":"a0","nodeType":"Member"},"memberName":"id"}
-            var tableName = member.objectValue?.parameterName ?? member.parameterName;
 
             // ##1 key
             string sqlFieldName = sqlTranslator.GetSqlField(tableName, entityDescriptor.keyName);

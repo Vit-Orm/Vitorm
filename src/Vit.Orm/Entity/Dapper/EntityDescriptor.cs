@@ -26,6 +26,8 @@ namespace Vit.Orm.Entity.Dapper
 
         EntityDescriptor(Type entityType)
         {
+            this.entityType = entityType;
+
             tableName = GetTableName(entityType);
 
             var entityProperties = entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance) ?? new PropertyInfo[0];
@@ -39,7 +41,9 @@ namespace Vit.Orm.Entity.Dapper
             allColumns = new List<IColumnDescriptor> { key }.Concat(columns).ToArray();
         }
 
-        public string tableName { get; private set; }
+
+        public Type entityType { get; protected set; }
+        public string tableName { get; protected set; }
 
         /// <summary>
         /// primary key name
@@ -49,15 +53,15 @@ namespace Vit.Orm.Entity.Dapper
         /// <summary>
         /// primary key
         /// </summary>
-        public IColumnDescriptor key { get; private set; }
+        public IColumnDescriptor key { get; protected set; }
 
         /// <summary>
         /// not include primary key
         /// </summary>
-        public IColumnDescriptor[] columns { get; private set; }
+        public IColumnDescriptor[] columns { get; protected set; }
 
 
-        public IColumnDescriptor[] allColumns { get; private set; }
+        public IColumnDescriptor[] allColumns { get; protected set; }
 
 
     }

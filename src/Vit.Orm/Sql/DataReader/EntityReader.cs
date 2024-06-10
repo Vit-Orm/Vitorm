@@ -6,6 +6,7 @@ using System.Reflection;
 
 using Vit.Linq.ExpressionTree;
 using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Orm.Sql.SqlTranslate;
 
 namespace Vit.Orm.Sql.DataReader
 {
@@ -17,7 +18,7 @@ namespace Vit.Orm.Sql.DataReader
         protected List<IArgReader> entityArgReaders = new List<IArgReader>();
         protected Delegate lambdaCreateEntity;
 
-        public string BuildSelect(Type entityType, ISqlTranslator sqlTranslator, ExpressionConvertService convertService, ExpressionNode selectedFields)
+        public string BuildSelect(QueryTranslateArgument arg, Type entityType, ISqlTranslateService sqlTranslateService, ExpressionConvertService convertService, ExpressionNode selectedFields)
         {
             this.entityType = entityType;
 
@@ -28,7 +29,7 @@ namespace Vit.Orm.Sql.DataReader
                 {
                     ExpressionNode_Member member = node;
 
-                    var argName = GetArgument(sqlTranslator, member);
+                    var argName = GetArgument(arg, sqlTranslateService, member);
 
                     if (argName != null)
                     {
@@ -38,12 +39,17 @@ namespace Vit.Orm.Sql.DataReader
                 else if (node?.nodeType == NodeType.MethodCall)
                 {
                     ExpressionNode_MethodCall methodCall = node;
-
-                    var argName = GetArgument(sqlTranslator, methodCall);
-
-                    if (argName != null)
+                    if (methodCall.methodCall_typeName == "Enumerable")
                     {
-                        return (true, ExpressionNode.Member(parameterName: argName, memberName: null));
+                        string argName = null;
+
+                        var sqlField = sqlTranslateService.EvalExpression(arg, node);
+                        var fieldType = methodCall.MethodCall_GetReturnType();
+                        argName = GetArgument(sqlField, fieldType);
+                        if (argName != null)
+                        {
+                            return (true, ExpressionNode.Member(parameterName: argName, memberName: null));
+                        }
                     }
                 }
                 return default;
@@ -61,7 +67,8 @@ namespace Vit.Orm.Sql.DataReader
             #endregion
 
             // sqlFields
-            return String.Join(", ", sqlFields);
+            var fields = sqlFields.Select((f, index) => f + " as c" + index);
+            return String.Join(", ", fields);
         }
 
 
@@ -86,10 +93,16 @@ namespace Vit.Orm.Sql.DataReader
             return list;
         }
 
-        protected string GetArgument(ISqlTranslator sqlTranslator, ExpressionNode_Member member)
+        protected string GetArgument(QueryTranslateArgument arg, ISqlTranslateService sqlTranslator, ExpressionNode_Member member)
         {
+
+            // 1: {"nodeType":"Member","parameterName":"a0","memberName":"id"}
+            // 2: {"nodeType":"Member","objectValue":{"parameterName":"a0","nodeType":"Member"},"memberName":"id"}
+            var tableName = member.objectValue?.parameterName ?? member.parameterName;
+
+
             // tableName_fieldName   tableName_
-            var argUniqueKey = $"arg_{member.objectValue?.parameterName ?? member.parameterName}_{member.memberName}";
+            var argUniqueKey = $"arg_{tableName}_{member.memberName}";
 
             IArgReader argReader = entityArgReaders.FirstOrDefault(reader => reader.argUniqueKey == argUniqueKey);
 
@@ -103,88 +116,38 @@ namespace Vit.Orm.Sql.DataReader
                 if (isValueType)
                 {
                     // Value arg
-                    string sqlFieldName = sqlTranslator.GetSqlField(member);
+                    string sqlFieldName = sqlTranslator.GetSqlField(member,arg.dbContext);
                     argReader = new ValueReader(this, argType, argUniqueKey, argName, sqlFieldName);
                 }
                 else
                 {
                     // Entity arg
-                    argReader = new ModelReader(this, sqlTranslator, member, argUniqueKey, argName, argType);
+                    var entityDescriptor = arg.dbContext.GetEntityDescriptor(argType);
+
+                    argReader = new ModelReader(this, sqlTranslator, tableName, argUniqueKey, argName, argType, entityDescriptor);
                 }
                 entityArgReaders.Add(argReader);
             }
             return argReader.argName;
         }
-        protected string GetArgument(ISqlTranslator sqlTranslator, ExpressionNode_MethodCall methodCall)
+
+        protected string GetArgument(string sqlField, Type fieldType)
         {
-            var functionName = methodCall.methodName;
-            switch (methodCall.methodName)
+            var argUniqueKey = $"argFunc_{sqlField}";
+
+            IArgReader argReader = entityArgReaders.FirstOrDefault(reader => reader.argUniqueKey == argUniqueKey);
+
+            if (argReader == null)
             {
-                case nameof(Enumerable.Count):
-                    {
-                        var stream = methodCall.arguments[0] as ExpressionNode_Member;
-                        if (stream?.nodeType == NodeType.Member && stream.parameterName != null && stream.memberName == null)
-                        {
-                            var tableName = stream.parameterName;
-                            var columnName = stream.memberName;
+                var argName = "arg_" + entityArgReaders.Count;
 
-                            var argUniqueKey = $"argFunc_{functionName}_{tableName}_{columnName}";
+                argReader = new ValueReader(this, fieldType, argUniqueKey, argName, sqlField);
 
-                            IArgReader argReader = entityArgReaders.FirstOrDefault(reader => reader.argUniqueKey == argUniqueKey);
-
-                            if (argReader == null)
-                            {
-                                var argName = "arg_" + entityArgReaders.Count;
-
-                                var argType = typeof(int);
-
-                                // Value arg
-                                string sqlFieldName = sqlTranslator.GetSqlField_Aggregate(functionName,tableName, columnName: columnName);
-                                argReader = new ValueReader(this, argType, argUniqueKey, argName, sqlFieldName);
-
-                                entityArgReaders.Add(argReader);
-                            }
-                            return argReader.argName;
-                        }
-                    }
-                    break;
-                case nameof(Enumerable.Max) or nameof(Enumerable.Min) or nameof(Enumerable.Sum) or nameof(Enumerable.Average) when methodCall.arguments.Length == 2:
-                    {
-                        var stream = methodCall.arguments[0] as ExpressionNode_Member;
-                        if (stream?.nodeType == NodeType.Member && stream.parameterName != null && stream.memberName == null)
-                        {
-                            var lambdaFieldSelect = methodCall.arguments[1] as ExpressionNode_Lambda;
-                            if (lambdaFieldSelect?.body?.nodeType == NodeType.Member)
-                            {
-                                var tableName = stream.parameterName;
-                                string columnName = lambdaFieldSelect.body.memberName;
-
-                                var argUniqueKey = $"argFunc_{functionName}_{tableName}_{columnName}";
-
-                                IArgReader argReader = entityArgReaders.FirstOrDefault(reader => reader.argUniqueKey == argUniqueKey);
-
-                                if (argReader == null)
-                                {
-                                    var argName = "arg_" + entityArgReaders.Count;
-
-                                    var argType = methodCall.MethodCall_GetReturnType();
-
-                                    // Value arg
-                                    string sqlFieldName = sqlTranslator.GetSqlField_Aggregate(functionName,tableName, columnName: columnName);
-                                    argReader = new ValueReader(this, argType, argUniqueKey, argName, sqlFieldName);
-
-                                    entityArgReaders.Add(argReader);
-                                }
-                                return argReader.argName;
-                            }
-                        }
-                    }
-                    break;
-
+                entityArgReaders.Add(argReader);
             }
-            //throw new NotSupportedException("[CollectionStream] unexpected method call : " + methodCall.methodName);
-            return default;
+            return argReader.argName;
         }
+ 
 
 
     }

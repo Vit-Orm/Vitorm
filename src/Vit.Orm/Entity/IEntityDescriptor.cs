@@ -1,7 +1,11 @@
-﻿namespace Vit.Orm.Entity
+﻿using System;
+
+namespace Vit.Orm.Entity
 {
     public interface IEntityDescriptor
     {
+        Type entityType { get; }
+
         string tableName { get; }
         string keyName { get; }
         /// <summary>

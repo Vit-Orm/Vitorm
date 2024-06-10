@@ -4,7 +4,7 @@ using System.Data;
 using Vit.Orm.Entity;
 using Vit.Orm.Entity.Dapper;
 using Vit.Orm.Sql;
-using Vit.Orm.Mysql;
+using Vit.Orm.Sql.SqlTranslate;
 
 namespace Vit.Extensions
 {
@@ -12,14 +12,16 @@ namespace Vit.Extensions
     {
         public static SqlDbContext UseMysql(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslator sqlTranslator = new SqlTranslator(dbContext);
+            ISqlTranslateService sqlTranslateService =   Vit.Orm.Mysql.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new MySql.Data.MySqlClient.MySqlConnection(ConnectionString);
 
             Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
 
 
-            dbContext.Init(sqlTranslator: sqlTranslator, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+
+            //dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope(dbContext);
 
             return dbContext;
         }

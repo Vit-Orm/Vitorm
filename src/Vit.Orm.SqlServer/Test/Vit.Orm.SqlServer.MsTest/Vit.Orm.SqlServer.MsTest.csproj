@@ -7,6 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>Vit.Orm.MsTest</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,6 +28,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Include="..\..\..\Vit.Orm.Sqlite\Test\Vit.Orm.Sqlite.MsTest\CommonTest\*.cs" Link="CommonTest\%(RecursiveDir)%(FileName)%(Extension)" />
+        <!--<Compile Include="..\Vit.Linq.MsTest\DataSource.cs" />--> 
+    </ItemGroup>
 
 
 </Project>

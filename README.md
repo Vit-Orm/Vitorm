@@ -1,6 +1,6 @@
 ﻿
 # Vit.Orm
-Compatible with QueryBuilder ( ref to DynamicQueryable )
+Vitorm: an simple orm by Vit.Linq
 >source address: [https://github.com/serset/Vit.Orm](https://github.com/serset/Vit.Orm "https://github.com/serset/Vit.Orm")    
 
 ![](https://img.shields.io/github/license/Serset/Vit.Orm.svg)  
@@ -20,18 +20,13 @@ sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqli
 --------------
 # cur
 
-# support Mysql
-
-
-
-# sqlite upgrade to latest version
-# remove depency of Dapper
-# try to make it clean
-
-
-# support SqlServer
 # support ElasticSearch
 # support ClickHouse
+
+# support Mysql
+
+# remove depency of Dapper
+# try to make it clean
 
 
 # DbContext.QueryProcedure<Entity>(arg)
@@ -39,7 +34,6 @@ sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqli
 --------------
 # TODO
 
-# sqlite nested transaction
 # Save SaveRange
 
 

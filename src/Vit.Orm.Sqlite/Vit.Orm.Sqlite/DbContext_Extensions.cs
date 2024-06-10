@@ -4,7 +4,7 @@ using System.Data;
 using Vit.Orm.Entity;
 using Vit.Orm.Entity.Dapper;
 using Vit.Orm.Sql;
-using Vit.Orm.Sqlite;
+using Vit.Orm.Sql.SqlTranslate;
 
 namespace Vit.Extensions
 {
@@ -12,14 +12,16 @@ namespace Vit.Extensions
     {
         public static SqlDbContext UseSqlite(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslator sqlTranslator = new SqlTranslator(dbContext);
+            ISqlTranslateService sqlTranslateService =   Vit.Orm.Sqlite.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.Sqlite.SqliteConnection(ConnectionString);
 
             Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
 
 
-            dbContext.Init(sqlTranslator: sqlTranslator, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+
+            dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Sqlite.SqlTransactionScope(dbContext);
 
             return dbContext;
         }

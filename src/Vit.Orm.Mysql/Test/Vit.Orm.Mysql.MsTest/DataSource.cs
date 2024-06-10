@@ -2,10 +2,9 @@
 
 using Vit.Orm.Sql;
 using Vit.Extensions;
-using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ConfigurationManager;
 
-namespace Vit.Orm.Sqlite.MsTest
+namespace Vit.Orm.MsTest
 {
     [Table("User")]
     public class User
@@ -24,32 +23,34 @@ namespace Vit.Orm.Sqlite.MsTest
     public class DataSource
     {
         static string connectionString = Appsettings.json.GetStringByPath("App.Db.ConnectionString");
-        public static DbContext CreateDbContext(string dbName = "DataSource")
-        { 
-            var dbContext = new SqlDbContext();
-            dbContext.UseMysql(connectionString);
-            return dbContext; 
-        }
  
-        public static DbContext CreateFormatedDbContext(string dbName = "DataSource")
+        public static SqlDbContext CreateDbContext()
         {
             var dbContext = new SqlDbContext();
             dbContext.UseMysql(connectionString);
 
+            dbContext.BeginTransaction();
+
             var userSet = dbContext.DbSet<User>();
+
+            dbContext.Execute(sql: "DROP TABLE  if exists `User`;");
+
             userSet.Create();
 
             var users = new List<User> {
-                    new User { id=1, name="u1", fatherId=4, motherId=6 },
-                    new User { id=2, name="u2", fatherId=4, motherId=6 },
-                    new User { id=3, name="u3", fatherId=5, motherId=6 },
-                    new User { id=4, name="u4" },
-                    new User { id=5, name="u5" },
-                    new User { id=6, name="u6" },
+                    new User {   name="u1", fatherId=4, motherId=6 },
+                    new User {   name="u2", fatherId=4, motherId=6 },
+                    new User {   name="u3", fatherId=5, motherId=6 },
+                    new User {   name="u4" },
+                    new User {   name="u5" },
+                    new User {   name="u6" },
                 };
-            users.ForEach(user => { user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id); });
 
             dbContext.AddRange(users);
+
+            users.ForEach(user => { user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id); });
+
+            dbContext.UpdateRange(users);
 
             return dbContext;
         }

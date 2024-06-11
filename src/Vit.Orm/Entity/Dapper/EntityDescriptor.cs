@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Vit.Orm.Entity.Dapper
+namespace Vitorm.Entity.Dapper
 {
     public class EntityDescriptor : IEntityDescriptor
     {

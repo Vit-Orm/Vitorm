@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vit.Orm.Entity
+namespace Vitorm.Entity
 {
     public interface IEntityDescriptor
     {

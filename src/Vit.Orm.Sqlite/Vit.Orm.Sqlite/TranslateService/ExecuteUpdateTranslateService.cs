@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sqlite.TranslateService
+namespace Vitorm.Sqlite.TranslateService
 {
     public class ExecuteUpdateTranslateService : BaseQueryTranslateService
     {

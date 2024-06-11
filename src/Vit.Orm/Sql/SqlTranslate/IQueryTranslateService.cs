@@ -1,6 +1,6 @@
 ﻿using Vit.Linq.ExpressionTree.CollectionsQuery;
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
     public interface IQueryTranslateService 
     {

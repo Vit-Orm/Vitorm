@@ -1,8 +1,8 @@
 ﻿using System.Data;
 
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
     partial class ModelReader
     {

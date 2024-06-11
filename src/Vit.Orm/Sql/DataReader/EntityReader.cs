@@ -6,9 +6,9 @@ using System.Reflection;
 
 using Vit.Linq.ExpressionTree;
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
     public class EntityReader : IDbDataReader
     {

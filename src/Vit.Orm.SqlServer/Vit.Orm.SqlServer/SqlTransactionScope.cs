@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Data;
 
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.Transaction;
+using Vitorm.Sql;
+using Vitorm.Sql.Transaction;
 
 using SqlTransaction = Microsoft.Data.SqlClient.SqlTransaction;
 
-namespace Vit.Orm.SqlServer
+namespace Vitorm.SqlServer
 {
-    public class SqlTransactionScope : Vit.Orm.Sql.Transaction.SqlTransactionScope
+    public class SqlTransactionScope : Vitorm.Sql.Transaction.SqlTransactionScope
     {
         int savePointCount = 0;
         public DbTransactionWrap CreateTransactionSavePoint(IDbTransaction originalTransaction)

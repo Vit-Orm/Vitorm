@@ -2,7 +2,7 @@
 using System.Data;
 using System.Collections.Generic;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
 
     class SqlFieldReader

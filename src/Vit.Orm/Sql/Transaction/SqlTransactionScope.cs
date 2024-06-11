@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace Vit.Orm.Sql.Transaction
+namespace Vitorm.Sql.Transaction
 {
     public class SqlTransactionScope : ITransactionScope
     {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Orm.Entity;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Entity;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
     partial class ModelReader : IArgReader
     {

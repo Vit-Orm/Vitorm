@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Vit.Orm.Sql
+namespace Vitorm.Sql
 {
     public class TypeUtil
     {

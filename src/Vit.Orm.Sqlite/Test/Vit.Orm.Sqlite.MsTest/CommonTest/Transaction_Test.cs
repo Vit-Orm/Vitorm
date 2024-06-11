@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Vit.Orm.MsTest.CommonTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]

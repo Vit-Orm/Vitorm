@@ -3,7 +3,7 @@ using Vit.Extensions.Linq_Extensions;
 using System.Data;
 
 
-namespace Vit.Orm.MsTest.CommonTest
+namespace Vitorm.MsTest.CommonTest
 {
     [TestClass]
     public class Query_InnerJoin_ByJoin_Test

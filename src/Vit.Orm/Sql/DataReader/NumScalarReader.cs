@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 
-using Vit.Orm.Sql;
+using Vitorm.Sql;
 
-namespace Vit.Orm.DataReader
+namespace Vitorm.DataReader
 {
     public class NumScalarReader : IDbDataReader
     {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 
-namespace Vit.Orm
+namespace Vitorm
 {
     public interface IDbSet
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.SqlServer.TranslateService
+namespace Vitorm.SqlServer.TranslateService
 {
-    public class ExecuteUpdateTranslateService : Vit.Orm.SqlServer.SqlTranslate.BaseQueryTranslateService
+    public class ExecuteUpdateTranslateService : Vitorm.SqlServer.SqlTranslate.BaseQueryTranslateService
     {
         /*
 

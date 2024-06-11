@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
     public class SqlTranslateArgument
     {

@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{75C25D0B-852
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vit.Orm", "src\Vit.Orm\Vit.Orm.csproj", "{952A36C2-CE2C-416F-BFD0-EBDCA8A3056E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vitorm", "src\Vit.Orm\Vitorm.csproj", "{952A36C2-CE2C-416F-BFD0-EBDCA8A3056E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vit.Orm.Mysql", "Vit.Orm.Mysql", "{896DAB83-6E35-4A7D-9F9C-F244289BCB3F}"
 EndProject
@@ -33,6 +33,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{7904FE51-04FF-4477-8E3A-CC340389EE32}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vit.Orm.SqlServer.MsTest", "src\Vit.Orm.SqlServer\Test\Vit.Orm.SqlServer.MsTest\Vit.Orm.SqlServer.MsTest.csproj", "{FEEA4138-22A5-4F20-AE51-4D49A0A1B8D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vit.Linq", "..\Vit.Linq\src\Vit.Linq\Vit.Linq.csproj", "{B2330678-DCE0-4574-8B81-3372F1EAAA7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{FEEA4138-22A5-4F20-AE51-4D49A0A1B8D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEEA4138-22A5-4F20-AE51-4D49A0A1B8D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEEA4138-22A5-4F20-AE51-4D49A0A1B8D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2330678-DCE0-4574-8B81-3372F1EAAA7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2330678-DCE0-4574-8B81-3372F1EAAA7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2330678-DCE0-4574-8B81-3372F1EAAA7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2330678-DCE0-4574-8B81-3372F1EAAA7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,15 +6,15 @@ using System.Linq.Expressions;
 using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Orm.Entity;
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.SqlTranslate;
-using Vit.Orm.Sqlite.TranslateService;
+using Vitorm.Entity;
+using Vitorm.Sql;
+using Vitorm.Sql.SqlTranslate;
+using Vitorm.Sqlite.TranslateService;
 
 
-namespace Vit.Orm.Sqlite
+namespace Vitorm.Sqlite
 {
-    public class SqlTranslateService : Vit.Orm.Sql.SqlTranslate.SqlTranslateService
+    public class SqlTranslateService : Vitorm.Sql.SqlTranslate.SqlTranslateService
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 

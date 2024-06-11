@@ -10,11 +10,11 @@ using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq;
-using Vit.Orm.Entity;
-using Vit.Orm.Sql.Transaction;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Entity;
+using Vitorm.Sql.Transaction;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sql
+namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {

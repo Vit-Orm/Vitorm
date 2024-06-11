@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 using System.Reflection;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sql
+namespace Vitorm.Sql
 {
     public class SqlDbSetConstructor
     {
@@ -24,7 +24,7 @@ namespace Vit.Orm.Sql
 
     }
 
-    public class SqlDbSet<Entity> : Vit.Orm.DbSet<Entity>
+    public class SqlDbSet<Entity> : Vitorm.DbSet<Entity>
     {
         protected SqlDbContext dbContext;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Vit.Orm.Entity
+namespace Vitorm.Entity
 {
     public class ColumnDescriptor : IColumnDescriptor
     {

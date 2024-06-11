@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.Sqlite.TranslateService
+namespace Vitorm.Sqlite.TranslateService
 {
     public class ExecuteDeleteTranslateService : BaseQueryTranslateService
     {

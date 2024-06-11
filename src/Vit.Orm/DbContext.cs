@@ -5,9 +5,9 @@ using System.Linq;
 using System.Transactions;
 
 using Vit.Linq.ExpressionTree;
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 
-namespace Vit.Orm
+namespace Vitorm
 {
     public class DbContext : IDisposable
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Data;
 
-using Vit.Orm.Entity;
-using Vit.Orm.Entity.Dapper;
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.Entity;
+using Vitorm.Entity.Dapper;
+using Vitorm.Sql;
+using Vitorm.Sql.SqlTranslate;
 
 namespace Vit.Extensions
 {
@@ -25,7 +25,7 @@ namespace Vit.Extensions
          */
         public static SqlDbContext UseMysql(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslateService sqlTranslateService =   Vit.Orm.Mysql.SqlTranslateService.Instance;
+            ISqlTranslateService sqlTranslateService =   Vitorm.Mysql.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(ConnectionString);
 
@@ -34,8 +34,8 @@ namespace Vit.Extensions
 
             dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
 
-            dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope(dbContext);
-            //dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope_Command(dbContext);
+            dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope(dbContext);
+            //dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope_Command(dbContext);
 
             return dbContext;
         }

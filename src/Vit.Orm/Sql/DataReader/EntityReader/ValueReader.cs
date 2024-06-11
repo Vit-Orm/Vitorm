@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
 
     class ValueReader : SqlFieldReader, IArgReader

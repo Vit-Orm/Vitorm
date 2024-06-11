@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using Vit.Linq.ExpressionTree.ExpressionConvertor;
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
     public abstract class SqlTranslateService : ISqlTranslateService
     {

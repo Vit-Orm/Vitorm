@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Vit.Orm\Vit.Orm.csproj" />
+        <ProjectReference Include="..\..\Vit.Orm\Vitorm.csproj" />
     </ItemGroup>
 
 </Project>

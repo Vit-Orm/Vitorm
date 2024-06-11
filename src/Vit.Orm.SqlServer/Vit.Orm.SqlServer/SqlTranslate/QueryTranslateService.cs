@@ -2,11 +2,11 @@
 
 using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.DataReader;
-using Vit.Orm.Sql.DataReader;
-using Vit.Orm.Sql.SqlTranslate;
+using Vitorm.DataReader;
+using Vitorm.Sql.DataReader;
+using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Orm.SqlServer.SqlTranslate
+namespace Vitorm.SqlServer.SqlTranslate
 {
     public class QueryTranslateService: BaseQueryTranslateService
     {

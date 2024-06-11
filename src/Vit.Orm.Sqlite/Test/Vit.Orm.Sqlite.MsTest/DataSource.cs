@@ -1,9 +1,9 @@
 ﻿using Dapper.Contrib.Extensions;
 
-using Vit.Orm.Sql;
+using Vitorm.Sql;
 using Vit.Extensions;
 
-namespace Vit.Orm.MsTest
+namespace Vitorm.MsTest
 {
     [Table("User")]
     public class User

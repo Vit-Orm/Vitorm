@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Vit.Orm.Sql.Transaction
+namespace Vitorm.Sql.Transaction
 {
     public class DbTransactionWrap : IDbTransaction
     {

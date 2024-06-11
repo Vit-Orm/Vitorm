@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Sql.DataReader;
+using Vitorm.Sql.DataReader;
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
 
     public abstract class BaseQueryTranslateService : IQueryTranslateService

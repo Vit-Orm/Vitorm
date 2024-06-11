@@ -1,6 +1,6 @@
 ﻿ 
 
-namespace Vit.Orm.Sql
+namespace Vitorm.Sql
 {
     public interface IDbDataReader
     {

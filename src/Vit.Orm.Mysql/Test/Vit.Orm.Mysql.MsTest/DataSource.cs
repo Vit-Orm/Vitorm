@@ -1,10 +1,10 @@
 ﻿using Dapper.Contrib.Extensions;
 
-using Vit.Orm.Sql;
+using Vitorm.Sql;
 using Vit.Extensions;
 using Vit.Core.Util.ConfigurationManager;
 
-namespace Vit.Orm.MsTest
+namespace Vitorm.MsTest
 {
     [Table("User")]
     public class User

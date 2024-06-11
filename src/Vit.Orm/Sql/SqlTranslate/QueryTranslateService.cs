@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Orm.DataReader;
-using Vit.Orm.Sql.DataReader;
+using Vitorm.DataReader;
+using Vitorm.Sql.DataReader;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Extensions.Linq_Extensions;
 using System.IO;
 
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
     public class QueryTranslateService : BaseQueryTranslateService
     {

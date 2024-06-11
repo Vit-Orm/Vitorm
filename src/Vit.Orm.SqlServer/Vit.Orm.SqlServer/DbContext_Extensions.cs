@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data;
 
-using Vit.Orm.Entity;
-using Vit.Orm.Entity.Dapper;
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.SqlTranslate;
-using Vit.Orm.SqlServer;
+using Vitorm.Entity;
+using Vitorm.Entity.Dapper;
+using Vitorm.Sql;
+using Vitorm.Sql.SqlTranslate;
+using Vitorm.SqlServer;
 
 namespace Vit.Extensions
 {
@@ -13,7 +13,7 @@ namespace Vit.Extensions
     {
         public static SqlDbContext UseSqlServer(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslateService sqlTranslateService = Vit.Orm.SqlServer.SqlTranslateService.Instance;
+            ISqlTranslateService sqlTranslateService = Vitorm.SqlServer.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
 
@@ -21,7 +21,7 @@ namespace Vit.Extensions
 
 
             dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
-            dbContext.createTransactionScope = (dbContext) => new Vit.Orm.SqlServer.SqlTransactionScope(dbContext);
+            dbContext.createTransactionScope = (dbContext) => new Vitorm.SqlServer.SqlTransactionScope(dbContext);
 
             return dbContext;
         }

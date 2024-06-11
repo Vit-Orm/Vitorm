@@ -5,19 +5,19 @@ using System.Linq.Expressions;
 using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Orm.Entity;
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.SqlTranslate;
-using Vit.Orm.SqlServer.TranslateService;
+using Vitorm.Entity;
+using Vitorm.Sql;
+using Vitorm.Sql.SqlTranslate;
+using Vitorm.SqlServer.TranslateService;
 
 
-namespace Vit.Orm.SqlServer
+namespace Vitorm.SqlServer
 {
-    public class SqlTranslateService : Vit.Orm.Sql.SqlTranslate.SqlTranslateService
+    public class SqlTranslateService : Vitorm.Sql.SqlTranslate.SqlTranslateService
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 
-        protected Vit.Orm.SqlServer.SqlTranslate.QueryTranslateService queryTranslateService;
+        protected Vitorm.SqlServer.SqlTranslate.QueryTranslateService queryTranslateService;
         protected ExecuteUpdateTranslateService executeUpdateTranslateService;
         protected ExecuteDeleteTranslateService executeDeleteTranslateService;
 

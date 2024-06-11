@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Orm.Entity;
+using Vitorm.Entity;
 
-namespace Vit.Orm.Sql.SqlTranslate
+namespace Vitorm.Sql.SqlTranslate
 {
     public interface ISqlTranslateService
     {

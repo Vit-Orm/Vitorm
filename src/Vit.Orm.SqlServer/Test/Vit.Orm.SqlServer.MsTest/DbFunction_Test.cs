@@ -2,7 +2,7 @@
 using Vit.Extensions.Linq_Extensions;
 using System.Data;
 
-namespace Vit.Orm.MsTest
+namespace Vitorm.MsTest
 {
 
     [TestClass]

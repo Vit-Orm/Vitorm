@@ -1,13 +1,13 @@
 ﻿using System.Data;
 
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.Transaction;
+using Vitorm.Sql;
+using Vitorm.Sql.Transaction;
 using Dapper;
 using System.Collections.Generic;
-using static Vit.Orm.Sql.Transaction.DbTransactionWrap;
+using static Vitorm.Sql.Transaction.DbTransactionWrap;
 
 
-namespace Vit.Orm.Mysql
+namespace Vitorm.Mysql
 {
     public class SqlTransactionScope_Command : ITransactionScope
     {

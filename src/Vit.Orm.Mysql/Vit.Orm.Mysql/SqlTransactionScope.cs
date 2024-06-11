@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Data;
 
-using Vit.Orm.Sql;
-using Vit.Orm.Sql.Transaction;
+using Vitorm.Sql;
+using Vitorm.Sql.Transaction;
 using Dapper;
 using SqlTransaction = MySqlConnector.MySqlTransaction;
 
-namespace Vit.Orm.Mysql
+namespace Vitorm.Mysql
 {
-    public class SqlTransactionScope : Vit.Orm.Sql.Transaction.SqlTransactionScope
+    public class SqlTransactionScope : Vitorm.Sql.Transaction.SqlTransactionScope
     {
         int savePointCount = 0;
         public DbTransactionWrap CreateTransactionSavePoint(IDbTransaction originalTransaction)

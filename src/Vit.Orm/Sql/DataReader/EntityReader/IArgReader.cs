@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Vit.Orm.Sql.DataReader
+namespace Vitorm.Sql.DataReader
 {
     public interface IArgReader
     {

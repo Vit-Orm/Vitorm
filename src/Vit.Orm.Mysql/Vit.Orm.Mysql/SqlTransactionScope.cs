@@ -3,8 +3,8 @@ using System.Data;
 
 using Vit.Orm.Sql;
 using Vit.Orm.Sql.Transaction;
-
-using SqlTransaction = MySql.Data.MySqlClient.MySqlTransaction;
+using Dapper;
+using SqlTransaction = MySqlConnector.MySqlTransaction;
 
 namespace Vit.Orm.Mysql
 {
@@ -26,9 +26,11 @@ namespace Vit.Orm.Mysql
             IDbTransaction originalTransaction = GetCurrentTransaction();
             if (originalTransaction == null)
             {
-                var dbConnection = dbContext.dbConnection;
+                var dbConnection = dbContext.dbConnection as MySqlConnector.MySqlConnection;
                 if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
+
                 originalTransaction = dbConnection.BeginTransaction();
+                dbConnection.Execute("SET autocommit=0;", transaction: originalTransaction);
 
                 transactionWrap = new DbTransactionWrap(originalTransaction);
             }
@@ -41,35 +43,36 @@ namespace Vit.Orm.Mysql
             return transactionWrap;
         }
 
-    }
 
-    public class DbTransactionWrapSavePoint : DbTransactionWrap
-    {
-        public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
-        string savePoint;
-        public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePoint) : base(transaction)
-        {
-            this.savePoint = savePoint;
-            sqlTran.Save(savePoint);
-        }
 
-        public override void Commit()
+        public class DbTransactionWrapSavePoint : DbTransactionWrap
         {
-            sqlTran.Release(savePoint);
-            TransactionState = ETransactionState.Committed;
-        }
+            public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
+            string savePointName;
+            public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
+            {
+                this.savePointName = savePointName;
+                sqlTran.Save(savePointName);
+            }
 
-        public override void Dispose()
-        {
-            if (TransactionState == ETransactionState.Active)
-                sqlTran.Rollback(savePoint);
-            TransactionState = ETransactionState.Disposed;
-        }
+            public override void Commit()
+            {
+                sqlTran.Release(savePointName);
+                TransactionState = ETransactionState.Committed;
+            }
 
-        public override void Rollback()
-        {
-            sqlTran.Rollback(savePoint);
-            TransactionState = ETransactionState.RolledBack;
+            public override void Dispose()
+            {
+                if (TransactionState == ETransactionState.Active)
+                    sqlTran.Rollback(savePointName);
+                TransactionState = ETransactionState.Disposed;
+            }
+
+            public override void Rollback()
+            {
+                sqlTran.Rollback(savePointName);
+                TransactionState = ETransactionState.RolledBack;
+            }
         }
     }
 }

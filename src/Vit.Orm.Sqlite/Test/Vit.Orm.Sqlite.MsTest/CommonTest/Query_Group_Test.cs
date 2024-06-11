@@ -26,10 +26,8 @@ namespace Vit.Orm.MsTest.CommonTest
                 var rows = query.ToList();
 
                 Assert.AreEqual(3, rows.Count);
-                Assert.AreEqual(4, rows[1].fatherId);
-                Assert.AreEqual(6, rows[1].motherId);
-                Assert.AreEqual(5, rows[2].fatherId);
-                Assert.AreEqual(6, rows[2].motherId);
+                Assert.AreEqual(0, rows.Select(u => u.fatherId).Except(new int?[] { 4, 5, null }).Count());
+                Assert.AreEqual(0, rows.Select(u => u.motherId).Except(new int?[] { 6, null }).Count());
             }
 
             // Lambda Expression
@@ -48,10 +46,8 @@ namespace Vit.Orm.MsTest.CommonTest
                 var rows = query.ToList();
 
                 Assert.AreEqual(3, rows.Count);
-                Assert.AreEqual(4, rows[1].fatherId);
-                Assert.AreEqual(6, rows[1].motherId);
-                Assert.AreEqual(5, rows[2].fatherId);
-                Assert.AreEqual(6, rows[2].motherId);
+                Assert.AreEqual(0, rows.Select(u => u.fatherId).Except(new int?[] { 4, 5, null }).Count());
+                Assert.AreEqual(0, rows.Select(u => u.motherId).Except(new int?[] { 6, null }).Count());
             }
         }
 

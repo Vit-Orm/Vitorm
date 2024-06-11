@@ -20,10 +20,14 @@ sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqli
 --------------
 # cur
 
+
+
+# rename to Vitorm
+
 # support ElasticSearch
 # support ClickHouse
 
-# support Mysql
+
 
 # remove depency of Dapper
 # try to make it clean
@@ -35,7 +39,7 @@ sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqli
 # TODO
 
 # Save SaveRange
-
+# DbFunction.PrimitiveSql
 
 
 #region #4 cross database join
@@ -68,4 +72,9 @@ select `t2`.`id`,`t2`.`name`,`t2`.`birth`,`t2`.`fatherId`,`t2`.`motherId`,`t3`.`
 	 left join `User` as t1 on `t0`.`fatherId` = `t1`.`id`
  ) as t2
  left join `User` as t3 on `t2`.`motherId` = `t3`.`id`
-  
+
+
+--------------
+# Done
+
+# support Mysql

@@ -46,31 +46,31 @@ namespace Vit.Orm.SqlServer
     public class DbTransactionWrapSavePoint : DbTransactionWrap
     {
         public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
-        string savePoint;
-        public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePoint) : base(transaction)
+        string savePointName;
+        public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
         {
-            this.savePoint = savePoint;
-            sqlTran.Save(savePoint);
+            this.savePointName = savePointName;
+            sqlTran.Save(savePointName);
         }
 
         public override void Commit()
         {
             // no need to commit savepoint for sqlserver, ref: https://learn.microsoft.com/en-us/dotnet/api/microsoft.data.sqlclient.sqltransaction.save
 
-            //sqlTran.Commit(savePoint);
+            //sqlTran.Commit(savePointName);
             TransactionState = ETransactionState.Committed;
         }
 
         public override void Dispose()
         {
             if (TransactionState == ETransactionState.Active)
-                sqlTran.Rollback(savePoint);
+                sqlTran.Rollback(savePointName);
             TransactionState = ETransactionState.Disposed;
         }
 
         public override void Rollback()
         {
-            sqlTran.Rollback(savePoint);
+            sqlTran.Rollback(savePointName);
             TransactionState = ETransactionState.RolledBack;
         }
     }

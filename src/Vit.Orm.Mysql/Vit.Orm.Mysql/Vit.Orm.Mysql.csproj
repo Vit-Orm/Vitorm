@@ -10,12 +10,9 @@
         <LangVersion>9.0</LangVersion>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="SqlTransactionScope.cs" />
-    </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MySql.Data" Version="8.4.0" />
+        <PackageReference Include="MySqlConnector" Version="2.3.7" />
     </ItemGroup>
 
     <ItemGroup>

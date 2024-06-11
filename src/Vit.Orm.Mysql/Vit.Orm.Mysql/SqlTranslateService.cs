@@ -67,7 +67,7 @@ namespace Vit.Orm.Mysql
                             // ##1 ToString
                             case nameof(object.ToString):
                                 {
-                                    return $"cast({EvalExpression(arg, methodCall.@object)} as varchar(1000))";
+                                    return $"cast({EvalExpression(arg, methodCall.@object)} as char)";
                                 }
 
                             #region ##2 String method:  StartsWith EndsWith Contains
@@ -75,19 +75,19 @@ namespace Vit.Orm.Mysql
                                 {
                                     var str = methodCall.@object;
                                     var value = methodCall.arguments[0];
-                                    return $"{EvalExpression(arg, str)} like {EvalExpression(arg, value)}+'%'";
+                                    return $"{EvalExpression(arg, str)} like concat({EvalExpression(arg, value)},'%')";
                                 }
                             case nameof(string.EndsWith): // String.EndsWith
                                 {
                                     var str = methodCall.@object;
                                     var value = methodCall.arguments[0];
-                                    return $"{EvalExpression(arg, str)} like '%'+{EvalExpression(arg, value)}";
+                                    return $"{EvalExpression(arg, str)} like concat('%',{EvalExpression(arg, value)})";
                                 }
                             case nameof(string.Contains) when methodCall.methodCall_typeName == "String": // String.Contains
                                 {
                                     var str = methodCall.@object;
                                     var value = methodCall.arguments[0];
-                                    return $"{EvalExpression(arg, str)} like '%'+{EvalExpression(arg, value)}+'%'";
+                                    return $"{EvalExpression(arg, str)} like concat('%',{EvalExpression(arg, value)},'%')";
                                 }
                                 #endregion
                         }
@@ -117,6 +117,12 @@ namespace Vit.Orm.Mysql
 
                             if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
+
+                        if (targetType == typeof(string))
+                        {
+                            return $"cast({EvalExpression(arg, convert.body)} as char)";
+                        }
+
                         return $"cast({EvalExpression(arg, convert.body)} as {targetDbType})";
                     }
                 case nameof(ExpressionType.Add):
@@ -219,7 +225,7 @@ CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
               */
             var entityDescriptor = arg.entityDescriptor;
 
-            var columns = entityDescriptor.allColumns;
+            var columns = entityDescriptor.columns;
 
             // #1 GetSqlParams 
             Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Orm.Sql.SqlTranslate;
@@ -13,15 +14,14 @@ namespace Vit.Orm.Mysql.TranslateService
 
 -- multiple
 WITH tmp AS (
-    select  ('u' + cast(u.id as varchar(max)) + '_' + COALESCE(cast(father.id as varchar(max)),'') ) as name , u.id 
-    from [User] u
-    left join [User] father on u.fatherId = father.id 
+    select  concat('u' , cast(u.id as char) , '_' , COALESCE(cast(father.id as char),'') ) as name , u.id 
+    from `User` u
+    left join `User` father on u.fatherId = father.id 
     where u.id > 0
 )
-UPDATE [User]
-  SET name =  tmp.name
-  from [User] t0
-  inner join tmp on t0.id=tmp.id ;
+UPDATE `User` t0,tmp
+  SET t0.name =  tmp.name
+where t0.id = tmp.id ;
          */
         public override string BuildQuery(QueryTranslateArgument arg, CombinedStream stream)
         {
@@ -39,21 +39,20 @@ UPDATE [User]
             sql += sqlInner;
 
             sql += $"{NewLine}){NewLine}";
-            sql += $"UPDATE {sqlTranslator.DelimitIdentifier(tableName)}{NewLine}";
+            sql += $"UPDATE {sqlTranslator.DelimitIdentifier(tableName)} t0, tmp{NewLine}";
             sql += $"Set ";
 
             var sqlToUpdateCols = columnsToUpdate
                 .Select(m => m.name)
-                .Select(name => $"{NewLine}  {sqlTranslator.DelimitIdentifier(name)} = {sqlTranslator.GetSqlField("tmp", name)} ");
+                .Select(name => $"{NewLine}  {sqlTranslator.GetSqlField("t0", name)} = {sqlTranslator.GetSqlField("tmp", name)} ");
 
             sql += string.Join(",", sqlToUpdateCols);
 
-            sql += $"{NewLine}from {sqlTranslator.DelimitIdentifier(tableName)} t0";
-            sql += $"{NewLine}inner join tmp on t0.{sqlTranslator.DelimitIdentifier(keyName)}=tmp.{sqlTranslator.DelimitIdentifier(keyName)}";
+            sql += $"{NewLine}where {sqlTranslator.GetSqlField("t0", keyName)}={sqlTranslator.GetSqlField("tmp", keyName)} ";
 
             return sql;
         }
- 
+
 
         public ExecuteUpdateTranslateService(SqlTranslateService sqlTranslator) : base(sqlTranslator)
         {

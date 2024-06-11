@@ -10,18 +10,32 @@ namespace Vit.Extensions
 {
     public static class DbContext_Extensions
     {
+        /*
+         // ref: https://dev.mysql.com/doc/refman/8.4/en/savepoint.html
+         //  https://dev.mysql.com/doc/refman/8.4/en/commit.html
+
+        START TRANSACTION;
+            SET autocommit=0;
+            SAVEPOINT tran0;
+                select '';
+            -- ROLLBACK WORK TO SAVEPOINT tran0;
+            RELEASE SAVEPOINT tran0;
+        COMMIT;
+        -- ROLLBACK;
+         */
         public static SqlDbContext UseMysql(this SqlDbContext dbContext, string ConnectionString)
         {
             ISqlTranslateService sqlTranslateService =   Vit.Orm.Mysql.SqlTranslateService.Instance;
 
-            Func<IDbConnection> createDbConnection = () => new MySql.Data.MySqlClient.MySqlConnection(ConnectionString);
+            Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(ConnectionString);
 
             Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
 
 
             dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
 
-            //dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope(dbContext);
+            dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope(dbContext);
+            //dbContext.createTransactionScope = (dbContext) => new Vit.Orm.Mysql.SqlTransactionScope_Command(dbContext);
 
             return dbContext;
         }

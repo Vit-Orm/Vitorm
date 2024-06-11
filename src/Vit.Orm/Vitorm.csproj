@@ -10,6 +10,12 @@
         <LangVersion>9.0</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <Authors>Lith</Authors>
+        <Description>simple orm</Description>
+        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="Dapper.Contrib" Version="2.0.78" />

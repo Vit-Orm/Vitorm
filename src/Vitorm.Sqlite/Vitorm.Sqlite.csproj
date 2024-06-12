@@ -13,7 +13,7 @@
     <PropertyGroup>
         <Authors>Lith</Authors>
         <Description>orm for Sqlite</Description>
-        <PackageProjectUrl>https://github.com/VitormLib/Vitorm.Sqlite</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

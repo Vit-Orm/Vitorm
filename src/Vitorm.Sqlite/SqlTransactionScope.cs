@@ -8,6 +8,7 @@ using SqlTransaction = Microsoft.Data.Sqlite.SqliteTransaction;
 
 namespace Vitorm.Sqlite
 {
+    // sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/transactions  
     public class SqlTransactionScope : Vitorm.Sql.Transaction.SqlTransactionScope
     {
         int savePointCount = 0;

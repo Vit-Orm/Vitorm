@@ -13,7 +13,7 @@
     <PropertyGroup>
         <Authors>Lith</Authors>
         <Description>orm for SqlServer</Description>
-        <PackageProjectUrl>https://github.com/VitormLib/Vitorm.SqlServer</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

@@ -13,7 +13,7 @@
     <PropertyGroup>
         <Authors>Lith</Authors>
         <Description>orm for MySql</Description>
-        <PackageProjectUrl>https://github.com/VitormLib/Vitorm.MySql</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

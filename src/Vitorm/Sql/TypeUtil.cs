@@ -39,7 +39,7 @@ namespace Vitorm.Sql
 
         public static object ConvertToUnderlyingType(object value, Type underlyingType)
         {
-            if (value == null || value == DBNull.Value) return null;
+            if (value == null || value is DBNull) return null;
 
             if (!underlyingType.IsInstanceOfType(value))
                 value = Convert.ChangeType(value, underlyingType);

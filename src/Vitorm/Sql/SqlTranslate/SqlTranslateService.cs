@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vitorm.Entity;
 using System.Linq;
-using System.Linq.Expressions;
-using Vit.Linq.ExpressionTree.ExpressionConvertor;
+using Vitorm.StreamQuery;
+using System.Collections;
+using System.Text;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -210,11 +210,40 @@ namespace Vitorm.Sql.SqlTranslate
                     return GetSqlField(data, arg.dbContext);
 
                 case NodeType.Constant:
-                    ExpressionNode_Constant constant = data;
-                    var paramName = arg.NewParamName();
-                    arg.sqlParam[paramName] = constant.value;
-                    return "@" + paramName;
+                    {
+                        ExpressionNode_Constant constant = data;
+                        var value = constant.value;
+                        if (value is not string && value is IEnumerable enumerable)
+                        {
+                            StringBuilder sql = null;
 
+                            foreach (var item in enumerable)
+                            {
+                                if (sql == null)
+                                {
+                                    sql = new StringBuilder("(");
+                                    var paramName = arg.NewParamName();
+                                    arg.sqlParam[paramName] = item;
+                                    sql.Append(GenerateParameterName(paramName));
+                                }
+                                else
+                                {
+                                    var paramName = arg.NewParamName();
+                                    arg.sqlParam[paramName] = item;
+                                    sql.Append(",").Append(GenerateParameterName(paramName));
+                                }
+                            }
+                            if (sql == null) return "(null)";
+                            return sql.Append(")").ToString();
+                        }
+                        else
+                        {
+                            var paramName = arg.NewParamName();
+                            arg.sqlParam[paramName] = constant.value;
+                            return GenerateParameterName(paramName);
+                        }
+
+                    }
                     #endregion
             }
             throw new NotSupportedException("[QueryTranslator] not suported nodeType: " + data.nodeType);
@@ -255,7 +284,7 @@ namespace Vitorm.Sql.SqlTranslate
                 foreach (var column in columns)
                 {
                     var columnName = column.name;
-                    var value = column.Get(entity);
+                    var value = column.GetValue(entity);
 
                     sqlParam[columnName] = value;
                 }
@@ -318,7 +347,7 @@ namespace Vitorm.Sql.SqlTranslate
                 foreach (var column in entityDescriptor.allColumns)
                 {
                     var columnName = column.name;
-                    var value = column.Get(entity);
+                    var value = column.GetValue(entity);
 
                     sqlParam[columnName] = value;
                 }
@@ -361,19 +390,33 @@ namespace Vitorm.Sql.SqlTranslate
             return sql;
         }
 
-
-        public virtual string PrepareDeleteRange(SqlTranslateArgument arg)
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys)
         {
-            /* //sql
-            delete from user where id in ( 7 ) ;
-            */
+            //  delete from user where id in ( 7 ) ;
+
             var entityDescriptor = arg.entityDescriptor;
 
-            // #2 build sql
-            string sql = $@"delete from {DelimitIdentifier(entityDescriptor.tableName)} where {DelimitIdentifier(entityDescriptor.keyName)} in {GenerateParameterName("keys")};";
+            StringBuilder sql = new StringBuilder();
+            Dictionary<string, object> sqlParam = new();
 
-            return sql;
+            sql.Append("delete from ").Append(DelimitIdentifier(entityDescriptor.tableName)).Append(" where ").Append(DelimitIdentifier(entityDescriptor.keyName)).Append(" in (");
+
+            int keyIndex = 0;
+            foreach (var key in keys)
+            {
+                var paramName = "p" + (keyIndex++);
+                sql.Append(GenerateParameterName(paramName)).Append(",");
+                sqlParam[paramName] = key;
+            }
+            if (keyIndex == 0) sql.Append("null);");
+            else
+            {
+                sql.Length--;
+                sql.Append(");");
+            }
+            return (sql.ToString(), sqlParam);
         }
+
 
 
         public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);

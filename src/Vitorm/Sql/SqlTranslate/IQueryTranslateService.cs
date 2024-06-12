@@ -1,4 +1,4 @@
-﻿using Vit.Linq.ExpressionTree.CollectionsQuery;
+﻿using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate
 {

@@ -1,18 +1,16 @@
-﻿using Dapper;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-
-using Vit.Extensions.Linq_Extensions;
-using Vit.Linq.ExpressionTree.CollectionsQuery;
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq;
 using Vitorm.Entity;
 using Vitorm.Sql.Transaction;
 using Vitorm.Sql.SqlTranslate;
+using Vitorm.StreamQuery;
+using Vit.Extensions.Vitorm_Extensions;
+using Vitorm.Extensions;
 
 namespace Vitorm.Sql
 {
@@ -85,14 +83,21 @@ namespace Vitorm.Sql
             var sqlParam = GetSqlParams(entity);
 
             // #3 execute
-            var newKeyValue = ExecuteScalar(sql: sql, param: (object)sqlParam);
-
-            if (newKeyValue != null)
+            if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
             {
                 var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
+                var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
                 newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                entityDescriptor.key.Set(entity, newKeyValue);
+                if (newKeyValue != null)
+                {
+                    entityDescriptor.key.SetValue(entity, newKeyValue);
+                }
             }
+            else
+            {
+                Execute(sql: sql, param: sqlParam);
+            }
+
             return entity;
         }
         public override void AddRange<Entity>(IEnumerable<Entity> entitys)
@@ -105,20 +110,33 @@ namespace Vitorm.Sql
             (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
 
             // #2 execute
-            var affectedRowCount = 0;
+            var affectedRowCount = 0; 
 
-            var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-            foreach (var entity in entitys)
+            if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
             {
-                var sqlParam = GetSqlParams(entity);
-                var newKeyValue = ExecuteScalar(sql: sql, param: (object)sqlParam);
-                if (newKeyValue != null)
+                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
+                foreach (var entity in entitys)
                 {
+                    var sqlParam = GetSqlParams(entity);
+                    var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
                     newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                    entityDescriptor.key.Set(entity, newKeyValue);
+                    if (newKeyValue != null)
+                    {
+                        entityDescriptor.key.SetValue(entity, newKeyValue);
+                    }
+                    affectedRowCount++;
                 }
-                affectedRowCount++;
             }
+            else
+            {
+                foreach (var entity in entitys)
+                {
+                    var sqlParam = GetSqlParams(entity);
+                    Execute(sql: sql, param: sqlParam);
+                    affectedRowCount++;
+                }
+            }
+
         }
 
         #endregion
@@ -142,13 +160,15 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            using var reader = ExecuteReader(sql: sql, param: (object)sqlParam);
+            using var reader = ExecuteReader(sql: sql, param: sqlParam);
             if (reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(typeof(Entity));
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    column.Set(entity, TypeUtil.ConvertToType(reader[column.name], column.type));
+                    var value = TypeUtil.ConvertToType(reader[column.name], column.type);
+                    if (value != null)
+                        column.SetValue(entity, value);
                 }
                 return entity;
             }
@@ -189,7 +209,7 @@ namespace Vitorm.Sql
 
                     (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
 
-                    return Execute(sql: sql, param: (object)sqlParam);
+                    return Execute(sql: sql, param: sqlParam);
                 }
 
 
@@ -201,7 +221,7 @@ namespace Vitorm.Sql
                 // #3.3.2 execute and read result
                 switch (combinedStream.method)
                 {
-                    case nameof(Queryable_Extensions.ToExecuteString):
+                    case nameof(Orm_Extensions.ToExecuteString):
                         {
                             // ToExecuteString
 
@@ -220,10 +240,10 @@ namespace Vitorm.Sql
 
                             (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                            var count = ExecuteScalar(sql: sql, param: (object)sqlParam);
+                            var count = ExecuteScalar(sql: sql, param: sqlParam);
                             return Convert.ToInt32(count);
                         }
-                    case nameof(Queryable_Extensions.ExecuteDelete):
+                    case nameof(Orm_Extensions.ExecuteDelete):
                         {
                             // ExecuteDelete
 
@@ -233,7 +253,7 @@ namespace Vitorm.Sql
 
                             (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
 
-                            var count = Execute(sql: sql, param: (object)sqlParam);
+                            var count = Execute(sql: sql, param: sqlParam);
                             return count;
                         }
                     case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
@@ -244,7 +264,7 @@ namespace Vitorm.Sql
 
                             (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                            using var reader = ExecuteReader(sql: sql, param: (object)sqlParam);
+                            using var reader = ExecuteReader(sql: sql, param: sqlParam);
                             return dataReader.ReadData(reader);
                         }
                     case "ToList":
@@ -259,7 +279,7 @@ namespace Vitorm.Sql
 
                             (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                            using var reader = ExecuteReader(sql: sql, param: (object)sqlParam);
+                            using var reader = ExecuteReader(sql: sql, param: sqlParam);
                             return dataReader.ReadData(reader);
                         }
                 }
@@ -288,7 +308,7 @@ namespace Vitorm.Sql
             var sqlParam = GetSqlParams(entity);
 
             // #3 execute
-            var affectedRowCount = Execute(sql: sql, param: (object)sqlParam);
+            var affectedRowCount = Execute(sql: sql, param: sqlParam);
 
             return affectedRowCount;
 
@@ -309,7 +329,7 @@ namespace Vitorm.Sql
             foreach (var entity in entitys)
             {
                 var sqlParam = GetSqlParams(entity);
-                affectedRowCount += Execute(sql: sql, param: (object)sqlParam);
+                affectedRowCount += Execute(sql: sql, param: sqlParam);
             }
             return affectedRowCount;
         }
@@ -322,9 +342,8 @@ namespace Vitorm.Sql
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
-            var key = entityDescriptor.key.Get(entity);
+            var key = entityDescriptor.key.GetValue(entity);
             return DeleteByKey<Entity>(key);
         }
 
@@ -332,9 +351,8 @@ namespace Vitorm.Sql
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
-            var keys = entitys.Select(entity => entityDescriptor.key.Get(entity)).ToList();
+            var keys = entitys.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
             return DeleteByKeys<Entity, object>(keys);
         }
 
@@ -353,7 +371,7 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            var affectedRowCount = Execute(sql: sql, param: (object)sqlParam);
+            var affectedRowCount = Execute(sql: sql, param: sqlParam);
 
             return affectedRowCount;
 
@@ -365,15 +383,10 @@ namespace Vitorm.Sql
             SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
             // #1 prepare sql
-            string sql = sqlTranslateService.PrepareDeleteRange(arg);
+            (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
 
-            // #2 get sql params
-            var sqlParam = new Dictionary<string, object>();
-            sqlParam["keys"] = keys;
-
-            // #3 execute
-            var affectedRowCount = Execute(sql: sql, param: (object)sqlParam);
-
+            // #2 execute
+            var affectedRowCount = Execute(sql: sql, param: sqlParam);
             return affectedRowCount;
         }
 
@@ -398,27 +411,27 @@ namespace Vitorm.Sql
 
         #region Execute
 
-        public int commandTimeout = 0;
+        public int? commandTimeout;
 
-        public virtual int Execute(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.Execute(sql, param: param, transaction: transaction, commandTimeout: commandTimeout, commandType: commandType);
+            return dbConnection.Execute(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual IDataReader ExecuteReader(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.ExecuteReader(sql, param: param, transaction: transaction, commandTimeout: commandTimeout, commandType: commandType);
+            return dbConnection.ExecuteReader(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual object ExecuteScalar(string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.ExecuteScalar(sql, param: param, transaction: transaction, commandTimeout: commandTimeout, commandType: commandType);
+            return dbConnection.ExecuteScalar(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
         #endregion
 

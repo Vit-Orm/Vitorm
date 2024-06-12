@@ -25,6 +25,6 @@ namespace Vitorm.Sql.SqlTranslate
         public Dictionary<string, object> sqlParam { get; protected set; } = new Dictionary<string, object>();
 
         protected int paramIndex = 0;
-        public string NewParamName() => "param" + (paramIndex++);
+        public string NewParamName() => "p" + (paramIndex++);
     }
 }

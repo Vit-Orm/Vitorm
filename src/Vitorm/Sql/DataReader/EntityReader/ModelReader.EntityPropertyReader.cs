@@ -20,11 +20,11 @@ namespace Vitorm.Sql.DataReader
                 var value = Read(reader);
                 if (value != null)
                 {
-                    column.Set(entity, value);
+                    column.SetValue(entity, value);
                     return true;
                 }
 
-                if (column.isPrimaryKey) return false;
+                if (column.isKey) return false;
                 return true;
             }
         }

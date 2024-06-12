@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Linq.ExpressionTree.CollectionsQuery;
+
 using Vitorm.Sql.DataReader;
+using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate
 {

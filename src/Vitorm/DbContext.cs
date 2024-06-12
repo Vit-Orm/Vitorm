@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Transactions;
 
 using Vit.Linq.ExpressionTree;
+
 using Vitorm.Entity;
 
 namespace Vitorm
@@ -13,7 +12,7 @@ namespace Vitorm
     {
         public DbContext() { }
 
-        public virtual ExpressionConvertService convertService => ExpressionConvertService.Instance;
+        public virtual ExpressionConvertService convertService => Environment.convertService;
 
         public Func<Type, IDbSet> dbSetCreator { set; protected get; }
 

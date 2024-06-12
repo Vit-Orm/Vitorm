@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
 using Vitorm.DataReader;
 using Vitorm.Sql.DataReader;
-using Vit.Linq.ExpressionTree.CollectionsQuery;
-using Vit.Extensions.Linq_Extensions;
-using System.IO;
-
+using Vitorm.StreamQuery;
+using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -39,7 +35,7 @@ namespace Vitorm.Sql.SqlTranslate
                         if (arg.dataReader == null) arg.dataReader = reader;
                         return prefix + " " + "count(*)";
                     }
-                case "" or null or "ToList" or nameof(Queryable_Extensions.ToExecuteString):
+                case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
                     {
                         var reader = new EntityReader();
                         return prefix + " " + BuildReader(arg, stream, reader);

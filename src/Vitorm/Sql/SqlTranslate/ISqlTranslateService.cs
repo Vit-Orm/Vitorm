@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Linq.ExpressionTree.CollectionsQuery;
+
 using Vitorm.Entity;
+using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -54,7 +55,7 @@ namespace Vitorm.Sql.SqlTranslate
         // #4 Delete: PrepareDelete PrepareDeleteRange PrepareExecuteDelete
         string PrepareDelete(SqlTranslateArgument arg);
 
-        string PrepareDeleteRange(SqlTranslateArgument arg);
+        (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys);
 
         (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg,CombinedStream combinedStream);
 

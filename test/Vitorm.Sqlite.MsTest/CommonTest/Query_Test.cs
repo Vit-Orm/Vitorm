@@ -62,6 +62,10 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3, userList.First().id);
             }
             {
+                var userList = userQuery.Where(u => u.id == 3).Where(m => m.fatherId == 5).ToList();
+                Assert.AreEqual(3, userList.First().id);
+            }
+            {
                 var userList = userQuery.Where(u => u.id + 1 == 4).Where(m => m.fatherId == 5).ToList();
                 Assert.AreEqual(3, userList.First().id);
             }
@@ -238,6 +242,10 @@ namespace Vitorm.MsTest.CommonTest
             var userQuery = dbContext.Query<User>();
 
             {
+                var id = userQuery.Select(u => u.id).FirstOrDefault();
+                Assert.AreEqual(1, id);
+            }
+            {
                 var user = userQuery.LastOrDefault();
                 Assert.AreEqual(6, user?.id);
             }
@@ -322,6 +330,22 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
+            // string in
+            {
+                var userList = userQuery.Where(u => new[] { "u3", "u5" }.Contains(u.name)).ToList();
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(3, userList.First().id);
+                Assert.AreEqual(5, userList.Last().id);
+            }
+            // string not in
+            {
+                var userList = userQuery.Where(u => !new[] { "u3", "u5" }.Contains(u.name)).ToList();
+                Assert.AreEqual(4, userList.Count);
+                Assert.AreEqual(1, userList.First().id);
+                Assert.AreEqual(4, userList[2].id);
+            }
+
+            // numeric in
             {
                 var userList = userQuery.Where(u => new[] { 3, 5 }.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);

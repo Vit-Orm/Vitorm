@@ -44,7 +44,7 @@ namespace Vitorm.StreamQuery
                         else
                         {
                             var parameterName = resultSelector.parameterNames[0];
-                            var parameterValue = (ExpressionNode)combinedStream.select.fields;
+                            var parameterValue = combinedStream.select.fields;
 
                             var newArg = arg.WithParameter(parameterName, parameterValue);
                             var groupByFields = ReadFields(newArg, resultSelector);

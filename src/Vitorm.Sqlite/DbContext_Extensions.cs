@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Data;
 
-using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 
@@ -12,14 +10,12 @@ namespace Vit.Extensions
     {
         public static SqlDbContext UseSqlite(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslateService sqlTranslateService =   Vitorm.Sqlite.SqlTranslateService.Instance;
+            ISqlTranslateService sqlTranslateService = Vitorm.Sqlite.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.Sqlite.SqliteConnection(ConnectionString);
 
-            Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
 
-
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
 
             dbContext.createTransactionScope = (dbContext) => new Vitorm.Sqlite.SqlTransactionScope(dbContext);
 

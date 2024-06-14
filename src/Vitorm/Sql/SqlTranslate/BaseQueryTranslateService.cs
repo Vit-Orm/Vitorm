@@ -161,7 +161,7 @@ namespace Vitorm.Sql.SqlTranslate
         protected virtual string BuildReader(QueryTranslateArgument arg, CombinedStream stream, EntityReader reader)
         {
             var resultEntityType = arg.resultEntityType;
-            ExpressionNode selectedFields = stream.select?.fields as ExpressionNode;
+            ExpressionNode selectedFields = stream.select?.fields;
             if (selectedFields == null)
             {
                 if (stream.joins?.Any() != true && resultEntityType != null)

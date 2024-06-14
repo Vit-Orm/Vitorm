@@ -37,7 +37,7 @@ namespace Vitorm.StreamQuery
                         {
                             // merge multiple join
                             finalStream = combinedStream;
-                            parameterValueForLeftStream = combinedStream.select.fields as ExpressionNode;
+                            parameterValueForLeftStream = combinedStream.select.fields;
                             break;
                         }
                         throw new NotSupportedException($"[StreamReader] not support inner select in join sentence");

@@ -104,7 +104,7 @@ namespace Vitorm.StreamQuery
 
             return StreamReader.DeepClone(node, GetParameter);
         }
-   
+
     }
 
     public partial class StreamReader
@@ -289,7 +289,7 @@ namespace Vitorm.StreamQuery
                                         case CombinedStream combinedStream:
                                             {
                                                 var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = (ExpressionNode)combinedStream.select.fields;
+                                                var parameterValue = combinedStream.select.fields;
                                                 var newArg = arg.WithParameter(parameterName, parameterValue);
                                                 var select = ReadFieldSelect(newArg, resultSelector);
 
@@ -315,7 +315,7 @@ namespace Vitorm.StreamQuery
                                         case CombinedStream combinedStream:
                                             {
                                                 var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = combinedStream.select.fields as ExpressionNode;
+                                                var parameterValue = combinedStream.select.fields;
                                                 var select = ReadFieldSelect(arg.WithParameter(parameterName, parameterValue), resultSelector);
 
                                                 return new StreamToUpdate(source) { fieldsToUpdate = select.fields };
@@ -432,17 +432,26 @@ namespace Vitorm.StreamQuery
             if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member)
                 throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {node.nodeType}");
 
+            bool isDefaultSelect = false;
+            var fields = arg.DeepClone(node);
 
-            bool? existCalculatedField = null;
+            if (fields?.nodeType == NodeType.Member)
+            {
+                ExpressionNode_Member member = fields;
+                if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null) 
+                    isDefaultSelect = true;
+            }
+            else if (fields?.nodeType == NodeType.New)
+            {
+                bool? existCalculatedField = null;
+                if (existCalculatedField != true)
+                    existCalculatedField = fields.constructorArgs?.Exists(m => m?.value?.nodeType != NodeType.Member && m?.value?.nodeType != NodeType.New);
 
-            var fields = arg.DeepClone(node) as ExpressionNode_New;
+                if (existCalculatedField != true)
+                    existCalculatedField = fields.memberArgs?.Exists(m => m?.value?.nodeType != NodeType.Member && m?.value?.nodeType != NodeType.New);
 
-            if (existCalculatedField != true)
-                existCalculatedField = fields.constructorArgs?.Exists(m => m?.value?.nodeType != NodeType.Member && m?.value?.nodeType != NodeType.New);
-
-            if (existCalculatedField != true)
-                existCalculatedField = fields.memberArgs?.Exists(m => m?.value?.nodeType != NodeType.Member && m?.value?.nodeType != NodeType.New);
-            var isDefaultSelect = !(existCalculatedField ?? false);
+                isDefaultSelect = !(existCalculatedField ?? false);
+            }
 
             return new() { fields = fields, isDefaultSelect = isDefaultSelect };
         }

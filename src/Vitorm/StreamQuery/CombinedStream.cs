@@ -58,7 +58,7 @@ value(Vit.Linq.Converter.OrderedQueryable`1[Vit.Linq.MsTest.Converter.Join_Test+
         public List<StreamToJoin> joins { get; set; }
         public ExpressionNode GetSelectedFields(Type entityType)
         {
-            var parameterValue = select?.fields as ExpressionNode;
+            var parameterValue = select?.fields;
             if (parameterValue == null && joins?.Any() != true)
             {
                 parameterValue = ExpressionNode_RenameableMember.Member(stream: source, entityType);

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vit.Linq;
-using Vitorm.Entity;
 using Vitorm.Sql.Transaction;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
@@ -22,7 +21,6 @@ namespace Vitorm.Sql
         {
             base.Dispose();
 
-
             transactionScope?.Dispose();
             transactionScope = null;
 
@@ -34,25 +32,12 @@ namespace Vitorm.Sql
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
-
-        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, Func<Type, IEntityDescriptor> getEntityDescriptor)
+        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection)
         {
             this.sqlTranslateService = sqlTranslateService;
             this.createDbConnection = createDbConnection;
-
-            this.dbSetCreator = (entityType) =>
-            {
-                var entityDescriptor = getEntityDescriptor(entityType);
-                return SqlDbSetConstructor.CreateDbSet(this, entityType, entityDescriptor);
-            };
         }
-        public virtual void Init(ISqlTranslateService sqlTranslator, Func<IDbConnection> createDbConnection, Func<Type, IDbSet> dbSetCreator)
-        {
-            this.sqlTranslateService = sqlTranslator;
-            this.createDbConnection = createDbConnection;
 
-            this.dbSetCreator = dbSetCreator;
-        }
 
         #region #0 Schema :  Create
 
@@ -110,7 +95,7 @@ namespace Vitorm.Sql
             (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
 
             // #2 execute
-            var affectedRowCount = 0; 
+            var affectedRowCount = 0;
 
             if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
             {
@@ -184,18 +169,12 @@ namespace Vitorm.Sql
             Func<Expression, Type, object> QueryExecutor = (expression, type) =>
             {
                 // #1 convert to ExpressionNode
-                // (query) => query.Where().OrderBy().Skip().Take().Select().ToList();
-                // (users) => users.SelectMany(
-                //      user => users.Where(father => (father.id == user.fatherId)).DefaultIfEmpty(),
-                //      (user, father) => new <>f__AnonymousType4`2(user = user, father = father)
-                //  ).Where().Select();
                 var isArgument = QueryableBuilder.QueryTypeNameCompare(dbContextId);
                 ExpressionNode node = convertService.ConvertToData(expression, autoReduce: true, isArgument: isArgument);
                 //var strNode = Json.Serialize(node);
 
 
-                // #2 convert to Streams
-                // {select,left,joins,where,order,skip,take}
+                // #2 convert to Stream
                 var stream = StreamReader.ReadNode(node);
                 //var strStream = Json.Serialize(stream);
 

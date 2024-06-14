@@ -10,7 +10,7 @@ namespace Vitorm.Entity.Dapper
         static ConcurrentDictionary<Type, EntityDescriptor> descMap = new();
 
 
-        public static EntityDescriptor GetEntityDescriptor(Type entityType)
+        public static IEntityDescriptor GetEntityDescriptor(Type entityType)
         {
             if (descMap.TryGetValue(entityType, out var entityDescriptor)) return entityDescriptor;
 
@@ -20,7 +20,7 @@ namespace Vitorm.Entity.Dapper
             return entityDescriptor;
         }
 
-        public static EntityDescriptor GetEntityDescriptor<Entity>()
+        public static IEntityDescriptor GetEntityDescriptor<Entity>()
         {
             return GetEntityDescriptor(typeof(Entity));
         }

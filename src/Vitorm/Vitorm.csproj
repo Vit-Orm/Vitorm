@@ -14,14 +14,22 @@
         <Authors>Lith</Authors>
         <Description>Vitorm : simple orm</Description>
         <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
+        <PackageIcon>vitorm_logo_v1.png</PackageIcon>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\..\doc\vitorm_logo_v1.png">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Vit.Linq" Version="2.2.22-temp-ki9" />
+        <ProjectReference Include="..\..\..\Vit.Linq\src\Vit.Linq\Vit.Linq.csproj" />
     </ItemGroup>
 
 </Project>

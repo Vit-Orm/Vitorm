@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using Vitorm.Entity;
 
@@ -10,32 +12,62 @@ namespace Vitorm
         IEntityDescriptor entityDescriptor { get; }
     }
 
-    public abstract class DbSet<Entity> : IDbSet
+    public class DbSetConstructor
     {
-        public abstract IEntityDescriptor entityDescriptor { get; }
+        public static IDbSet CreateDbSet(DbContext dbContext, Type entityType, IEntityDescriptor entityDescriptor)
+        {
+            return _CreateDbSet.MakeGenericMethod(entityType)
+                     .Invoke(null, new object[] { dbContext, entityDescriptor }) as IDbSet;
+        }
+
+        static MethodInfo _CreateDbSet = new Func<DbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
+                   .Method.GetGenericMethodDefinition();
+        public static IDbSet CreateDbSet<Entity>(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        {
+            return new DbSet<Entity>(dbContext, entityDescriptor);
+        }
+
+    }
 
 
-        public abstract void Create();
+    public class DbSet<Entity> : IDbSet
+    {
+        protected DbContext dbContext;
+
+        protected IEntityDescriptor _entityDescriptor;
+        public virtual IEntityDescriptor entityDescriptor => _entityDescriptor;
 
 
-        public abstract Entity Add(Entity entity);
-        public abstract void AddRange(IEnumerable<Entity> entitys);
+        public DbSet(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        {
+            this.dbContext = dbContext;
+            this._entityDescriptor = entityDescriptor;
+        }
+
+        public virtual void Create() => dbContext.Create<Entity>();
 
 
-        public abstract Entity Get(object keyValue);
-        public abstract IQueryable<Entity> Query();
+
+        public virtual Entity Add(Entity entity) => dbContext.Add(entity);
+        public virtual void AddRange(IEnumerable<Entity> entitys) => dbContext.AddRange(entitys);
 
 
 
-        public abstract int Update(Entity entity);
-        public abstract int UpdateRange(IEnumerable<Entity> entitys);
+
+        public virtual Entity Get(object keyValue) => dbContext.Get<Entity>(keyValue);
+        public virtual IQueryable<Entity> Query() => dbContext.Query<Entity>();
 
 
-        public abstract int Delete(Entity entity);
-        public abstract int DeleteRange(IEnumerable<Entity> entitys);
 
-        public abstract int DeleteByKey(object keyValue);
-        public abstract int DeleteByKeys<Key>(IEnumerable<Key> keys);
+        public virtual int Update(Entity entity) => dbContext.Update<Entity>(entity);
+        public virtual int UpdateRange(IEnumerable<Entity> entitys) => dbContext.UpdateRange<Entity>(entitys);
+
+
+
+        public virtual int Delete(Entity entity) => dbContext.Delete<Entity>(entity);
+        public virtual int DeleteRange(IEnumerable<Entity> entitys) => dbContext.DeleteRange<Entity>(entitys);
+        public virtual int DeleteByKey(object keyValue) => dbContext.DeleteByKey<Entity>(keyValue);
+        public virtual int DeleteByKeys<Key>(IEnumerable<Key> keys) => dbContext.DeleteByKeys<Entity, Key>(keys);
 
 
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Data;
 
-using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 
@@ -25,14 +23,12 @@ namespace Vit.Extensions
          */
         public static SqlDbContext UseMySql(this SqlDbContext dbContext, string ConnectionString)
         {
-            ISqlTranslateService sqlTranslateService =   Vitorm.MySql.SqlTranslateService.Instance;
+            ISqlTranslateService sqlTranslateService = Vitorm.MySql.SqlTranslateService.Instance;
 
             Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(ConnectionString);
 
-            Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
 
-
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
 
             dbContext.createTransactionScope = (dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
             //dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope_Command(dbContext);

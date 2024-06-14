@@ -5,37 +5,53 @@ using System.Linq;
 using Vit.Linq.ExpressionTree;
 
 using Vitorm.Entity;
+using Vitorm.Entity.Dapper;
 
 namespace Vitorm
 {
     public class DbContext : IDisposable
     {
-        public DbContext() { }
+        public DbContext()
+        {
+            dbSetCreator = DefaultDbSetCreator;
+        }
 
-        public virtual ExpressionConvertService convertService => Environment.convertService;
 
-        public Func<Type, IDbSet> dbSetCreator { set; protected get; }
+        #region DbSet
 
-        Dictionary<Type, IDbSet> dbSetMap = new();
+        public IDbSet DefaultDbSetCreator(Type entityType)
+        {
+            var entityDescriptor = GetEntityDescriptor(entityType);
+            return DbSetConstructor.CreateDbSet(this, entityType, entityDescriptor);
+        }
+
+        protected virtual Func<Type, IDbSet> dbSetCreator { set; get; }
+
+        Dictionary<Type, IDbSet> dbSetMap = null;
 
         public virtual IDbSet DbSet(Type entityType)
         {
-            if (dbSetMap.TryGetValue(entityType, out var dbSet)) return dbSet;
+            if (dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet;
 
             dbSet = dbSetCreator(entityType);
             if (dbSet == null) return null;
+
+            dbSetMap ??= new();
             dbSetMap[entityType] = dbSet;
             return dbSet;
-
-            //return dbSetMap.GetOrAdd(entityType, dbSetCreator);
         }
         public virtual DbSet<Entity> DbSet<Entity>()
         {
             return DbSet(typeof(Entity)) as DbSet<Entity>;
         }
+        #endregion
 
 
-        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => DbSet(entityType)?.entityDescriptor;
+        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => EntityDescriptor.GetEntityDescriptor(entityType);
+
+
+        public virtual ExpressionConvertService convertService => Environment.convertService;
+
 
 
         // #1 Schema :  Create

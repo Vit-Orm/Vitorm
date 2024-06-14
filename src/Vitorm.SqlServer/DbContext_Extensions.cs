@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Data;
 
-using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
-using Vitorm.SqlServer;
 
 namespace Vit.Extensions
 {
@@ -17,10 +14,7 @@ namespace Vit.Extensions
 
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
 
-            Func<Type, IEntityDescriptor> getEntityDescriptor = (type) => EntityDescriptor.GetEntityDescriptor(type);
-
-
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, getEntityDescriptor: getEntityDescriptor);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
             dbContext.createTransactionScope = (dbContext) => new Vitorm.SqlServer.SqlTransactionScope(dbContext);
 
             return dbContext;

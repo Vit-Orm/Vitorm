@@ -16,13 +16,25 @@ namespace Vitorm.MsTest
 
         public int? fatherId { get; set; }
         public int? motherId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public string test { get; set; }
+
+
+        public static User NewUser(int id) => new User { id = id, name = "testUser" + id };
+
+        public static List<User> NewUsers(int startId, int count = 1)
+        {
+            return Enumerable.Range(startId, count).Select(NewUser).ToList();
+        }
     }
 
 
     public class DataSource
     {
         static string connectionString = Appsettings.json.GetStringByPath("App.Db.ConnectionString");
- 
+        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
+
         public static SqlDbContext CreateDbContext()
         {
             var dbContext = new SqlDbContext();

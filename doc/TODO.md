@@ -1,7 +1,7 @@
 ﻿
 # TODO
 
- - support ElasticSearch  
+ - support Async methods
  - support ClickHouse  
 
  - try to make it clean  

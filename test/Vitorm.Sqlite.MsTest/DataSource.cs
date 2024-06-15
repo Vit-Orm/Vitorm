@@ -1,5 +1,5 @@
-﻿using Vitorm.Sql;
-using Vit.Extensions;
+﻿using Vit.Extensions;
+using Vitorm.Sql;
 
 namespace Vitorm.MsTest
 {
@@ -13,11 +13,23 @@ namespace Vitorm.MsTest
 
         public int? fatherId { get; set; }
         public int? motherId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public string test { get; set; }
+
+
+        public static User NewUser(int id) => new User { id = id, name = "testUser" + id };
+
+        public static List<User> NewUsers(int startId, int count = 1)
+        {
+            return Enumerable.Range(startId, count).Select(NewUser).ToList();
+        }
     }
 
 
     public class DataSource
     {
+        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
         public static SqlDbContext CreateDbContext()
         {
             var guid = Guid.NewGuid().ToString();

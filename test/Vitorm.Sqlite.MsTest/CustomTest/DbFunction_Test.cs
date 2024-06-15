@@ -2,7 +2,7 @@
 using Vit.Extensions.Vitorm_Extensions;
 using System.Data;
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CustomTest
 {
 
     [TestClass]
@@ -15,9 +15,9 @@ namespace Vitorm.MsTest
             var userQuery = dbContext.Query<User>();
 
 
-            // select IF(500<1000,true,false)
+            // select * from `User` as t0  where IIF(`t0`.`fatherId` is not null,true, false)
             {
-                var query = userQuery.Where(u => DbFunction.Call<bool>("IF", u.fatherId != null, true, false));
+                var query = userQuery.Where(u => DbFunction.Call<bool>("IIF", u.fatherId != null, true, false));
                 var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(3, userList.Count);
@@ -25,10 +25,18 @@ namespace Vitorm.MsTest
             }
 
             {
-                var query = userQuery.Where(u => u.birth < DbFunction.Call<DateTime>("now"));
+                var query = userQuery.Where(u => u.birth == DbFunction.Call<DateTime?>("datetime", "2021-01-01 00:00:00", "+2 hours"));
+                var sql = query.ToExecuteString();
+                var userList = query.ToList();
+                Assert.AreEqual(1, userList.Count);
+                Assert.AreEqual(2, userList.First().id);
+            }
+            {
+                var query = userQuery.Where(u => u.birth == DbFunction.Call<DateTime>("datetime", "2021-01-01 00:00:00", "+" + u.id + " hours"));
                 var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
+                Assert.AreEqual(1, userList.First().id);
             }
 
             // coalesce(parameter1,parameter2, …)

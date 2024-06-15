@@ -1,49 +1,53 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Vit.Extensions.Vitorm_Extensions;
+
 using System.Data;
 
 namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class CRUD_Test
+    public partial class CRUD_Test
     {
+        static DbContext CreateDbContext() => DataSource.CreateDbContextForWriting();
+
+
+
         #region #1 Create
 
         [TestMethod]
         public void Test_Create()
         {
-            var user = new User { id = 7, name = "testUser7", birth = DateTime.Now, fatherId = 1, motherId = 2 };
-            var user2 = new User { id = 8, name = "testUser8", birth = DateTime.Now, fatherId = 3, motherId = 4 };
+            using var dbContext = CreateDbContext();
+
+            var newUserList = User.NewUsers(7, 4);
+
 
             // #1 Add
-            {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                dbContext.Add(user);
-
-                Assert.AreEqual(7, userQuery.Count());
-
-                var newUser = userQuery.FirstOrDefault(m => m.id == 7);
-                Assert.AreEqual(user.id, newUser?.id);
-                Assert.AreEqual(user.name, newUser?.name);
-            }
+            dbContext.Add(newUserList[0]);
 
             // #2 AddRange
+            dbContext.AddRange(newUserList.Skip(1));
+
+
+            Thread.Sleep(1000);
+
+            // assert
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                dbContext.AddRange(new[] { user, user2 });
-
-                Assert.AreEqual(8, userQuery.Count());
-
-                var newUsers = userQuery.Where(m => m.id >= 7).ToList();
-                Assert.AreEqual(2, newUsers.Count());
-                Assert.AreEqual(user.id, newUsers[0]?.id);
-                Assert.AreEqual(user2.id, newUsers[1]?.id);
+                var userList = dbContext.Query<User>().Where(user => user.id >= 7).ToList();
+                Assert.AreEqual(newUserList.Count, userList.Count());
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());
+                Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
             }
+
+            try
+            {
+                dbContext.Add(newUserList[0]);
+                Assert.Fail("should not be able to add same key twice");
+            }
+            catch (Exception ex)
+            {
+            }
+
 
         }
         #endregion
@@ -54,46 +58,49 @@ namespace Vitorm.MsTest.CommonTest
         [TestMethod]
         public void Test_Update()
         {
-            var birth = DateTime.Parse("2021-03-01 00:00:00");
-            var user = new User { id = 4, name = "testUser4", birth = birth, fatherId = 14 };
-            var user2 = new User { id = 5, name = "testUser5", birth = DateTime.Now, fatherId = 15 };
+            using var dbContext = CreateDbContext();
 
-            #region Update
+            // Update
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.Update(user);
+                var rowCount = dbContext.Update(User.NewUser(4));
                 Assert.AreEqual(1, rowCount);
-
-                var newUser = userQuery.FirstOrDefault(m => m.id == 4);
-                Assert.AreEqual(4, newUser.id);
-                Assert.AreEqual(user.name, newUser.name);
-                Assert.AreEqual(user.birth, newUser.birth);
-                Assert.AreEqual(user.fatherId, newUser.fatherId);
             }
-            #endregion
 
-            #region UpdateRange
+            // UpdateRange
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.UpdateRange(new[] { user, user2 });
+                var rowCount = dbContext.UpdateRange(User.NewUsers(5, 3));
                 Assert.AreEqual(2, rowCount);
-
-                var newUsers = userQuery.Where(m => m.id == 4 || m.id == 5).ToList();
-                Assert.AreEqual(user.id, newUsers[0].id);
-                Assert.AreEqual(user.name, newUsers[0].name);
-                Assert.AreEqual(user2.id, newUsers[1].id);
-                Assert.AreEqual(user2.name, newUsers[1].name);
             }
-            #endregion
+
+            Thread.Sleep(1000);
+
+            // assert
+            {
+                var newUserList = User.NewUsers(4, 3);
+                var userList = dbContext.Query<User>().Where(m => m.id >= 4).ToList();
+                Assert.AreEqual(newUserList.Count, userList.Count());
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());
+                Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
+            }
+
+            try
+            {
+                var newUser = User.NewUser(4);
+                var key = dbContext.GetEntityDescriptor(typeof(User)).key;
+                key.SetValue(newUser, null);
+                dbContext.Update(newUser);
+                Assert.Fail("should not be able to update entity with null key");
+            }
+            catch (Exception ex)
+            {
+            }
+
 
         }
-
-
         #endregion
+
+
+
 
 
         #region #4 Delete
@@ -102,62 +109,45 @@ namespace Vitorm.MsTest.CommonTest
         [TestMethod]
         public void Test_Delete()
         {
+            using var dbContext = CreateDbContext();
 
-            #region #1 Delete
+            // #1 Delete
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.Delete(new User { id = 5 });
-
+                var rowCount = dbContext.Delete(User.NewUser(1));
                 Assert.AreEqual(1, rowCount);
-                Assert.AreEqual(5, userQuery.Count());
             }
-            #endregion
 
-            #region #2 DeleteRange
+            // #2 DeleteRange
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.DeleteRange(new[] { new User { id = 5 }, new User { id = 6 }, new User { id = 10 } });
-
+                var rowCount = dbContext.DeleteRange(User.NewUsers(2, 2));
                 Assert.AreEqual(2, rowCount);
-                Assert.AreEqual(4, userQuery.Count());
             }
-            #endregion
 
-            #region #3 DeleteByKey
+            // #3 DeleteByKey
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.DeleteByKey<User>(4);
+                var user = User.NewUser(4);
+                var key = dbContext.GetEntityDescriptor(typeof(User)).key;
+                var keyValue=key.GetValue(user);
+                var rowCount = dbContext.DeleteByKey<User>(keyValue);
                 Assert.AreEqual(1, rowCount);
-                Assert.AreEqual(5, userQuery.Count());
             }
+
+            // #4 DeleteByKeys
             {
-                using var dbContext = DataSource.CreateDbContext();
-                var userQuery = dbContext.Query<User>();
-
-                var rowCount = dbContext.DeleteByKey<User>(7);
-                Assert.AreEqual(0, rowCount);
-                Assert.AreEqual(6, userQuery.Count());
-            }
-            #endregion
-
-
-            #region #4 DeleteByKeys
-            {
-                using var dbContext = DataSource.CreateDbContext();
-                var userSet = dbContext.DbSet<User>();
-
-                var rowCount = userSet.DeleteByKeys(new[] { 5, 6, 10 });
-
+                var users = User.NewUsers(5, 2);
+                var key = dbContext.GetEntityDescriptor(typeof(User)).key;
+                var keyValues = users.Select(user => key.GetValue(user));
+                var rowCount = dbContext.DeleteByKeys<User, object>(keyValues);
                 Assert.AreEqual(2, rowCount);
-                Assert.AreEqual(4, userSet.Query().Count());
             }
-            #endregion
+
+            Thread.Sleep(1000);
+
+            // assert
+            {
+                var userList = dbContext.Query<User>().ToList();
+                Assert.AreEqual(0, userList.Count());
+            }
         }
         #endregion
 

@@ -2,7 +2,7 @@
 using Vit.Extensions.Vitorm_Extensions;
 using System.Data;
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CustomTest
 {
 
     [TestClass]
@@ -17,7 +17,7 @@ namespace Vitorm.MsTest
 
             // select * from `User` as t0  where IIF(`t0`.`fatherId` is not null,true, false)
             {
-                var query = userQuery.Where(u => DbFunction.Call<int>("IIF", u.fatherId != null, 1, 0)==1);
+                var query = userQuery.Where(u => DbFunction.Call<int>("IIF", u.fatherId != null, 1, 0) == 1);
                 var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(3, userList.Count);

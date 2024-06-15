@@ -49,7 +49,7 @@ namespace Vitorm
 
 
         public virtual Entity Add(Entity entity) => dbContext.Add(entity);
-        public virtual void AddRange(IEnumerable<Entity> entitys) => dbContext.AddRange(entitys);
+        public virtual void AddRange(IEnumerable<Entity> entities) => dbContext.AddRange(entities);
 
 
 
@@ -60,12 +60,12 @@ namespace Vitorm
 
 
         public virtual int Update(Entity entity) => dbContext.Update<Entity>(entity);
-        public virtual int UpdateRange(IEnumerable<Entity> entitys) => dbContext.UpdateRange<Entity>(entitys);
+        public virtual int UpdateRange(IEnumerable<Entity> entities) => dbContext.UpdateRange<Entity>(entities);
 
 
 
         public virtual int Delete(Entity entity) => dbContext.Delete<Entity>(entity);
-        public virtual int DeleteRange(IEnumerable<Entity> entitys) => dbContext.DeleteRange<Entity>(entitys);
+        public virtual int DeleteRange(IEnumerable<Entity> entities) => dbContext.DeleteRange<Entity>(entities);
         public virtual int DeleteByKey(object keyValue) => dbContext.DeleteByKey<Entity>(keyValue);
         public virtual int DeleteByKeys<Key>(IEnumerable<Key> keys) => dbContext.DeleteByKeys<Entity, Key>(keys);
 

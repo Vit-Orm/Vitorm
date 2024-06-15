@@ -60,7 +60,7 @@ namespace Vitorm
 
         // #1 Create :  Add AddRange
         public virtual Entity Add<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual void AddRange<Entity>(IEnumerable<Entity> entitys) => throw new NotImplementedException();
+        public virtual void AddRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
 
         // #2 Retrieve : Get Query
         public virtual Entity Get<Entity>(object keyValue) => throw new NotImplementedException();
@@ -69,12 +69,12 @@ namespace Vitorm
 
         // #3 Update: Update UpdateRange
         public virtual int Update<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual int UpdateRange<Entity>(IEnumerable<Entity> entitys) => throw new NotImplementedException();
+        public virtual int UpdateRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
 
 
         // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
         public virtual int Delete<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual int DeleteRange<Entity>(IEnumerable<Entity> entitys) => throw new NotImplementedException();
+        public virtual int DeleteRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
 
 
         public virtual int DeleteByKey<Entity>(object keyValue) => throw new NotImplementedException();

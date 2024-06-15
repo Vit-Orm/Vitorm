@@ -85,7 +85,7 @@ namespace Vitorm.Sql
 
             return entity;
         }
-        public override void AddRange<Entity>(IEnumerable<Entity> entitys)
+        public override void AddRange<Entity>(IEnumerable<Entity> entities)
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
@@ -100,7 +100,7 @@ namespace Vitorm.Sql
             if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
             {
                 var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-                foreach (var entity in entitys)
+                foreach (var entity in entities)
                 {
                     var sqlParam = GetSqlParams(entity);
                     var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
@@ -114,7 +114,7 @@ namespace Vitorm.Sql
             }
             else
             {
-                foreach (var entity in entitys)
+                foreach (var entity in entities)
                 {
                     var sqlParam = GetSqlParams(entity);
                     Execute(sql: sql, param: sqlParam);
@@ -293,7 +293,7 @@ namespace Vitorm.Sql
 
         }
 
-        public override int UpdateRange<Entity>(IEnumerable<Entity> entitys)
+        public override int UpdateRange<Entity>(IEnumerable<Entity> entities)
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
@@ -305,7 +305,7 @@ namespace Vitorm.Sql
             // #2 execute
             var affectedRowCount = 0;
 
-            foreach (var entity in entitys)
+            foreach (var entity in entities)
             {
                 var sqlParam = GetSqlParams(entity);
                 affectedRowCount += Execute(sql: sql, param: sqlParam);
@@ -326,12 +326,12 @@ namespace Vitorm.Sql
             return DeleteByKey<Entity>(key);
         }
 
-        public override int DeleteRange<Entity>(IEnumerable<Entity> entitys)
+        public override int DeleteRange<Entity>(IEnumerable<Entity> entities)
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
 
-            var keys = entitys.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
+            var keys = entities.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
             return DeleteByKeys<Entity, object>(keys);
         }
 

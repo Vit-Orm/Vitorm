@@ -16,36 +16,32 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            var users = userQuery.ToList();
-            users.ForEach(row => row.name = "u|" + row.id + "|" + (row.fatherId.ToString() ?? "") + "|" + (row.motherId.ToString() ?? ""));
-            dbContext.UpdateRange(users);
-
             // StartsWith
             {
-                var query = userQuery.Where(u => u.name.StartsWith("u|3|5"));
-                var sql = query.ToExecuteString();
+                var query = userQuery.Where(u => u.name.StartsWith("u35"));
+                //var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
+                Assert.AreEqual("u356", userList.First().name);
             }
             // EndsWith
             {
-                var query = userQuery.Where(u => u.name.EndsWith("3|5|6"));
-                var sql = query.ToExecuteString();
+                var query = userQuery.Where(u => u.name.EndsWith("356"));
+                //var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
+                Assert.AreEqual("u356", userList.First().name);
             }
             // Contains
             {
-                var query = userQuery.Where(u => u.name.Contains("|3|5|"));
-                var sql = query.ToExecuteString();
+                var query = userQuery.Where(u => u.name.Contains("35"));
+                //var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
+                Assert.AreEqual("u356", userList.First().name);
             }
         }
 

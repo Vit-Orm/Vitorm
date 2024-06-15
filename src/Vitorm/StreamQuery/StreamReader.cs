@@ -429,7 +429,7 @@ namespace Vitorm.StreamQuery
         SelectedFields ReadFieldSelect(Argument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
-            if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member)
+            if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)
                 throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {node.nodeType}");
 
             bool isDefaultSelect = false;

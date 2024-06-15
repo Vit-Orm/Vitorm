@@ -196,5 +196,26 @@ namespace Vitorm.MsTest.CommonTest
         }
 
 
+
+        [TestMethod]
+        public void Test_Count()
+        {
+            using var dbContext = DataSource.CreateDbContext();
+            var userQuery = dbContext.Query<User>();
+
+            {
+                var count = (from user in userQuery
+                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
+                             where user.id > 2 && father == null
+                             select new
+                             {
+                                 father
+                             }).Count();
+
+                Assert.AreEqual(3, count);
+            }
+        }
+
+
     }
 }

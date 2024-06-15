@@ -23,6 +23,19 @@ namespace Vitorm.MsTest.CommonTest
             }
         }
 
+        [TestMethod]
+        public void Test_Compare()
+        {
+            using var dbContext = DataSource.CreateDbContext();
+            var userQuery = dbContext.Query<User>();
+
+            {
+                var userList = userQuery.Where(u => u.birth >= new DateTime(2021, 01, 01, 05, 00, 00)).ToList();
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 5, 6 }).Count());
+            }
+
+        }
 
 
         [TestMethod]

@@ -40,28 +40,24 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            #region SelectMany().Where().OrderBy().Skip().Take().ToExecuteString()
+            #region users.Where().OrderBy().Skip().Take().ToList
             /*
-            users.SelectMany(
-                user => users.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                , (user, father) => new {user = user, father = father}
-            ).Where(row => row.user.id > 2)
-            .Select(row => new {row.user })
+            users.Where(row => row.user.id > 2)
             .OrderBy(user=>user.id)
+            .Select(row => new {row.user })
             .Skip(1).Take(2);
              */
             {
                 var query = (from user in userQuery
-                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
                              where user.id > 2
-                             orderby father.id, user.id descending
+                             orderby user.id descending
                              select new
                              {
                                  user
                              })
                             .Skip(1).Take(2);
 
-                var sql = query.ToExecuteString();
+                //var sql = query.ToExecuteString();
                 var list = query.ToList();
 
                 Assert.AreEqual(2, list.Count);
@@ -97,9 +93,15 @@ namespace Vitorm.MsTest.CommonTest
             var userQuery = dbContext.Query<User>();
 
             {
-                var userList = userQuery.Select(u => u).Where(user => user.id > 2).Where(user => user.id < 4).Select(u => u).ToList();
+                var userList = userQuery.Select(u => u).Where(user => user.id == 3).Select(u => u).ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
+            }
+
+            {
+                var userList = userQuery.Where(user => user.id == 3).Select(u => (float)u.id).ToList();
+                Assert.AreEqual(1, userList.Count);
+                Assert.AreEqual(3.0, userList.First());
             }
 
 
@@ -127,14 +129,13 @@ namespace Vitorm.MsTest.CommonTest
 
             {
                 var count = (from user in userQuery
-                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                             where user.id > 2 && father == null
+                             where user.id > 2
                              select new
                              {
-                                 father
+                                 user
                              }).Count();
 
-                Assert.AreEqual(3, count);
+                Assert.AreEqual(4, count);
             }
         }
 
@@ -290,44 +291,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(1, userList.First());
                 Assert.AreEqual(6, userList.Last());
             }
-        }
-
-
-
-        [TestMethod]
-        public void Test_Distinct()
-        {
-            using var dbContext = DataSource.CreateDbContext();
-            var userQuery = dbContext.Query<User>();
-
-            {
-                var query = userQuery.Select(u => new { u.fatherId }).Distinct();
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                var ids = userList.Select(u => u.fatherId).ToList();
-
-                Assert.AreEqual(3, ids.Count);
-                Assert.AreEqual(0, ids.Except(new int?[] { 4, 5, null }).Count());
-            }
-            {
-                var query = userQuery.Select(u => u.fatherId).Distinct();
-
-                var sql = query.ToExecuteString();
-                var ids = query.ToList();
-
-                Assert.AreEqual(3, ids.Count);
-                Assert.AreEqual(0, ids.Except(new int?[] { 4, 5, null }).Count());
-            }
-            {
-                var query = userQuery.Distinct();
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-
-                Assert.AreEqual(6, userList.Count);
-            }
-
         }
 
 

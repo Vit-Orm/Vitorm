@@ -37,12 +37,12 @@ namespace Vitorm.MsTest
             userSet.Create();
 
             var users = new List<User> {
-                    new User { id=1, name="u1", fatherId=4, motherId=6 },
-                    new User { id=2, name="u2", fatherId=4, motherId=6 },
-                    new User { id=3, name="u3", fatherId=5, motherId=6 },
-                    new User { id=4, name="u4" },
-                    new User { id=5, name="u5" },
-                    new User { id=6, name="u6" },
+                    new User { id=1, name="u146", fatherId=4, motherId=6 },
+                    new User { id=2, name="u246", fatherId=4, motherId=6 },
+                    new User { id=3, name="u356", fatherId=5, motherId=6 },
+                    new User { id=4, name="u400" },
+                    new User { id=5, name="u500" },
+                    new User { id=6, name="u600" },
                 };
             users.ForEach(user => { user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id); });
 

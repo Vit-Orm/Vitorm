@@ -17,17 +17,17 @@ namespace Vitorm.MsTest.CommonTest
             var userQuery = dbContext.Query<User>();
 
             {
-                var userList = userQuery.Where(u => u.name + 1 == "u31").ToList();
+                var userList = userQuery.Where(u => u.name + 1 == "u3561").ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList[0].id);
             }
             {
-                var userList = userQuery.Where(u => "u31" == u.name + 1).ToList();
+                var userList = userQuery.Where(u => "u3561" == u.name + 1).ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList[0].id);
             }
             {
-                var userList = userQuery.Where(u => u.name == "u" + 3).ToList();
+                var userList = userQuery.Where(u => u.name == "u35" + 6).ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList[0].id);
             }

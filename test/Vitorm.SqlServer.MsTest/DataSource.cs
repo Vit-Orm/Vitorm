@@ -45,12 +45,12 @@ namespace Vitorm.MsTest
             userSet.Create();
 
             var users = new List<User> {
-                    new User {   name="u1", fatherId=4, motherId=6 },
-                    new User {   name="u2", fatherId=4, motherId=6 },
-                    new User {   name="u3", fatherId=5, motherId=6 },
-                    new User {   name="u4" },
-                    new User {   name="u5" },
-                    new User {   name="u6" },
+                    new User {   name="u146", fatherId=4, motherId=6 },
+                    new User {   name="u246", fatherId=4, motherId=6 },
+                    new User {   name="u356", fatherId=5, motherId=6 },
+                    new User {   name="u400" },
+                    new User {   name="u500" },
+                    new User {   name="u600" },
                 };
 
             dbContext.AddRange(users);

@@ -6,23 +6,8 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Test
+    public class Query_LinqMethods_Test
     {
-        [TestMethod]
-        public void Test_Get()
-        {
-            {
-                using var dbContext = DataSource.CreateDbContext();
-                var user = dbContext.Get<User>(3);
-                Assert.AreEqual(3, user?.id);
-            }
-            {
-                using var dbContext = DataSource.CreateDbContext();
-                var user = dbContext.DbSet<User>().Get(5);
-                Assert.AreEqual(5, user?.id);
-            }
-        }
-
 
 
 
@@ -49,43 +34,61 @@ namespace Vitorm.MsTest.CommonTest
         }
 
 
-
         [TestMethod]
-        public void Test_Where()
+        public void Test_AllFeatures()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
+            #region SelectMany().Where().OrderBy().Skip().Take().ToExecuteString()
+            /*
+            users.SelectMany(
+                user => users.Where(father => user.fatherId == father.id).DefaultIfEmpty()
+                , (user, father) => new {user = user, father = father}
+            ).Where(row => row.user.id > 2)
+            .Select(row => new {row.user })
+            .OrderBy(user=>user.id)
+            .Skip(1).Take(2);
+             */
             {
-                var userList = userQuery.Where(u => u.id > 2).Where(m => m.id < 4).ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
+                var query = (from user in userQuery
+                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
+                             where user.id > 2
+                             orderby father.id, user.id descending
+                             select new
+                             {
+                                 user
+                             })
+                            .Skip(1).Take(2);
+
+                var sql = query.ToExecuteString();
+                var list = query.ToList();
+
+                Assert.AreEqual(2, list.Count);
+                Assert.AreEqual(5, list[0].user.id);
+                Assert.AreEqual(4, list[1].user.id);
             }
-            {
-                var userList = userQuery.Where(u => u.id == 3).Where(m => m.fatherId == 5).ToList();
-                Assert.AreEqual(3, userList.First().id);
-            }
-            {
-                var userList = userQuery.Where(u => u.id + 1 == 4).Where(m => m.fatherId == 5).ToList();
-                Assert.AreEqual(3, userList.First().id);
-            }
-            {
-                var userList = userQuery.Where(u => 4 == u.id + 1).Where(m => m.fatherId == 5).ToList();
-                Assert.AreEqual(3, userList.First().id);
-            }
+            #endregion
+        }
 
 
+
+        [TestMethod]
+        public void Test_Get()
+        {
             {
-                var userList = userQuery.Where(u => u.birth == new DateTime(2021, 01, 01, 03, 00, 00)).ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
+                using var dbContext = DataSource.CreateDbContext();
+                var user = dbContext.Get<User>(3);
+                Assert.AreEqual(3, user?.id);
             }
             {
-                var userList = userQuery.Where(u => u.birth == DateTime.Parse("2021-01-01 01:00:00").AddHours(2)).ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
+                using var dbContext = DataSource.CreateDbContext();
+                var user = dbContext.DbSet<User>().Get(5);
+                Assert.AreEqual(5, user?.id);
             }
         }
+
+
 
         [TestMethod]
         public void Test_Select()
@@ -136,42 +139,6 @@ namespace Vitorm.MsTest.CommonTest
         }
 
 
-        [TestMethod]
-        public void Test_AllFeatures()
-        {
-            using var dbContext = DataSource.CreateDbContext();
-            var userQuery = dbContext.Query<User>();
-
-            #region SelectMany().Where().OrderBy().Skip().Take().ToExecuteString()
-            /*
-            users.SelectMany(
-                user => users.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                , (user, father) => new {user = user, father = father}
-            ).Where(row => row.user.id > 2)
-            .Select(row => new {row.user })
-            .OrderBy(user=>user.id)
-            .Skip(1).Take(2);
-             */
-            {
-                var query = (from user in userQuery
-                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                             where user.id > 2
-                             orderby father.id, user.id descending
-                             select new
-                             {
-                                 user
-                             })
-                            .Skip(1).Take(2);
-
-                var sql = query.ToExecuteString();
-                var list = query.ToList();
-
-                Assert.AreEqual(2, list.Count);
-                Assert.AreEqual(5, list[0].user.id);
-                Assert.AreEqual(4, list[1].user.id);
-            }
-            #endregion
-        }
 
 
 
@@ -180,6 +147,11 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
+
+            {
+                var id = userQuery.Select(u => u.id).FirstOrDefault();
+                Assert.AreEqual(1, id);
+            }
 
             {
                 var user = userQuery.FirstOrDefault();
@@ -319,95 +291,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(6, userList.Last());
             }
         }
-
-
-
-        // Enumerable.Contains
-        // Queryable.Contains
-        [TestMethod]
-        public void Test_Contains()
-        {
-            using var dbContext = DataSource.CreateDbContext();
-            var userQuery = dbContext.Query<User>();
-
-            // string in
-            {
-                var userList = userQuery.Where(u => new[] { "u3", "u5" }.Contains(u.name)).ToList();
-                Assert.AreEqual(2, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual(5, userList.Last().id);
-            }
-            // string not in
-            {
-                var userList = userQuery.Where(u => !new[] { "u3", "u5" }.Contains(u.name)).ToList();
-                Assert.AreEqual(4, userList.Count);
-                Assert.AreEqual(1, userList.First().id);
-                Assert.AreEqual(4, userList[2].id);
-            }
-
-            // numeric in
-            {
-                var userList = userQuery.Where(u => new[] { 3, 5 }.Contains(u.id)).ToList();
-                Assert.AreEqual(2, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual(5, userList.Last().id);
-            }
-            {
-                var ids = new[] { 3, 5 }.AsEnumerable();
-                var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
-                Assert.AreEqual(2, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual(5, userList.Last().id);
-            }
-            {
-                var ids = new[] { 3, 5 }.AsQueryable();
-                var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
-                Assert.AreEqual(2, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual(5, userList.Last().id);
-            }
-        }
-
-        [TestMethod]
-        public void Test_StringMethods()
-        {
-            using var dbContext = DataSource.CreateDbContext();
-            var userQuery = dbContext.Query<User>();
-
-            userQuery.ExecuteUpdate(row => new User
-            {
-                name = "u|" + row.id + "|" + (row.fatherId.ToString() ?? "") + "|" + (row.motherId.ToString() ?? "")
-            });
-
-            // StartsWith
-            {
-                var query = userQuery.Where(u => u.name.StartsWith("u|3|5"));
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
-            }
-            // EndsWith
-            {
-                var query = userQuery.Where(u => u.name.EndsWith("3|5|6"));
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
-            }
-            // Contains
-            {
-                var query = userQuery.Where(u => u.name.Contains("|3|5|"));
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(3, userList.First().id);
-                Assert.AreEqual("u|3|5|6", userList.First().name);
-            }
-        }
-
 
 
 

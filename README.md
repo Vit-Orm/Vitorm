@@ -9,16 +9,16 @@ Vitorm: an simple orm by Vit.Linq
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/VitormLib/Vitorm/workflows/ki_multibranch/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.svg)](https://www.nuget.org/packages/Vitorm/) ![](https://img.shields.io/nuget/dt/Vitorm.svg) |
+|![](https://github.com/VitormLib/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.svg)](https://www.nuget.org/packages/Vitorm) ![](https://img.shields.io/nuget/dt/Vitorm.svg) |
 
 
 
-| Db | Supported | Code | nuget |
+| Database | Supported | Code | NuGet |
 | -------- | -------- | -------- | -------- |
-| MySql         |   √   | [MySql](src/develop/src/Vitorm.MySql)             |  [Vitorm.MySql](https://www.nuget.org/packages/Vitorm.MySql)   |
-| SqlServer     |   √   | [SqlServer](src/develop/src/Vitorm.SqlServer)     |  [Vitorm.SqlServer](https://www.nuget.org/packages/Vitorm.SqlServer)   |
-| Sqlite        |   √   | [Sqlite](src/develop/src/Vitorm.Sqlite)           |  [Vitorm.Sqlite](https://www.nuget.org/packages/Vitorm.Sqlite)   |
-| ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [Vitorm.ElasticSearch](https://www.nuget.org/packages/Vitorm.ElasticSearch)   |
+| MySql         |   √   | [MySql](src/develop/src/Vitorm.MySql)             |  [![](https://img.shields.io/nuget/v/Vitorm.MySql.svg)](https://www.nuget.org/packages/Vitorm.MySql) ![](https://img.shields.io/nuget/dt/Vitorm.MySql.svg)   |
+| SqlServer     |   √   | [SqlServer](src/develop/src/Vitorm.SqlServer)     |  [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg)   |
+| Sqlite        |   √   | [Sqlite](src/develop/src/Vitorm.Sqlite)           |  [![](https://img.shields.io/nuget/v/Vitorm.Sqlite.svg)](https://www.nuget.org/packages/Vitorm.Sqlite) ![](https://img.shields.io/nuget/dt/Vitorm.Sqlite.svg)   |
+| ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
 | ClickHouse    |   ×   |      |      |
 | Oracle        |   ×   |      |      |
 

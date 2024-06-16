@@ -18,7 +18,7 @@ Vitorm: an simple orm by Vit.Linq
 | MySql         |   √   | [MySql](src/develop/src/Vitorm.MySql)             |  [Vitorm.MySql](https://www.nuget.org/packages/Vitorm.MySql)   |
 | SqlServer     |   √   | [SqlServer](src/develop/src/Vitorm.SqlServer)     |  [Vitorm.SqlServer](https://www.nuget.org/packages/Vitorm.SqlServer)   |
 | Sqlite        |   √   | [Sqlite](src/develop/src/Vitorm.Sqlite)           |  [Vitorm.Sqlite](https://www.nuget.org/packages/Vitorm.Sqlite)   |
-| ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [Vitorm.MySql](https://www.nuget.org/packages/Vitorm.ElasticSearch)   |
+| ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [Vitorm.ElasticSearch](https://www.nuget.org/packages/Vitorm.ElasticSearch)   |
 | ClickHouse    |   ×   |      |      |
 | Oracle        |   ×   |      |      |
 

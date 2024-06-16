@@ -26,10 +26,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\Vit.Linq\src\Vit.Linq\Vit.Linq.csproj" />
+        <PackageReference Include="Vit.Linq" Version="2.2.22" />
     </ItemGroup>
 
 </Project>

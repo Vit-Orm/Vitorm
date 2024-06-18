@@ -7,6 +7,7 @@ using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
+using Vitorm.Entity.Dapper;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.SqlServer.TranslateService;
@@ -47,6 +48,14 @@ namespace Vitorm.SqlServer
         ///     The generated string.
         /// </returns>
         public override string EscapeIdentifier(string identifier) => identifier.Replace("[", "\"[").Replace("]", "\"]");
+
+        public override string DelimitTableName(IEntityDescriptor entityDescriptor)
+        {
+            if (entityDescriptor.schema == null) return DelimitIdentifier(entityDescriptor.tableName);
+
+            return $"{DelimitIdentifier(entityDescriptor.schema)}.{DelimitIdentifier(entityDescriptor.tableName)}";
+        }
+
 
 
         #region EvalExpression
@@ -145,8 +154,12 @@ namespace Vitorm.SqlServer
             }
 
             return base.EvalExpression(arg, data);
-        }
+}
+
         #endregion
+
+
+    
 
 
         #region PrepareCreate
@@ -170,7 +183,7 @@ CREATE TABLE user (
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
-CREATE TABLE [dbo].{DelimitIdentifier(entityDescriptor.tableName)} (
+CREATE TABLE {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 

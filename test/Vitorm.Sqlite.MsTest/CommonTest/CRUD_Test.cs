@@ -127,7 +127,7 @@ namespace Vitorm.MsTest.CommonTest
             {
                 var user = User.NewUser(4);
                 var key = dbContext.GetEntityDescriptor(typeof(User)).key;
-                var keyValue=key.GetValue(user);
+                var keyValue = key.GetValue(user);
                 var rowCount = dbContext.DeleteByKey<User>(keyValue);
                 Assert.AreEqual(1, rowCount);
             }

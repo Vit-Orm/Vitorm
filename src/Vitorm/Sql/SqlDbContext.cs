@@ -9,7 +9,6 @@ using Vitorm.Sql.Transaction;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 using Vit.Extensions.Vitorm_Extensions;
-using Vitorm.Extensions;
 
 namespace Vitorm.Sql
 {
@@ -32,10 +31,11 @@ namespace Vitorm.Sql
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
-        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection)
+        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, SqlExecutor sqlExecutor=null)
         {
             this.sqlTranslateService = sqlTranslateService;
             this.createDbConnection = createDbConnection;
+            this.sqlExecutor = sqlExecutor ?? SqlExecutor.Instance;
         }
 
 
@@ -389,28 +389,33 @@ namespace Vitorm.Sql
 
 
         #region Execute
-
+        protected SqlExecutor sqlExecutor;
         public int? commandTimeout;
+        public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
+        {
+            commandTimeout ??= this.commandTimeout;
+            return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+        }
 
         public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.Execute(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.Execute(dbConnection,sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.ExecuteReader(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteReader(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return dbConnection.ExecuteScalar(sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteScalar(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
         #endregion
 

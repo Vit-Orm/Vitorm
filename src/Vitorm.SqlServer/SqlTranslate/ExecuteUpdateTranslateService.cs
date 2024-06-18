@@ -33,14 +33,13 @@ UPDATE [User]
 
             var NewLine = "\r\n";
             var keyName = entityDescriptor.keyName;
-            var tableName = entityDescriptor.tableName;
 
 
             var sql = $"WITH tmp AS ( {NewLine}";
             sql += sqlInner;
 
             sql += $"{NewLine}){NewLine}";
-            sql += $"UPDATE {sqlTranslator.DelimitIdentifier(tableName)}{NewLine}";
+            sql += $"UPDATE {sqlTranslator.DelimitTableName(entityDescriptor)}{NewLine}";
             sql += $"Set ";
 
             var sqlToUpdateCols = columnsToUpdate
@@ -49,7 +48,7 @@ UPDATE [User]
 
             sql += string.Join(",", sqlToUpdateCols);
 
-            sql += $"{NewLine}from {sqlTranslator.DelimitIdentifier(tableName)} t0";
+            sql += $"{NewLine}from {sqlTranslator.DelimitTableName(entityDescriptor)} t0";
             sql += $"{NewLine}inner join tmp on t0.{sqlTranslator.DelimitIdentifier(keyName)}=tmp.{sqlTranslator.DelimitIdentifier(keyName)}";
 
             return sql;

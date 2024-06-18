@@ -21,6 +21,7 @@ namespace Vitorm.MsTest.CommonTest
                     join father in userQuery on user.fatherId equals father.id into fathers
                     from father in fathers.DefaultIfEmpty()
                     where user.id > 2
+                    orderby user.id
                     select new { user, father };
 
                 var sql = query.ToExecuteString();
@@ -30,7 +31,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3, userList[0].user.id);
                 Assert.AreEqual(5, userList[0].father?.id);
                 Assert.AreEqual(4, userList[1].user.id);
-                Assert.AreEqual(null, userList[1].father?.id);
+                Assert.AreEqual(null, userList[1].father?.name);
             }
 
             // Lambda Expression
@@ -47,6 +48,7 @@ namespace Vitorm.MsTest.CommonTest
                         , (row, father) => new { row, father }
                     )
                     .Where(row2 => row2.row.user.id > 2)
+                    .OrderBy(row2 => row2.row.user.id)
                     .Select(row2 => new { row2.row.user, row2.father });
 
                 var sql = query.ToExecuteString();
@@ -56,7 +58,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3, userList[0].user.id);
                 Assert.AreEqual(5, userList[0].father?.id);
                 Assert.AreEqual(4, userList[1].user.id);
-                Assert.AreEqual(null, userList[1].father?.id);
+                Assert.AreEqual(null, userList[1].father?.name);
             }
         }
 
@@ -76,14 +78,14 @@ namespace Vitorm.MsTest.CommonTest
                     join mother in userQuery on user.motherId equals mother.id into mothers
                     from mother in mothers.DefaultIfEmpty()
                     where user.id > 2
-                    orderby father.id descending
+                    orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
                         testId = user.id + 100,
-                        hasFather = father != null ? true : false
+                        hasFather = father.name != null ? true : false
                     };
 
                 query = query.Skip(1).Take(2);
@@ -95,8 +97,8 @@ namespace Vitorm.MsTest.CommonTest
 
                 var first = userList.First();
                 Assert.AreEqual(4, first.user.id);
-                Assert.AreEqual(null, first.father?.id);
-                Assert.AreEqual(null, first.mother?.id);
+                Assert.AreEqual(null, first.father?.name);
+                Assert.AreEqual(null, first.mother?.name);
                 Assert.AreEqual(104, first.testId);
                 Assert.AreEqual(false, first.hasFather);
             }

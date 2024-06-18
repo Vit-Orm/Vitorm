@@ -148,8 +148,8 @@ namespace Vitorm.Sql.SqlTranslate
             if (stream is SourceStream sourceStream)
             {
                 IQueryable query = sourceStream.GetSource() as IQueryable;
-                var tableName = arg.dbContext.GetEntityDescriptor(query.ElementType)?.tableName;
-                return $"{sqlTranslator.DelimitIdentifier(tableName)} as " + stream.alias;
+                var entityDescriptor = arg.dbContext.GetEntityDescriptor(query.ElementType) ;
+                return $"{sqlTranslator.DelimitTableName(entityDescriptor)} as " + stream.alias;
             }
             if (stream is CombinedStream baseStream)
             {

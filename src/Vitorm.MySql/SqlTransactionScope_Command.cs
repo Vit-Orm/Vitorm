@@ -4,7 +4,6 @@ using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
 using System.Collections.Generic;
 using static Vitorm.Sql.Transaction.DbTransactionWrap;
-using Vitorm.Extensions;
 
 namespace Vitorm.MySql
 {
@@ -26,7 +25,7 @@ namespace Vitorm.MySql
                 var dbConnection = dbContext.dbConnection;
                 if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
 
-                dbTransactionWrap = new DbTransactionWrap_Command(dbConnection);
+                dbTransactionWrap = new DbTransactionWrap_Command(dbContext);
                 return dbTransactionWrap;
 
             }
@@ -60,13 +59,13 @@ namespace Vitorm.MySql
         public class DbTransactionWrap_Command : IDbTransaction
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
-            public IDbConnection Connection { get; protected set; }
-
+            public IDbConnection Connection => dbContext.dbConnection;
+            SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
 
-            public DbTransactionWrap_Command(IDbConnection connection)
+            public DbTransactionWrap_Command(SqlDbContext dbContext)
             {
-                this.Connection = connection;
+                this.dbContext = dbContext;
                 Execute($"START TRANSACTION; SET autocommit=0;");
             }
 
@@ -92,30 +91,31 @@ namespace Vitorm.MySql
             }
             public DbTransactionWrapSavePoint BeginSavePoint(string savePoint)
             {
-                return new DbTransactionWrapSavePoint(Connection, savePoint);
+                return new DbTransactionWrapSavePoint(dbContext, savePoint);
             }
             protected virtual void Execute(string sql)
             {
-                Connection.Execute(sql);
+                dbContext.ExecuteWithTransaction(sql);
             }
         }
 
         public class DbTransactionWrapSavePoint : IDbTransaction
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
-            public IDbConnection Connection { get; protected set; }
 
+            public IDbConnection Connection => dbContext.dbConnection;
+            SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
             protected string savePointName;
 
 
             protected virtual void Execute(string sql)
             {
-                Connection.Execute(sql);
+                dbContext.ExecuteWithTransaction(sql);
             }
-            public DbTransactionWrapSavePoint(IDbConnection connection, string savePointName)
+            public DbTransactionWrapSavePoint(SqlDbContext dbContext, string savePointName)
             {
-                this.Connection = connection;
+                this.dbContext = dbContext;
                 this.savePointName = savePointName;
                 Execute($"SAVEPOINT {savePointName};");
             }

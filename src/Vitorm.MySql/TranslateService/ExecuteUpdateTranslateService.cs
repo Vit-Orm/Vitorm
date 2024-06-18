@@ -31,14 +31,13 @@ where t0.id = tmp.id ;
 
             var NewLine = "\r\n";
             var keyName = entityDescriptor.keyName;
-            var tableName = entityDescriptor.tableName;
 
 
             var sql = $"WITH tmp AS ( {NewLine}";
             sql += sqlInner;
 
             sql += $"{NewLine}){NewLine}";
-            sql += $"UPDATE {sqlTranslator.DelimitIdentifier(tableName)} t0, tmp{NewLine}";
+            sql += $"UPDATE {sqlTranslator.DelimitTableName(entityDescriptor)} t0, tmp{NewLine}";
             sql += $"Set ";
 
             var sqlToUpdateCols = columnsToUpdate

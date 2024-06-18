@@ -45,6 +45,9 @@ namespace Vitorm.Sql.SqlTranslate
         ///     A valid name based on the candidate name.
         /// </returns>
         public virtual string GenerateParameterName(string name) => name.StartsWith("@", StringComparison.Ordinal) ? name : "@" + name;
+
+
+        public virtual string DelimitTableName(IEntityDescriptor entityDescriptor) => DelimitIdentifier(entityDescriptor.tableName);
         #endregion
 
 
@@ -213,12 +216,17 @@ namespace Vitorm.Sql.SqlTranslate
                     {
                         ExpressionNode_Constant constant = data;
                         var value = constant.value;
-                        if (value is not string && value is IEnumerable enumerable)
+                        if (value == null)
+                        {
+                            return "null";
+                        }
+                        else if (value is not string && value is IEnumerable enumerable)
                         {
                             StringBuilder sql = null;
 
                             foreach (var item in enumerable)
                             {
+                                if (item == null) continue;
                                 if (sql == null)
                                 {
                                     sql = new StringBuilder("(");
@@ -239,7 +247,7 @@ namespace Vitorm.Sql.SqlTranslate
                         else
                         {
                             var paramName = arg.NewParamName();
-                            arg.sqlParam[paramName] = constant.value;
+                            arg.sqlParam[paramName] = value;
                             return GenerateParameterName(paramName);
                         }
 
@@ -306,7 +314,7 @@ namespace Vitorm.Sql.SqlTranslate
             #endregion
 
             // #3 build sql
-            string sql = $@"insert into {DelimitIdentifier(entityDescriptor.tableName)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
+            string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
             //sql+=$"select seq from sqlite_sequence where name = '{tableName}'; ";
 
             return (sql, GetSqlParams);
@@ -320,7 +328,7 @@ namespace Vitorm.Sql.SqlTranslate
             var entityDescriptor = arg.entityDescriptor;
 
             // #2 build sql
-            string sql = $@"select * from {DelimitIdentifier(entityDescriptor.tableName)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)};";
+            string sql = $@"select * from {DelimitTableName(entityDescriptor)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)};";
 
             return sql;
         }
@@ -365,7 +373,7 @@ namespace Vitorm.Sql.SqlTranslate
             }
 
             // #3 build sql
-            string sql = $@"update {DelimitIdentifier(entityDescriptor.tableName)} set {string.Join(",", columnsToUpdate)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)};";
+            string sql = $@"update {DelimitTableName(entityDescriptor)} set {string.Join(",", columnsToUpdate)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)};";
 
             return (sql, GetSqlParams);
         }
@@ -385,7 +393,7 @@ namespace Vitorm.Sql.SqlTranslate
             var entityDescriptor = arg.entityDescriptor;
 
             // #2 build sql
-            string sql = $@"delete from {DelimitIdentifier(entityDescriptor.tableName)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)};";
+            string sql = $@"delete from {DelimitTableName(entityDescriptor)} where {DelimitIdentifier(entityDescriptor.keyName)}={GenerateParameterName(entityDescriptor.keyName)} ; ";
 
             return sql;
         }
@@ -399,7 +407,7 @@ namespace Vitorm.Sql.SqlTranslate
             StringBuilder sql = new StringBuilder();
             Dictionary<string, object> sqlParam = new();
 
-            sql.Append("delete from ").Append(DelimitIdentifier(entityDescriptor.tableName)).Append(" where ").Append(DelimitIdentifier(entityDescriptor.keyName)).Append(" in (");
+            sql.Append("delete from ").Append(DelimitTableName(entityDescriptor)).Append(" where ").Append(DelimitIdentifier(entityDescriptor.keyName)).Append(" in (");
 
             int keyIndex = 0;
             foreach (var key in keys)

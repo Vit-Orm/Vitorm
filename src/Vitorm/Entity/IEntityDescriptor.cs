@@ -5,7 +5,7 @@ namespace Vitorm.Entity
     public interface IEntityDescriptor
     {
         Type entityType { get; }
-
+        string schema { get; }
         string tableName { get; }
         string keyName { get; }
         /// <summary>

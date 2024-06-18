@@ -36,19 +36,18 @@ UPDATE User SET name = 'u'||id  where id > 0;
 
             var NewLine = "\r\n";
             var keyName = entityDescriptor.keyName;
-            var tableName = entityDescriptor.tableName;
 
 
             var sql = $"WITH tmp AS ( {NewLine}";
             sql += sqlInner;
 
             sql += $"{NewLine}){NewLine}";
-            sql += $"UPDATE {sqlTranslator.DelimitIdentifier(tableName)}{NewLine}";
+            sql += $"UPDATE {sqlTranslator.DelimitTableName(entityDescriptor)}{NewLine}";
             sql += $"Set ";
 
             var sqlToUpdateCols = columnsToUpdate
                 .Select(m => m.name)
-                .Select(name => $"{NewLine}  {sqlTranslator.DelimitIdentifier(name)} = (SELECT {sqlTranslator.DelimitIdentifier("_" + name)} FROM tmp WHERE tmp.{sqlTranslator.DelimitIdentifier(keyName)} ={sqlTranslator.GetSqlField(tableName, keyName)} )");
+                .Select(name => $"{NewLine}  {sqlTranslator.DelimitIdentifier(name)} = (SELECT {sqlTranslator.DelimitIdentifier("_" + name)} FROM tmp WHERE tmp.{sqlTranslator.DelimitIdentifier(keyName)} = {sqlTranslator.DelimitTableName(entityDescriptor)}.{sqlTranslator.DelimitIdentifier(keyName)} )");
 
             sql += string.Join(",", sqlToUpdateCols);
 

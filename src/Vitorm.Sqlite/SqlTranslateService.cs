@@ -154,7 +154,7 @@ CREATE TABLE user (
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
-CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
+CREATE TABLE {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
@@ -225,7 +225,7 @@ CREATE TABLE {DelimitIdentifier(entityDescriptor.tableName)} (
             #endregion
 
             // #3 build sql
-            string sql = $@"insert into {DelimitIdentifier(entityDescriptor.tableName)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
+            string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
             //sql+=$"select seq from sqlite_sequence where name = '{tableName}'; ";
             sql += "select null;";
             return (sql, GetSqlParams);

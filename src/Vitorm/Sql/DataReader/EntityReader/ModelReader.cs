@@ -14,6 +14,7 @@ namespace Vitorm.Sql.DataReader
         public string argUniqueKey { get; set; }
         public Type argType { get; set; }
 
+        //EntityPropertyReader keyPropertyReader;
         List<EntityPropertyReader> proppertyReaders = new();
 
         public ModelReader(EntityReader entityReader, ISqlTranslateService sqlTranslator, string tableName, string argUniqueKey, string argName, Type argType, IEntityDescriptor entityDescriptor)
@@ -22,20 +23,31 @@ namespace Vitorm.Sql.DataReader
             this.argName = argName;
             this.argType = argType;
 
-            // ##1 key
-            string sqlFieldName = sqlTranslator.GetSqlField(tableName, entityDescriptor.keyName);
-            proppertyReaders.Add(new EntityPropertyReader(entityReader, entityDescriptor.key, true, sqlFieldName));
-
-            // ##2 properties
-            foreach (var column in entityDescriptor.columns)
+            // #1 key
             {
-                sqlFieldName = sqlTranslator.GetSqlField(tableName, column.name);
-                proppertyReaders.Add(new EntityPropertyReader(entityReader, column, false, sqlFieldName));
+                //var column = entityDescriptor.key;
+                //var sqlFieldName = sqlTranslator.GetSqlField(tableName, column.name);
+                //keyPropertyReader = new EntityPropertyReader(entityReader, column, sqlFieldName);
+            }
+            // #2 properties
+            {
+                foreach (var column in entityDescriptor.allColumns)
+                {
+                    var sqlFieldName = sqlTranslator.GetSqlField(tableName, column.name);
+                    proppertyReaders.Add(new EntityPropertyReader(entityReader, column, sqlFieldName));
+                }
             }
         }
         public object Read(IDataReader reader)
         {
+            // #1 key           
+            //var value = keyPropertyReader.Read(reader);
+            //if (value == null) return null;
+
             var entity = Activator.CreateInstance(argType);
+            //keyPropertyReader.column.SetValue(entity, value);
+
+            //#2 properties
             foreach (var perpertyReader in proppertyReaders)
             {
                 if (!perpertyReader.Read(reader, entity))

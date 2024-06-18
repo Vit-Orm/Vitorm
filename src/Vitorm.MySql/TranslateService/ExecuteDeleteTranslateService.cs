@@ -23,14 +23,12 @@ delete from User where id in ( SELECT id FROM tmp );
 
             var NewLine = "\r\n";
             var keyName = entityDescriptor.keyName;
-            var tableName = entityDescriptor.tableName;
-
 
             var sql = $"WITH tmp AS ( {NewLine}";
             sql += sqlInner;
 
             sql += $"{NewLine}){NewLine}";
-            sql += $"delete from {sqlTranslator.DelimitIdentifier(tableName)} ";
+            sql += $"delete from {sqlTranslator.DelimitTableName(entityDescriptor)} ";
 
             sql += $"{NewLine}where {sqlTranslator.DelimitIdentifier(keyName)} in ( SELECT {sqlTranslator.DelimitIdentifier(keyName)} FROM tmp ); {NewLine}";
 

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Runtime.CompilerServices;
 
-
-namespace Vitorm.Extensions
+namespace Vitorm.Sql
 {
-    public static partial class IDbConnection_Execute_Extensions
+    public class SqlExecutor
     {
+        public readonly static SqlExecutor Instance = new SqlExecutor();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Execute(this IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public virtual int Execute(IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             // #1 setup command
             using var cmd = conn.CreateCommand();
@@ -36,9 +34,7 @@ namespace Vitorm.Extensions
         }
 
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object ExecuteScalar(this IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public virtual object ExecuteScalar(IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             // #1 setup command
             using var cmd = conn.CreateCommand();
@@ -61,10 +57,7 @@ namespace Vitorm.Extensions
             }
         }
 
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDataReader ExecuteReader(this IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public virtual IDataReader ExecuteReader(IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
 
             IDbCommand cmd = null;
@@ -102,8 +95,7 @@ namespace Vitorm.Extensions
         }
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void AddParameter(IDbCommand cmd, IDictionary<string, object> param)
+        public virtual void AddParameter(IDbCommand cmd, IDictionary<string, object> param)
         {
             if (param != null)
             {
@@ -116,6 +108,5 @@ namespace Vitorm.Extensions
                 }
             }
         }
-
     }
 }

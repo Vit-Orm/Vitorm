@@ -1,9 +1,8 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 
-using Vitorm.Extensions;
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
+
 using SqlTransaction = MySqlConnector.MySqlTransaction;
 
 namespace Vitorm.MySql
@@ -30,7 +29,7 @@ namespace Vitorm.MySql
                 if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
 
                 originalTransaction = dbConnection.BeginTransaction();
-                dbConnection.Execute("SET autocommit=0;", transaction: originalTransaction);
+                dbContext.ExecuteWithTransaction("SET autocommit=0;", transaction: originalTransaction);
                 transactionWrap = new DbTransactionWrap(originalTransaction);
             }
             else

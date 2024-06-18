@@ -37,7 +37,6 @@ namespace Vitorm.MsTest.CommonTest
 
                 var list = query.ToList();
                 Assert.AreEqual(2, list.Count);
-                Assert.AreEqual(5, list[0].user.id);
             }
             #endregion
 

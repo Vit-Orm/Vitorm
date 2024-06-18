@@ -129,6 +129,62 @@ namespace Vitorm.MsTest.CommonTest
 
 
 
+        [TestMethod]
+        public void Test_MultipleSelect()
+        {
+            using var dbContext = DataSource.CreateDbContext();
+            var userQuery = dbContext.Query<User>();
+
+            {
+                var query = from user in userQuery
+                            from father in userQuery.Where(father => user.fatherId == father.id)
+                            from mother in userQuery.Where(mother => user.motherId == mother.id)
+                            orderby user.id
+                            select new
+                            {
+                                uniqueId = user.id + "_" + father.id + "_" + mother.id,
+                                uniqueId1 = user.id + "_" + user.fatherId + "_" + user.motherId,
+                                user,
+                                user2 = user,
+                                user3 = user,
+                                father,
+                                hasFather = user.fatherId != null ? true : false,
+                                fatherName = father.name,
+                                mother
+                            };
+
+                var userList = query.ToList();
+                Assert.AreEqual(3, userList.Count);
+                Assert.AreEqual(1, userList.First().user.id);
+                Assert.AreEqual(3, userList.Last().user.id);
+                Assert.AreEqual(5, userList.Last().father?.id);
+            }
+
+
+            {
+                var query = from user in userQuery
+                            from father in userQuery.Where(father => user.fatherId == father.id)
+                            from mother in userQuery.Where(mother => user.motherId == mother.id)
+                            where user.id > 1
+                            orderby user.id
+                            select new
+                            {
+                                user,
+                                father,
+                                userId = user.id + 100,
+                                hasFather = user.fatherId != null ? true : false,
+                                hasFather2 = father != null,
+                                fatherName = father.name,
+                                motherName = mother.name,
+                            };
+
+                var userList = query.ToList();
+
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(4, userList.First().father?.id);
+                Assert.AreEqual(5, userList.Last().father?.id);
+            }
+        }
 
 
     }

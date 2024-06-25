@@ -7,7 +7,6 @@ using Vit.Extensions.Linq_Extensions;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.SqlServer.TranslateService;

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 
-namespace Vitorm.Entity.Dapper
+namespace Vitorm.Entity.DataAnnotations
 {
     public partial class EntityDescriptor : IEntityDescriptor
     {

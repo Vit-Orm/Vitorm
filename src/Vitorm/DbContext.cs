@@ -5,7 +5,7 @@ using System.Linq;
 using Vit.Linq.ExpressionTree;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
+using Vitorm.Entity.DataAnnotations;
 
 namespace Vitorm
 {

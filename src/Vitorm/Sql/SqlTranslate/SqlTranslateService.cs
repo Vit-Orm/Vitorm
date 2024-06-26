@@ -93,12 +93,12 @@ namespace Vitorm.Sql.SqlTranslate
         {
             switch (data.nodeType)
             {
-                case NodeType.And:
-                    ExpressionNode_And and = data;
+                case NodeType.AndAlso:
+                    ExpressionNode_AndAlso and = data;
                     return $"({EvalExpression(arg, and.left)}) and ({EvalExpression(arg, and.right)})";
 
-                case NodeType.Or:
-                    ExpressionNode_Or or = data;
+                case NodeType.OrElse:
+                    ExpressionNode_OrElse or = data;
                     return $"({EvalExpression(arg, or.left)}) or ({EvalExpression(arg, or.right)})";
 
                 case NodeType.Not:

@@ -47,11 +47,11 @@ namespace Vitorm.MsTest
 
             dbContext.BeginTransaction();
 
-            var userSet = dbContext.DbSet<User>();
+            var dbSet = dbContext.DbSet<User>();
 
             dbContext.Execute(sql: "IF OBJECT_ID(N'User', N'U') IS  NOT  NULL \r\nDROP TABLE [User];");
 
-            userSet.Create();
+            dbSet.Create();
 
             var users = new List<User> {
                     new User {   name="u146", fatherId=4, motherId=6 },

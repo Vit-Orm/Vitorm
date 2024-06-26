@@ -85,7 +85,7 @@ namespace Vitorm.StreamQuery
                         var curWhere = ExpressionNode.Binary(NodeType.Equal, leftKey.value, rightKey.value);
 
                         if (on == null) on = curWhere;
-                        else on = ExpressionNode.Binary(NodeType.And, on, curWhere);
+                        else on = ExpressionNode.Binary(NodeType.AndAlso, on, curWhere);
                     });
                 }
                 else

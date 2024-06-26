@@ -167,7 +167,7 @@ namespace Vitorm.StreamQuery
                         }
                         else
                         {
-                            groupedStream.having = ExpressionNode.And(groupedStream.having, having);
+                            groupedStream.having = ExpressionNode.AndAlso(groupedStream.having, having);
                         }
                         return groupedStream;
                     }
@@ -187,7 +187,7 @@ namespace Vitorm.StreamQuery
                         }
                         else
                         {
-                            combinedStream.where = ExpressionNode.And(combinedStream.where, where);
+                            combinedStream.where = ExpressionNode.AndAlso(combinedStream.where, where);
                         }
                         return combinedStream;
                     }

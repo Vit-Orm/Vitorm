@@ -45,8 +45,8 @@ namespace Vitorm.MsTest
 
             dbContext.BeginTransaction();
 
-            var userSet = dbContext.DbSet<User>();
-            userSet.Create();
+            var dbSet = dbContext.DbSet<User>();
+            dbSet.Create();
 
             var users = new List<User> {
                     new User { id=1, name="u146", fatherId=4, motherId=6 },

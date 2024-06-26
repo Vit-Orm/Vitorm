@@ -123,6 +123,12 @@ namespace Vitorm.Sqlite
                         ExpressionNode_Binary binary = data;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
                     }
+                case nameof(ExpressionType.Conditional):
+                    {
+                        // IIF(`t0`.`fatherId` is not null,true, false)
+                        ExpressionNode_Conditional conditional = data;
+                        return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
+                    }
                     #endregion
 
             }

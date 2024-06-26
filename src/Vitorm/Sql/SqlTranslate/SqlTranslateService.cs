@@ -7,6 +7,7 @@ using System.Linq;
 using Vitorm.StreamQuery;
 using System.Collections;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -94,21 +95,26 @@ namespace Vitorm.Sql.SqlTranslate
             switch (data.nodeType)
             {
                 case NodeType.AndAlso:
-                    ExpressionNode_AndAlso and = data;
-                    return $"({EvalExpression(arg, and.left)}) and ({EvalExpression(arg, and.right)})";
-
+                    {
+                        ExpressionNode_AndAlso and = data;
+                        return $"({EvalExpression(arg, and.left)} and {EvalExpression(arg, and.right)})";
+                    }
                 case NodeType.OrElse:
-                    ExpressionNode_OrElse or = data;
-                    return $"({EvalExpression(arg, or.left)}) or ({EvalExpression(arg, or.right)})";
-
+                    {
+                        ExpressionNode_OrElse or = data;
+                        return $"({EvalExpression(arg, or.left)} or {EvalExpression(arg, or.right)})";
+                    }
                 case NodeType.Not:
-                    ExpressionNode_Not not = data;
-                    return $"not ({EvalExpression(arg, not.body)})";
-
+                    {
+                        ExpressionNode_Not not = data;
+                        return $"(not {EvalExpression(arg, not.body)})";
+                    }
                 case NodeType.ArrayIndex:
-                    throw new NotSupportedException(data.nodeType);
-                //ExpressionNode_ArrayIndex arrayIndex = data;
-                //return Expression.ArrayIndex(ToExpression(arg, arrayIndex.left), ToExpression(arg, arrayIndex.right));
+                    {
+                        throw new NotSupportedException(data.nodeType);
+                        //ExpressionNode_ArrayIndex arrayIndex = data;
+                        //return Expression.ArrayIndex(ToExpression(arg, arrayIndex.left), ToExpression(arg, arrayIndex.right));
+                    }
                 case NodeType.Equal:
                 case NodeType.NotEqual:
                     {
@@ -127,16 +133,26 @@ namespace Vitorm.Sql.SqlTranslate
                         }
 
                         var @operator = operatorMap[data.nodeType];
-                        return $"{EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)}";
+                        return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
                     }
                 case NodeType.LessThan:
                 case NodeType.LessThanOrEqual:
                 case NodeType.GreaterThan:
                 case NodeType.GreaterThanOrEqual:
+                case nameof(ExpressionType.Divide):
+                case nameof(ExpressionType.Modulo):
+                case nameof(ExpressionType.Multiply):
+                case nameof(ExpressionType.Power):
+                case nameof(ExpressionType.Subtract):
                     {
                         ExpressionNode_Binary binary = data;
                         var @operator = operatorMap[data.nodeType];
-                        return $"{EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)}";
+                        return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
+                    }
+                case nameof(ExpressionType.Negate):
+                    {
+                        ExpressionNode_Unary unary = data;
+                        return $"(-{EvalExpression(arg, unary.body)})";
                     }
                 case NodeType.MethodCall:
                     {
@@ -206,7 +222,6 @@ namespace Vitorm.Sql.SqlTranslate
                         throw new NotSupportedException("[QueryTranslator] not suported MethodCall: " + methodCall.methodName);
                     }
 
-
                 #region Read Value
 
                 case NodeType.Member:
@@ -266,6 +281,12 @@ namespace Vitorm.Sql.SqlTranslate
             [NodeType.LessThanOrEqual] = "<=",
             [NodeType.GreaterThan] = ">",
             [NodeType.GreaterThanOrEqual] = ">=",
+
+            [nameof(ExpressionType.Divide)] = "/",
+            [nameof(ExpressionType.Modulo)] = "%",
+            [nameof(ExpressionType.Multiply)] = "*",
+            [nameof(ExpressionType.Power)] = "^",
+            [nameof(ExpressionType.Subtract)] = "-",
         };
         #endregion
 

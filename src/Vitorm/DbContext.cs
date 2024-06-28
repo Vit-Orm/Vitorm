@@ -9,7 +9,7 @@ using Vitorm.Entity.DataAnnotations;
 
 namespace Vitorm
 {
-    public class DbContext : IDisposable
+    public class DbContext : IDbContext, IDisposable
     {
         public DbContext()
         {
@@ -54,7 +54,7 @@ namespace Vitorm
 
 
 
-        // #1 Schema :  Create
+        // #0 Schema :  Create
         public virtual void Create<Entity>() => throw new NotImplementedException();
 
 

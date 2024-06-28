@@ -199,7 +199,7 @@ namespace Vitorm.MsTest.CommonTest
                     var user = userQuery.First(user => user.id == 13);
                     Assert.Fail("IQueryalbe.First should throw Exception");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
 
@@ -263,7 +263,7 @@ namespace Vitorm.MsTest.CommonTest
                     var user = userQuery.Last(user => user.id == 13);
                     Assert.Fail("IQueryalbe.First should throw Exception");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
 

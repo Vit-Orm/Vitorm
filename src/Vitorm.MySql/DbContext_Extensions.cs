@@ -28,7 +28,7 @@ namespace Vit.Extensions
             Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(ConnectionString);
 
 
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: ConnectionString.GetHashCode().ToString());
 
             dbContext.createTransactionScope = (dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
             //dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope_Command(dbContext);

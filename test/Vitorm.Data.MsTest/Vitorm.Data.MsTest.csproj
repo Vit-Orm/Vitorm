@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <RootNamespace>Vitorm.MsTest</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
+
+        <PackageReference Include="Vit.Core" Version="2.1.21" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
+      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+      <ProjectReference Include="..\..\src\Vitorm.Data\Vitorm.Data.csproj" />
+    </ItemGroup>
+
+ 
+    <ItemGroup>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>

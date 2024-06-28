@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Vitorm.Sql
+
+namespace Vitorm
 {
-    public class TypeUtil
+    public static class TypeUtil
     {
         public static Type GetUnderlyingType(Type type)
         {
@@ -44,6 +43,13 @@ namespace Vitorm.Sql
             if (!underlyingType.IsInstanceOfType(value))
                 value = Convert.ChangeType(value, underlyingType);
             return value;
+        }
+
+
+        public static object DefaultValue(Type type)
+        {
+            if (null == type || !type.IsValueType) return null;
+            return Activator.CreateInstance(type);
         }
 
 

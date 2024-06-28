@@ -15,7 +15,7 @@ namespace Vit.Extensions
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.Sqlite.SqliteConnection(ConnectionString);
 
 
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: ConnectionString.GetHashCode().ToString());
 
             dbContext.createTransactionScope = (dbContext) => new Vitorm.Sqlite.SqlTransactionScope(dbContext);
 

@@ -14,7 +14,8 @@ namespace Vit.Extensions
 
             Func<IDbConnection> createDbConnection = () => new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
 
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection);
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: ConnectionString.GetHashCode().ToString());
+
             dbContext.createTransactionScope = (dbContext) => new Vitorm.SqlServer.SqlTransactionScope(dbContext);
 
             return dbContext;

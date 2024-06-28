@@ -18,24 +18,50 @@ namespace Vitorm.Sql
         protected IDbConnection _dbConnection;
         public override void Dispose()
         {
-            base.Dispose();
+            try
+            {
+                base.Dispose();
+            }
+            finally
+            {
+                try
+                {
+                    transactionScope?.Dispose();
+                }
+                finally
+                {
+                    transactionScope = null;
 
-            transactionScope?.Dispose();
-            transactionScope = null;
-
-            _dbConnection?.Dispose();
-            _dbConnection = null;
+                    _dbConnection?.Dispose();
+                    _dbConnection = null;
+                }
+            }
         }
         public virtual IDbConnection dbConnection => _dbConnection ??= createDbConnection();
 
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
-        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, SqlExecutor sqlExecutor=null)
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sqlTranslateService"></param>
+        /// <param name="createDbConnection"></param>
+        /// <param name="sqlExecutor"></param>
+        /// <param name="dbHashCode"> to identify whether contexts are from the same database </param>
+        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, SqlExecutor sqlExecutor = null, string dbHashCode = null)
         {
             this.sqlTranslateService = sqlTranslateService;
             this.createDbConnection = createDbConnection;
             this.sqlExecutor = sqlExecutor ?? SqlExecutor.Instance;
+
+            if (string.IsNullOrEmpty(dbHashCode))
+                dbHashCode = GetHashCode().ToString();
+
+            dbGroupName = "SqlDbSet_" + dbHashCode;
         }
 
 
@@ -162,110 +188,134 @@ namespace Vitorm.Sql
         }
 
 
+        /// <summary>
+        /// to identify whether contexts are from the same database
+        /// </summary>
+        protected string dbGroupName { get; set; }
+        protected bool QueryIsFromSameDb(object query, Type elementType)
+        {
+            return dbGroupName == QueryableBuilder.GetQueryConfig(query as IQueryable) as string;
+        }
+        public Action<SqlDbContext, Expression, Type, object> AfterQuery;
+        protected object QueryExecutor(Expression expression, Type type)
+        {
+            object result = null;
+            try
+            {
+                return result = ExecuteQuery(expression, type);
+            }
+            finally
+            {
+                AfterQuery?.Invoke(this, expression, type, result);
+            }
+        }
+        public virtual SqlDbContext AutoDisposeAfterQuery()
+        {
+            AfterQuery += (_, _, _, _) => Dispose();
+            return this;
+        }
+
+        protected object ExecuteQuery(Expression expression, Type type)
+        {
+            // #1 convert to ExpressionNode 
+            ExpressionNode node = convertService.ConvertToData(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
+            //var strNode = Json.Serialize(node);
+
+
+            // #2 convert to Stream
+            var stream = StreamReader.ReadNode(node);
+            //var strStream = Json.Serialize(stream);
+
+
+            // #3.1 ExecuteUpdate
+            if (stream is StreamToUpdate streamToUpdate)
+            {
+                // get arg
+                var resultEntityType = streamToUpdate.fieldsToUpdate.New_GetType();
+                var arg = new QueryTranslateArgument(this, resultEntityType);
+
+                (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
+
+                return Execute(sql: sql, param: sqlParam);
+            }
+
+
+            // #3.3 Query
+            // #3.3.1
+            var combinedStream = stream as CombinedStream;
+            if (combinedStream == null) combinedStream = new CombinedStream("tmp") { source = stream };
+
+            // #3.3.2 execute and read result
+            switch (combinedStream.method)
+            {
+                case nameof(Orm_Extensions.ToExecuteString):
+                    {
+                        // ToExecuteString
+
+                        // get arg
+                        var arg = new QueryTranslateArgument(this, null);
+
+                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                        return sql;
+                    }
+                case "Count":
+                    {
+                        // Count
+
+                        // get arg
+                        var arg = new QueryTranslateArgument(this, null);
+
+                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+
+                        var count = ExecuteScalar(sql: sql, param: sqlParam);
+                        return Convert.ToInt32(count);
+                    }
+                case nameof(Orm_Extensions.ExecuteDelete):
+                    {
+                        // ExecuteDelete
+
+                        // get arg
+                        var resultEntityType = (combinedStream.source as SourceStream)?.GetEntityType();
+                        var arg = new QueryTranslateArgument(this, resultEntityType);
+
+                        (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
+
+                        var count = Execute(sql: sql, param: sqlParam);
+                        return count;
+                    }
+                case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
+                    {
+                        // get arg
+                        var resultEntityType = expression.Type;
+                        var arg = new QueryTranslateArgument(this, resultEntityType);
+
+                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+
+                        using var reader = ExecuteReader(sql: sql, param: sqlParam);
+                        return dataReader.ReadData(reader);
+                    }
+                case "ToList":
+                case "":
+                case null:
+                    {
+                        // ToList
+
+                        // get arg
+                        var resultEntityType = expression.Type.GetGenericArguments()?.FirstOrDefault();
+                        var arg = new QueryTranslateArgument(this, resultEntityType);
+
+                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+
+                        using var reader = ExecuteReader(sql: sql, param: sqlParam);
+                        return dataReader.ReadData(reader);
+                    }
+            }
+            throw new NotSupportedException("not supported query type: " + combinedStream.method);
+        }
+
         public override IQueryable<Entity> Query<Entity>()
         {
-            var dbContextId = "SqlDbSet_" + GetHashCode();
-
-            Func<Expression, Type, object> QueryExecutor = (expression, type) =>
-            {
-                // #1 convert to ExpressionNode
-                var isArgument = QueryableBuilder.QueryTypeNameCompare(dbContextId);
-                ExpressionNode node = convertService.ConvertToData(expression, autoReduce: true, isArgument: isArgument);
-                //var strNode = Json.Serialize(node);
-
-
-                // #2 convert to Stream
-                var stream = StreamReader.ReadNode(node);
-                //var strStream = Json.Serialize(stream);
-
-
-                // #3.1 ExecuteUpdate
-                if (stream is StreamToUpdate streamToUpdate)
-                {
-                    // get arg
-                    var resultEntityType = streamToUpdate.fieldsToUpdate.New_GetType();
-                    var arg = new QueryTranslateArgument(this, resultEntityType);
-
-                    (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
-
-                    return Execute(sql: sql, param: sqlParam);
-                }
-
-
-                // #3.3 Query
-                // #3.3.1
-                var combinedStream = stream as CombinedStream;
-                if (combinedStream == null) combinedStream = new CombinedStream("tmp") { source = stream };
-
-                // #3.3.2 execute and read result
-                switch (combinedStream.method)
-                {
-                    case nameof(Orm_Extensions.ToExecuteString):
-                        {
-                            // ToExecuteString
-
-                            // get arg
-                            var arg = new QueryTranslateArgument(this, null);
-
-                            (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
-                            return sql;
-                        }
-                    case "Count":
-                        {
-                            // Count
-
-                            // get arg
-                            var arg = new QueryTranslateArgument(this, null);
-
-                            (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
-
-                            var count = ExecuteScalar(sql: sql, param: sqlParam);
-                            return Convert.ToInt32(count);
-                        }
-                    case nameof(Orm_Extensions.ExecuteDelete):
-                        {
-                            // ExecuteDelete
-
-                            // get arg
-                            var resultEntityType = (combinedStream.source as SourceStream)?.GetEntityType();
-                            var arg = new QueryTranslateArgument(this, resultEntityType);
-
-                            (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
-
-                            var count = Execute(sql: sql, param: sqlParam);
-                            return count;
-                        }
-                    case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
-                        {
-                            // get arg
-                            var resultEntityType = expression.Type;
-                            var arg = new QueryTranslateArgument(this, resultEntityType);
-
-                            (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
-
-                            using var reader = ExecuteReader(sql: sql, param: sqlParam);
-                            return dataReader.ReadData(reader);
-                        }
-                    case "ToList":
-                    case "":
-                    case null:
-                        {
-                            // ToList
-
-                            // get arg
-                            var resultEntityType = expression.Type.GetGenericArguments()?.FirstOrDefault();
-                            var arg = new QueryTranslateArgument(this, resultEntityType);
-
-                            (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
-
-                            using var reader = ExecuteReader(sql: sql, param: sqlParam);
-                            return dataReader.ReadData(reader);
-                        }
-                }
-                throw new NotSupportedException("not supported query type: " + combinedStream.method);
-            };
-            return QueryableBuilder.Build<Entity>(QueryExecutor, dbContextId);
-
+            return QueryableBuilder.Build<Entity>(QueryExecutor, dbGroupName);
         }
 
         #endregion
@@ -401,7 +451,7 @@ namespace Vitorm.Sql
         {
             var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout;
-            return sqlExecutor.Execute(dbConnection,sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)

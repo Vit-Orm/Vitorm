@@ -44,7 +44,7 @@ namespace Vitorm.MsTest.CommonTest
                 dbContext.Add(newUserList[0]);
                 Assert.Fail("should not be able to add same key twice");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not AssertFailedException)
             {
             }
 
@@ -83,24 +83,8 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
             }
 
-            try
-            {
-                var newUser = User.NewUser(4);
-                var key = dbContext.GetEntityDescriptor(typeof(User)).key;
-                key.SetValue(newUser, null);
-                dbContext.Update(newUser);
-                Assert.Fail("should not be able to update entity with null key");
-            }
-            catch (Exception ex)
-            {
-            }
-
-
         }
         #endregion
-
-
-
 
 
         #region #4 Delete

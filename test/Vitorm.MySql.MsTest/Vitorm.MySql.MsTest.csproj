@@ -25,6 +25,7 @@
 
     <ItemGroup>
         <Compile Include="..\Vitorm.Sqlite.MsTest\CommonTest\*.cs" Link="CommonTest\%(RecursiveDir)%(FileName)%(Extension)" />
+        <Compile Include="..\Vitorm.Sqlite.MsTest\ExpressionTreeTest\ExpressionTester.cs" Link="ExpressionTreeTest\ExpressionTester.cs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@
 
 using Vit.Linq.ExpressionTree.ExpressionTreeTest;
 
-namespace Vitorm.MsTest.CustomTest
+namespace Vitorm.MsTest.ExpressionTreeTest
 {
     [TestClass]
     public class Query_Test

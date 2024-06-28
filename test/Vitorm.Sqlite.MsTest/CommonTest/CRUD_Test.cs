@@ -29,7 +29,7 @@ namespace Vitorm.MsTest.CommonTest
             dbContext.AddRange(newUserList.Skip(1));
 
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {
@@ -72,7 +72,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(2, rowCount);
             }
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {
@@ -125,7 +125,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(2, rowCount);
             }
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {

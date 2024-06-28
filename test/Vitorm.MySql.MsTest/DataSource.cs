@@ -32,7 +32,9 @@ namespace Vitorm.MsTest
 
     public class DataSource
     {
-        static string connectionString = Appsettings.json.GetStringByPath("App.Db.ConnectionString");
+        public static void WaitForUpdate() { }
+
+        static string connectionString = Appsettings.json.GetStringByPath("Vitorm.MySql.connectionString");
         public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
 
         public static SqlDbContext CreateDbContext()
@@ -42,11 +44,9 @@ namespace Vitorm.MsTest
 
             dbContext.BeginTransaction();
 
-            var dbSet = dbContext.DbSet<User>();
-
             dbContext.Execute(sql: "DROP TABLE  if exists `User`;");
 
-            dbSet.Create();
+            dbContext.Create<User>();
 
             var users = new List<User> {
                     new User {   name="u146", fatherId=4, motherId=6 },

@@ -29,6 +29,8 @@ namespace Vitorm.MsTest
 
     public class DataSource
     {
+        public static void WaitForUpdate() { }
+
         public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
         public static SqlDbContext CreateDbContext()
         {

@@ -36,7 +36,9 @@ namespace Vitorm.MsTest
 
     public class DataSource
     {
-        static string connectionString = Appsettings.json.GetStringByPath("App.Db.ConnectionString");
+        public static void WaitForUpdate() { }
+
+        static string connectionString = Appsettings.json.GetStringByPath("Vitorm.SqlServer.connectionString");
 
         public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
 
@@ -47,11 +49,9 @@ namespace Vitorm.MsTest
 
             dbContext.BeginTransaction();
 
-            var dbSet = dbContext.DbSet<User>();
-
             dbContext.Execute(sql: "IF OBJECT_ID(N'User', N'U') IS  NOT  NULL \r\nDROP TABLE [User];");
 
-            dbSet.Create();
+            dbContext.Create<User>();
 
             var users = new List<User> {
                     new User {   name="u146", fatherId=4, motherId=6 },

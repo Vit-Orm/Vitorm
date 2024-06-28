@@ -8,6 +8,8 @@ namespace Vitorm.DataProvider
 {
     public abstract class SqlDataProvider : IDataProvider
     {
+        DbContext IDataProvider.CreateDbContext() => this.CreateDbContext();
+
         public abstract SqlDbContext CreateDbContext();
 
         public abstract void Init(Dictionary<string, object> config);

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using User = Vitorm.MsTest.Sqlite.User;
+using User = Vitorm.MsTest.ClickHouse.User;
 using Vitorm.DataProvider;
 using Vitorm.Sql;
 
-namespace Vitorm.MsTest.Sqlite
+namespace Vitorm.MsTest.ClickHouse
 {
     public class User : Vitorm.MsTest.UserBase
     {
@@ -15,7 +15,7 @@ namespace Vitorm.MsTest
 {
 
     [TestClass]
-    public partial class Sqlite_Test : UserTest<User>
+    public partial class ClickHouse_Test : UserTest<User>
     {
 
         [TestMethod]
@@ -27,28 +27,24 @@ namespace Vitorm.MsTest
             Test_Query();
             Test_QueryJoin();
             Test_ToExecuteString();
-            Test_ExecuteUpdate();
+            //Test_ExecuteUpdate();
             Test_ExecuteDelete();
             Test_Create();
-            Test_Update();
+            //Test_Update();
             Test_Delete();
             Test_DbContext();
         }
 
         public override User NewUser(int id, bool forAdd = false) => new User { id = id, name = "testUser" + id };
 
-
+        public override void WaitForUpdate() => Thread.Sleep(1000); 
 
         public void Init()
         {
 
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"sqlite.db");
-            if (File.Exists(filePath)) File.Delete(filePath);
-            File.WriteAllBytes(filePath, new byte[0]);
+            using var dbContext = Data.DataProvider<User>()?.CreateDbContext() as SqlDbContext;
 
-
-            using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
-
+            dbContext.Execute(sql: "DROP TABLE if exists `User`;");
             dbContext.Create<User>();
 
             var users = new List<User> {

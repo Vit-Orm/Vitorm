@@ -9,7 +9,6 @@ using Vitorm.Sql.Transaction;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 using Vit.Extensions.Vitorm_Extensions;
-using Vitorm.Entity;
 
 namespace Vitorm.Sql
 {

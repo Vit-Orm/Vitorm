@@ -216,49 +216,14 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
         {
-            /* //sql
-             insert into user(name,birth,fatherId,motherId) values('','','');
-             select seq from sqlite_sequence where name='user';
-              */
-            var entityDescriptor = arg.entityDescriptor;
+            var result = PrepareAdd(arg, arg.entityDescriptor.columns);
 
-            var columns = entityDescriptor.columns;
+            // get generated id
+            result.sql += "select last_insert_id();";
 
-            // #1 GetSqlParams 
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
-            {
-                var sqlParam = new Dictionary<string, object>();
-                foreach (var column in columns)
-                {
-                    var columnName = column.name;
-                    var value = column.GetValue(entity);
-
-                    sqlParam[columnName] = value;
-                }
-                return sqlParam;
-            };
-
-            #region #2 columns 
-            List<string> columnNames = new List<string>();
-            List<string> valueParams = new List<string>();
-            string columnName;
-
-            foreach (var column in columns)
-            {
-                columnName = column.name;
-
-                columnNames.Add(DelimitIdentifier(columnName));
-                valueParams.Add(GenerateParameterName(columnName));
-            }
-            #endregion
-
-            // #3 build sql
-            string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
-            sql += "select last_insert_id();";
-            return (sql, GetSqlParams);
+            return result;
         }
 
         public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)

@@ -19,7 +19,7 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = CreateDbContext();
 
-            var newUserList = User.NewUsers(7, 4);
+            var newUserList = User.NewUsers(7, 4, forAdd: true);
 
 
             // #1 Add
@@ -76,7 +76,7 @@ namespace Vitorm.MsTest.CommonTest
 
             // assert
             {
-                var newUserList = User.NewUsers(4, 3);
+                var newUserList = User.NewUsers(4, 3, forAdd: false);
                 var userList = dbContext.Query<User>().Where(m => m.id >= 4).ToList();
                 Assert.AreEqual(newUserList.Count, userList.Count());
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());

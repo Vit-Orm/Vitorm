@@ -8,16 +8,13 @@ using Vitorm.StreamQuery;
 using System.Collections;
 using System.Text;
 using System.Linq.Expressions;
+using static Vitorm.Sql.SqlDbContext;
+using System.Data;
 
 namespace Vitorm.Sql.SqlTranslate
 {
     public abstract class SqlTranslateService : ISqlTranslateService
     {
-        public SqlTranslateService()
-        {
-        }
-
-
 
         #region DelimitIdentifier
         /// <summary>
@@ -296,15 +293,27 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         #region #1 Create :  PrepareAdd
-        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
+        {
+            var key = arg.entityDescriptor.key;
+            if (key == null) return EAddType.noKeyColumn;
+
+            var keyValue = key.GetValue(entity);
+            if (keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type))) return EAddType.keyWithValue;
+
+            if (key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity) return EAddType.identityKey;
+
+            throw new ArgumentException("Key could not be empty.");
+            //return EAddType.unexpectedEmptyKey;
+        }
+
+        protected virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, IColumnDescriptor[] columns)
         {
             /* //sql
-             insert into user(name,birth,fatherId,motherId) values('','','');
-             select seq from sqlite_sequence where name='user';
+             insert into user(name,fatherId,motherId) values('',0,0);
               */
-            var entityDescriptor = arg.entityDescriptor;
 
-            var columns = entityDescriptor.columns;
+            var entityDescriptor = arg.entityDescriptor;
 
             // #1 GetSqlParams 
             Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
@@ -312,10 +321,7 @@ namespace Vitorm.Sql.SqlTranslate
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in columns)
                 {
-                    var columnName = column.name;
-                    var value = column.GetValue(entity);
-
-                    sqlParam[columnName] = value;
+                    sqlParam[column.name] = column.GetValue(entity);
                 }
                 return sqlParam;
             };
@@ -323,23 +329,26 @@ namespace Vitorm.Sql.SqlTranslate
             #region #2 columns 
             List<string> columnNames = new List<string>();
             List<string> valueParams = new List<string>();
-            string columnName;
 
             foreach (var column in columns)
             {
-                columnName = column.name;
-
-                columnNames.Add(DelimitIdentifier(columnName));
-                valueParams.Add(GenerateParameterName(columnName));
+                columnNames.Add(DelimitIdentifier(column.name));
+                valueParams.Add(GenerateParameterName(column.name));
             }
             #endregion
 
             // #3 build sql
             string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
-            //sql+=$"select seq from sqlite_sequence where name = '{tableName}'; ";
 
             return (sql, GetSqlParams);
         }
+
+        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        {
+            return PrepareAdd(arg, arg.entityDescriptor.allColumns);
+        }
+
+        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg) => throw new NotImplementedException();
         #endregion
 
 

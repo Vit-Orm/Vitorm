@@ -9,6 +9,7 @@ using Vitorm.Sql.Transaction;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 using Vit.Extensions.Vitorm_Extensions;
+using Vitorm.Entity;
 
 namespace Vitorm.Sql
 {
@@ -87,17 +88,25 @@ namespace Vitorm.Sql
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
             SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
-            // #1 prepare sql
-            (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
+            var addType = sqlTranslateService.Entity_GetAddType(arg,entity);
+            //if (addType == EAddType.unexpectedEmptyKey) throw new ArgumentException("Key could not be empty.");
 
-            // #2 get sql params
-            var sqlParam = GetSqlParams(entity);
 
-            // #3 execute
-            if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
+
+
+            if (addType == EAddType.identityKey)
             {
-                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
+                // #1 prepare sql
+                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
+
+                // #2 get sql params
+                var sqlParam = GetSqlParams(entity);
+
+                // #3 add
                 var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
+
+                // #4 set key value to entity
+                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
                 newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
                 if (newKeyValue != null)
                 {
@@ -106,6 +115,13 @@ namespace Vitorm.Sql
             }
             else
             {
+                // #1 prepare sql
+                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
+
+                // #2 get sql params
+                var sqlParam = GetSqlParams(entity);
+
+                // #3 add
                 Execute(sql: sql, param: sqlParam);
             }
 
@@ -116,38 +132,61 @@ namespace Vitorm.Sql
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
             SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
+            List<(Entity entity, EAddType addType)> entityAndTypes = entities.Select(entity => (entity, sqlTranslateService.Entity_GetAddType(arg, entity))).ToList();
+            //if (entityAndTypes.Any(row => row.addType == EAddType.unexpectedEmptyKey)) throw new ArgumentException("Key could not be empty.");
 
-            // #1 prepare sql
-            (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
 
-            // #2 execute
             var affectedRowCount = 0;
 
-            if (entityDescriptor.key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)
+            // #2 keyWithValue
             {
-                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-                foreach (var entity in entities)
+                var rows = entityAndTypes.Where(row => row.addType == EAddType.keyWithValue);
+                if (rows.Any())
                 {
-                    var sqlParam = GetSqlParams(entity);
-                    var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
-                    newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                    if (newKeyValue != null)
+                    // ##1 prepare sql
+                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
+
+                    foreach ((var entity, _) in rows)
                     {
-                        entityDescriptor.key.SetValue(entity, newKeyValue);
+                        // #2 get sql params
+                        var sqlParam = GetSqlParams(entity);
+
+                        // #3 add
+                        Execute(sql: sql, param: sqlParam);
+                        affectedRowCount++;
                     }
-                    affectedRowCount++;
-                }
-            }
-            else
-            {
-                foreach (var entity in entities)
-                {
-                    var sqlParam = GetSqlParams(entity);
-                    Execute(sql: sql, param: sqlParam);
-                    affectedRowCount++;
                 }
             }
 
+            // #3 identityKey
+            {
+                var rows = entityAndTypes.Where(row => row.addType == EAddType.identityKey);
+                if (rows.Any())
+                {
+                    var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
+
+                    // ##1 prepare sql
+                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
+
+                    foreach ((var entity, _) in rows)
+                    {
+                        // ##2 get sql params
+                        var sqlParam = GetSqlParams(entity);
+
+                        // ##3 add
+                        var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
+
+                        // ##4 set key value to entity
+                        newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
+                        if (newKeyValue != null)
+                        {
+                            entityDescriptor.key.SetValue(entity, newKeyValue);
+                        }
+
+                        affectedRowCount++;
+                    }
+                }
+            }
         }
 
         #endregion

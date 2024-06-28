@@ -21,11 +21,11 @@ namespace Vitorm.MsTest
         public string test { get; set; }
 
 
-        public static User NewUser(int id) => new User { id = id, name = "testUser" + id };
+        public static User NewUser(int id, bool forAdd = false) => new User { id = forAdd ? 0 : id, name = "testUser" + id };
 
-        public static List<User> NewUsers(int startId, int count = 1)
+        public static List<User> NewUsers(int startId, int count = 1, bool forAdd = false)
         {
-            return Enumerable.Range(startId, count).Select(NewUser).ToList();
+            return Enumerable.Range(startId, count).Select(id => NewUser(id, forAdd)).ToList();
         }
     }
 

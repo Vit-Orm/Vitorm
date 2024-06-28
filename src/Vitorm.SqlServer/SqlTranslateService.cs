@@ -226,9 +226,28 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
 
 
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public override EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
         {
-            var result = base.PrepareAdd(arg);
+            var key = arg.entityDescriptor.key;
+            if (key == null) return EAddType.noKeyColumn;
+
+            var keyValue = key.GetValue(entity);
+            var keyIsEmpty = keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+
+            var keyIsIdentity = key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity;
+
+            if (keyIsIdentity)
+            {
+                return keyIsEmpty ? EAddType.identityKey : throw new ArgumentException("Cannot insert explicit value for identity column.");
+            }
+            else
+            {
+                return !keyIsEmpty ? EAddType.keyWithValue : throw new ArgumentException("Key could not be empty.");
+            }
+        }
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
+        {
+            var result = PrepareAdd(arg, arg.entityDescriptor.columns);
 
             // get generated id
             result.sql += "select convert(int,isnull(SCOPE_IDENTITY(),-1));";

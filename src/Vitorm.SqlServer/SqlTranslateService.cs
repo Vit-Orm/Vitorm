@@ -171,13 +171,14 @@ namespace Vitorm.SqlServer
         public override string PrepareCreate(IEntityDescriptor entityDescriptor)
         {
             /* //sql
-CREATE TABLE user (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name varchar(100) DEFAULT NULL,
-  birth date DEFAULT NULL,
-  fatherId int DEFAULT NULL,
-  motherId int DEFAULT NULL
-) ;
+if object_id(N'[dbo].[User]', N'U') is null
+    CREATE TABLE [dbo].[User] (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      name varchar(100) DEFAULT NULL,
+      birth date DEFAULT NULL,
+      fatherId int DEFAULT NULL,
+      motherId int DEFAULT NULL
+    ) ;
               */
             List<string> sqlFields = new();
 
@@ -188,6 +189,7 @@ CREATE TABLE user (
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
+if object_id(N'{DelimitTableName(entityDescriptor)}', N'U') is null
 CREATE TABLE {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";

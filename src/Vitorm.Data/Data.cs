@@ -2,9 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
-using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Core.Util.Reflection;
 using Vit.Extensions.Linq_Extensions;
@@ -18,8 +16,28 @@ namespace Vitorm
 
         static Data()
         {
-            var configs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
-            providerCache = configs?.Select(GetDataProvider).NotNull().ToList() ?? new();
+            var dataSourceConfigs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
+            var dataProviders = dataSourceConfigs?.Select(GetDataProvider).NotNull().ToList();
+
+            if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
+        }
+
+        public static bool AddDataSource(Dictionary<string, object> dataSourceConfig)
+        {
+            var provider = GetDataProvider(dataSourceConfig);
+            if (provider == null) return false;
+
+            providerCache.Insert(0, provider);
+            providerMap.Clear();
+            return true;
+        }
+        public static void ClearDataSource(Predicate<DataProviderCache> predicate = null)
+        {
+            if (predicate != null)
+                providerCache.RemoveAll(predicate);
+            else
+                providerCache.Clear();
+            providerMap.Clear();
         }
 
 
@@ -30,43 +48,49 @@ namespace Vitorm
 
             IDataProvider GetDataProviderFromConfig(Type entityType)
             {
-                var ns = entityType.Namespace;
-                return providerCache.FirstOrDefault(cache => ns.StartsWith(cache.@namespace))?.dataProvider
+                var Namespace = entityType.Namespace;
+                return providerCache.FirstOrDefault(cache => Namespace.StartsWith(cache.@namespace))?.dataProvider
                     ?? throw new NotImplementedException("can not find config for type: " + entityType.FullName);
             }
+        }
+        public static IDataProvider DataProvider(string Namespace)
+        {
+            return providerCache.FirstOrDefault(cache => Namespace.StartsWith(cache.@namespace))?.dataProvider;
         }
         public static IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
 
 
-        class DataProviderCache
+        public class DataProviderCache
         {
             public IDataProvider dataProvider;
             public string @namespace;
+            public Dictionary<string, object> dataSourceConfig;
         }
 
 
-        static readonly ConcurrentDictionary<Type, IDataProvider> providerMap = new ConcurrentDictionary<Type, IDataProvider>();
+        static readonly ConcurrentDictionary<Type, IDataProvider> providerMap = new();
 
-        static List<DataProviderCache> providerCache;
+        static readonly List<DataProviderCache> providerCache = new();
 
 
-        static DataProviderCache GetDataProvider(Dictionary<string, object> config)
+        static DataProviderCache GetDataProvider(Dictionary<string, object> dataSourceConfig)
         {
-            config.TryGetValue("provider", out var provider);
-            config.TryGetValue("assemblyName", out var assemblyName);
-            config.TryGetValue("assemblyFile", out var assemblyFile);
+            dataSourceConfig.TryGetValue("provider", out var provider);
+            dataSourceConfig.TryGetValue("assemblyName", out var assemblyName);
+            dataSourceConfig.TryGetValue("assemblyFile", out var assemblyFile);
 
-            Type type = ObjectLoader.GetType(className: config["provider"] as string, assemblyName: assemblyName as string, assemblyFile: assemblyFile as string);
+            Type type = ObjectLoader.GetType(className: dataSourceConfig["provider"] as string, assemblyName: assemblyName as string, assemblyFile: assemblyFile as string);
 
             var dataProvider = type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[] { }) as IDataProvider;
             if (dataProvider == null) return null;
 
-            dataProvider.Init(config);
+            dataProvider.Init(dataSourceConfig);
 
             return new DataProviderCache
             {
                 dataProvider = dataProvider,
-                @namespace = config["namespace"] as string,
+                @namespace = dataSourceConfig["namespace"] as string,
+                dataSourceConfig = dataSourceConfig,
             };
         }
 

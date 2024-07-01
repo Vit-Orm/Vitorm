@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Vitorm.Entity
 {
@@ -10,19 +9,25 @@ namespace Vitorm.Entity
         bool isKey { get; }
 
         /// <summary>
-        /// Specifies how the database generates values for a property.   None / Identity / Computed
+        /// whether column is Identity
         /// </summary>
-        DatabaseGeneratedOption? databaseGenerated { get; }
+        bool isIdentity { get; }
+        /// <summary>
+        /// whether column could be null
+        /// </summary>
+        bool isNullable { get; }
+
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
         string databaseType { get; }
-        /// <summary>
-        /// whether column could be null
-        /// </summary>
-        bool nullable { get; }
+
+    
 
         void SetValue(object entity, object value);
         object GetValue(object entity);
+
+        //bool? isIndex { get; }
+        //int? columnOrder { get; }
     }
 }

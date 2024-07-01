@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 
 namespace Vitorm.Entity.DataAnnotations

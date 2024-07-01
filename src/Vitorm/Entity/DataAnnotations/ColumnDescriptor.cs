@@ -1,21 +1,20 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
-namespace Vitorm.Entity
+namespace Vitorm.Entity.DataAnnotations
 {
     public class ColumnDescriptor : IColumnDescriptor
     {
-        public ColumnDescriptor(PropertyInfo propertyInfo, string name, bool isKey, DatabaseGeneratedOption? databaseGenerated, string databaseType, bool nullable)
+        public ColumnDescriptor(PropertyInfo propertyInfo, string name, bool isKey, bool isIdentity, string databaseType, bool isNullable)
         {
             this.propertyInfo = propertyInfo;
             type = propertyInfo.PropertyType;
 
             this.name = name;
             this.isKey = isKey;
-            this.databaseGenerated = databaseGenerated;
+            this.isIdentity = isIdentity;
             this.databaseType = databaseType;
-            this.nullable = nullable;
+            this.isNullable = isNullable;
         }
 
         PropertyInfo propertyInfo;
@@ -25,20 +24,20 @@ namespace Vitorm.Entity
         public string name { get; private set; }
 
         public bool isKey { get; private set; }
+
         /// <summary>
-        /// Specifies how the database generates values for a property.   None / Identity / Computed
+        /// whether column is Identity
         /// </summary>
-        public DatabaseGeneratedOption? databaseGenerated { get; private set; }
+        public bool isIdentity { get; private set; }
+        /// <summary>
+        /// whether column could be null
+        /// </summary>
+        public bool isNullable { get; private set; }
+
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
         public string databaseType { get; private set; }
-        /// <summary>
-        /// whether column could be null
-        /// </summary>
-        public bool nullable { get; private set; }
-
-
 
 
         public void SetValue(object entity, object value)

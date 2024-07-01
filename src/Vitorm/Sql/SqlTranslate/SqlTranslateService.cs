@@ -75,7 +75,7 @@ namespace Vitorm.Sql.SqlTranslate
             return GetSqlField(member.objectValue?.parameterName ?? member.parameterName, memberName);
         }
 
-        protected abstract string GetDbType(Type type);
+        protected abstract string GetColumnDbType(Type type);
 
 
         #region EvalExpression
@@ -301,7 +301,7 @@ namespace Vitorm.Sql.SqlTranslate
             var keyValue = key.GetValue(entity);
             if (keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type))) return EAddType.keyWithValue;
 
-            if (key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity) return EAddType.identityKey;
+            if (key.isIdentity) return EAddType.identityKey;
 
             throw new ArgumentException("Key could not be empty.");
             //return EAddType.unexpectedEmptyKey;

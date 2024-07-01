@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 
 using Vit.Extensions.Linq_Extensions;
@@ -118,14 +117,14 @@ namespace Vitorm.SqlServer
                         // Nullable
                         if (targetType.IsGenericType) targetType = targetType.GetGenericArguments()[0];
 
-                        string targetDbType = GetDbType(targetType);
+                        string targetDbType = GetColumnDbType(targetType);
 
                         var sourceType = convert.body.Member_GetType();
                         if (sourceType != null)
                         {
                             if (sourceType.IsGenericType) sourceType = sourceType.GetGenericArguments()[0];
 
-                            if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
+                            if (targetDbType == GetColumnDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
 
                         return $"cast({EvalExpression(arg, convert.body)} as {targetDbType})";
@@ -183,7 +182,8 @@ if object_id(N'[dbo].[User]', N'U') is null
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.databaseGenerated == DatabaseGeneratedOption.Identity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
+            if(entityDescriptor.key!=null)
+                sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.isIdentity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
@@ -197,13 +197,13 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var dbType = column.databaseType ?? GetDbType(column.type);
+                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {dbType} {(column.nullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.name)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
 
-        protected readonly static Dictionary<Type, string> dbTypeMap = new()
+        protected readonly static Dictionary<Type, string> columnDbTypeMap = new()
         {
             [typeof(DateTime)] = "datetime",
             [typeof(string)] = "varchar(max)",
@@ -217,11 +217,11 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
             [typeof(byte)] = "tinyint",
             [typeof(bool)] = "bit",
         };
-        protected override string GetDbType(Type type)
+        protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 
-            if (dbTypeMap.TryGetValue(type, out var dbType)) return dbType;
+            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
             throw new NotSupportedException("unsupported column type:" + type.Name);
         }
         #endregion
@@ -236,9 +236,7 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
             var keyValue = key.GetValue(entity);
             var keyIsEmpty = keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
 
-            var keyIsIdentity = key.databaseGenerated == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity;
-
-            if (keyIsIdentity)
+            if (key.isIdentity)
             {
                 return keyIsEmpty ? EAddType.identityKey : throw new ArgumentException("Cannot insert explicit value for identity column.");
             }

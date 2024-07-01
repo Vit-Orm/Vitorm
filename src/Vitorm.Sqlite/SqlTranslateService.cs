@@ -89,14 +89,14 @@ namespace Vitorm.Sqlite
                         // Nullable
                         if (targetType.IsGenericType) targetType = targetType.GetGenericArguments()[0];
 
-                        string targetDbType = GetDbType(targetType);
+                        string targetDbType = GetColumnDbType(targetType);
 
                         var sourceType = convert.body.Member_GetType();
                         if (sourceType != null)
                         {
                             if (sourceType.IsGenericType) sourceType = sourceType.GetGenericArguments()[0];
 
-                            if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
+                            if (targetDbType == GetColumnDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
 
                         if (targetDbType == "datetime")
@@ -167,12 +167,12 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var dbType = column.databaseType ?? GetDbType(column.type);
+                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {dbType} {(column.nullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.name)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
-        protected override string GetDbType(Type type)
+        protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 

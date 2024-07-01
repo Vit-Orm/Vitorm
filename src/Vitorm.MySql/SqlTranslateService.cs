@@ -8,7 +8,6 @@ using Vitorm.Entity;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.MySql.TranslateService;
-using System.ComponentModel.DataAnnotations.Schema;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.MySql
@@ -107,14 +106,14 @@ namespace Vitorm.MySql
                         // Nullable
                         if (targetType.IsGenericType) targetType = targetType.GetGenericArguments()[0];
 
-                        string targetDbType = GetDbType(targetType);
+                        string targetDbType = GetColumnDbType(targetType);
 
                         var sourceType = convert.body.Member_GetType();
                         if (sourceType != null)
                         {
                             if (sourceType.IsGenericType) sourceType = sourceType.GetGenericArguments()[0];
 
-                            if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
+                            if (targetDbType == GetColumnDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
 
                         if (targetType == typeof(string))
@@ -173,7 +172,8 @@ CREATE TABLE user (
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY " + (entityDescriptor.key.databaseGenerated == DatabaseGeneratedOption.Identity ? "AUTO_INCREMENT " : ""));
+            if (entityDescriptor.key != null)
+                sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY " + (entityDescriptor.key.isIdentity ? "AUTO_INCREMENT " : ""));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
@@ -186,12 +186,12 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var dbType = column.databaseType ?? GetDbType(column.type);
+                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {dbType} {(column.nullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.name)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
-        protected override string GetDbType(Type type)
+        protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 

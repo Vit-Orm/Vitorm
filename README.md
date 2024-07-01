@@ -40,7 +40,8 @@ dotnet add package Vitorm.Sqlite
 ```
 
 ## Using Vitorm
-> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.
+> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
+
 ``` csharp
 using Vit.Extensions.Vitorm_Extensions;
 using Vitorm;
@@ -200,8 +201,9 @@ dotnet add package Vitorm.Sqlite
 
 
 ## Using Vitorm.Data
+
 ``` csharp
- using Vit.Extensions.Vitorm_Extensions;
+using Vit.Extensions.Vitorm_Extensions;
 using Vitorm;
 
 namespace App

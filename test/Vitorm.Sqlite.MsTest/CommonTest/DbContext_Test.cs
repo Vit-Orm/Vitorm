@@ -102,7 +102,7 @@ namespace Vitorm.MsTest.CommonTest
         public class CustomEntityLoader : IEntityLoader
         {
             public void CleanCache() { }
-            public IEntityDescriptor LoadDescriptor(Type entityType) => LoadFromType(entityType);            
+            public IEntityDescriptor LoadDescriptor(Type entityType) => LoadFromType(entityType);
 
             public static bool GetTableName(Type entityType, out string tableName, out string schema)
             {
@@ -130,6 +130,7 @@ namespace Vitorm.MsTest.CommonTest
                         // #2 column name and type
                         var name = properties.FirstOrDefault(attr => attr.name == "ColumnName")?.value ?? propertyInfo.Name;
                         var databaseType = properties.FirstOrDefault(attr => attr.name == "TypeName")?.value;
+                        int? columnOrder = int.TryParse(properties.FirstOrDefault(attr => attr.name == "ColumnOrder")?.value, out var order) ? order : null;
 
                         // #3 isIdentity
                         var isIdentity = labels.Any(m => m.label == "Identity");
@@ -147,7 +148,7 @@ namespace Vitorm.MsTest.CommonTest
                             }
                         }
 
-                        return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable);
+                        return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
                     }).Where(column => column != null).ToArray();
 
                 return new EntityDescriptor(entityType, allColumns, tableName, schema);

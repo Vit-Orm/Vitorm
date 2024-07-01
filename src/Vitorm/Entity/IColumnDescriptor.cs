@@ -17,17 +17,18 @@ namespace Vitorm.Entity
         /// </summary>
         bool isNullable { get; }
 
+        int? columnOrder { get; }
+        bool? isIndex { get; }
+
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
         string databaseType { get; }
 
-    
 
         void SetValue(object entity, object value);
         object GetValue(object entity);
 
-        //bool? isIndex { get; }
-        //int? columnOrder { get; }
+
     }
 }

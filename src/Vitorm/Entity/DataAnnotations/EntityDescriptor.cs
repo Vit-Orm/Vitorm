@@ -11,9 +11,9 @@ namespace Vitorm.Entity.DataAnnotations
             this.tableName = tableName;
             this.schema = schema;
 
-            this.allColumns = allColumns;
             this.key = allColumns.FirstOrDefault(m => m.isKey);
-            this.columns = allColumns.Where(m => !m.isKey).ToArray();
+            this.columns = allColumns.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            this.allColumns = allColumns.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
         }
 
 

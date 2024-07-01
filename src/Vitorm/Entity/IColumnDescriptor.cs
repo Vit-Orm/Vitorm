@@ -5,7 +5,14 @@ namespace Vitorm.Entity
     public interface IColumnDescriptor
     {
         Type type { get; }
-        string name { get; }
+        /// <summary>
+        /// property name in Entity Type
+        /// </summary>
+        string propertyName { get; }
+        /// <summary>
+        /// column name in database
+        /// </summary>
+        string columnName { get; }
         bool isKey { get; }
 
         /// <summary>

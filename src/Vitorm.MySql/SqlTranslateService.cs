@@ -188,7 +188,7 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
             {
                 var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
         protected override string GetColumnDbType(Type type)

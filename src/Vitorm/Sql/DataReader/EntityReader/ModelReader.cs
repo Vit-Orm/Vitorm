@@ -33,7 +33,7 @@ namespace Vitorm.Sql.DataReader
             {
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    var sqlFieldName = sqlTranslator.GetSqlField(tableName, column.name);
+                    var sqlFieldName = sqlTranslator.GetSqlField(tableName, column.columnName);
                     proppertyReaders.Add(new EntityPropertyReader(entityReader, column, sqlFieldName));
                 }
             }

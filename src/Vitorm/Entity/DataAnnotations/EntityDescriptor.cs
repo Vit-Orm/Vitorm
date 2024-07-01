@@ -24,7 +24,7 @@ namespace Vitorm.Entity.DataAnnotations
         /// <summary>
         /// primary key name
         /// </summary>
-        public string keyName => key?.name;
+        public string keyName => key?.columnName;
 
         /// <summary>
         /// primary key

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Vit.Extensions.Vitorm_Extensions;
+
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
@@ -44,7 +46,11 @@ UPDATE [User]
 
             var sqlToUpdateCols = columnsToUpdate
                 .Select(m => m.name)
-                .Select(name => $"{NewLine}  {sqlTranslator.DelimitIdentifier(name)} = {sqlTranslator.GetSqlField("tmp", name)} ");
+                .Select(name =>
+                {
+                    var columnName = entityDescriptor.GetColumnNameByPropertyName(name);
+                    return $"{NewLine}  {sqlTranslator.DelimitIdentifier(columnName)} = {sqlTranslator.GetSqlField("tmp", name)} ";
+                });
 
             sql += string.Join(",", sqlToUpdateCols);
 
@@ -62,7 +68,7 @@ UPDATE [User]
         protected override string ReadSelect(QueryTranslateArgument arg, CombinedStream stream, string prefix = "select")
         {
             var entityDescriptor = arg.dbContext.GetEntityDescriptor(arg.resultEntityType);
-            var columnsToUpdate = (stream as StreamToUpdate) ?.fieldsToUpdate?.memberArgs;
+            var columnsToUpdate = (stream as StreamToUpdate)?.fieldsToUpdate?.memberArgs;
 
             if (columnsToUpdate?.Any() != true) throw new ArgumentException("can not get columns to update");
 

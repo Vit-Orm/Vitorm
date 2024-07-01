@@ -10,6 +10,8 @@ using System.Text;
 using System.Linq.Expressions;
 using static Vitorm.Sql.SqlDbContext;
 using System.Data;
+using Vit.Linq.ExpressionTree.ExpressionConvertor;
+using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -67,7 +69,22 @@ namespace Vitorm.Sql.SqlTranslate
             if (string.IsNullOrWhiteSpace(memberName))
             {
                 var entityType = member.Member_GetType();
-                memberName = dbContext.GetEntityDescriptor(entityType)?.keyName;
+                var entityDescriptor = dbContext.GetEntityDescriptor(entityType);
+                memberName = entityDescriptor?.keyName;
+            }
+            else if (member.objectValue != null)
+            {
+                var entityType = member.objectValue.Member_GetType();
+                if (entityType != null)
+                {
+                    var entityDescriptor = dbContext.GetEntityDescriptor(entityType);
+                    if (entityDescriptor != null)
+                    {
+                        var columnName = entityDescriptor.GetColumnNameByPropertyName(memberName);
+                        if (string.IsNullOrEmpty(columnName)) throw new NotSupportedException("[QueryTranslator] can not find database column name for property : " + memberName);
+                        memberName = columnName;
+                    }
+                }
             }
 
             // 1: {"nodeType":"Member","parameterName":"a0","memberName":"id"}
@@ -184,14 +201,19 @@ namespace Vitorm.Sql.SqlTranslate
                                 }
                             case nameof(Enumerable.Max) or nameof(Enumerable.Min) or nameof(Enumerable.Sum) or nameof(Enumerable.Average) when methodCall.arguments.Length == 2:
                                 {
-                                    var stream = methodCall.arguments[0] as ExpressionNode_Member;
-                                    if (stream?.nodeType != NodeType.Member) break;
+                                    var source = methodCall.arguments[0];
+                                    if (source?.nodeType != NodeType.Member) break;
+
+                                    var entityType = methodCall.MethodCall_GetParamTypes()[0].GetGenericArguments()[0];
+                                    source = TypeUtil.Clone(source).Member_SetType(entityType);
 
 
                                     var lambdaFieldSelect = methodCall.arguments[1] as ExpressionNode_Lambda;
 
                                     var parameterName = lambdaFieldSelect.parameterNames[0];
-                                    var parameterValue = (ExpressionNode)stream;
+                                    var parameterValue = source;
+
+
                                     Func<ExpressionNode_Member, ExpressionNode> GetParameter = (member) =>
                                     {
                                         if (member.nodeType == NodeType.Member && member.parameterName == parameterName)
@@ -321,7 +343,7 @@ namespace Vitorm.Sql.SqlTranslate
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in columns)
                 {
-                    sqlParam[column.name] = column.GetValue(entity);
+                    sqlParam[column.columnName] = column.GetValue(entity);
                 }
                 return sqlParam;
             };
@@ -332,8 +354,8 @@ namespace Vitorm.Sql.SqlTranslate
 
             foreach (var column in columns)
             {
-                columnNames.Add(DelimitIdentifier(column.name));
-                valueParams.Add(GenerateParameterName(column.name));
+                columnNames.Add(DelimitIdentifier(column.columnName));
+                valueParams.Add(GenerateParameterName(column.columnName));
             }
             #endregion
 
@@ -384,7 +406,7 @@ namespace Vitorm.Sql.SqlTranslate
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    var columnName = column.name;
+                    var columnName = column.columnName;
                     var value = column.GetValue(entity);
 
                     sqlParam[columnName] = value;
@@ -398,7 +420,7 @@ namespace Vitorm.Sql.SqlTranslate
             string columnName;
             foreach (var column in entityDescriptor.columns)
             {
-                columnName = column.name;
+                columnName = column.columnName;
                 columnsToUpdate.Add($"{DelimitIdentifier(columnName)}={GenerateParameterName(columnName)}");
             }
 

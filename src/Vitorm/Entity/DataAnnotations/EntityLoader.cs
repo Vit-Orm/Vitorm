@@ -39,9 +39,9 @@ namespace Vitorm.Entity.DataAnnotations
                  bool isKey = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.KeyAttribute>() != null;
 
                  // #2 column name and type
-                 string name; string databaseType; int? columnOrder;
+                 string columnName; string databaseType; int? columnOrder;
                  var columnAttr = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
-                 name = columnAttr?.Name ?? propertyInfo.Name;
+                 columnName = columnAttr?.Name ?? propertyInfo.Name;
                  databaseType = columnAttr?.TypeName;
                  columnOrder = columnAttr?.Order;
 
@@ -61,7 +61,7 @@ namespace Vitorm.Entity.DataAnnotations
                      }
                  }
 
-                 return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
+                 return new ColumnDescriptor(propertyInfo, columnName: columnName, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
              }).Where(column => column != null).ToArray();
 
             return new EntityDescriptor(entityType, allColumns, tableName, schema);

@@ -6,6 +6,7 @@ using Vitorm.Entity;
 using Vitorm.Entity.DataAnnotations;
 using Vitorm.Entity.Loader;
 using Vitorm.Entity.LoaderAttribute;
+using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -19,7 +20,7 @@ namespace Vitorm.MsTest.CommonTest
             var entityDescriptor = dbContext.GetEntityDescriptor(typeof(User));
             var key = entityDescriptor.key;
 
-            Assert.AreEqual("id", key.name);
+            Assert.AreEqual("userId", key.columnName);
         }
 
 
@@ -31,6 +32,7 @@ namespace Vitorm.MsTest.CommonTest
             // #1 EntityLoaderAttribute
             {
                 var users = dbContext.Query<CustomUser2>().Where(m => m.name == "u146").ToList();
+                var sql = dbContext.Query<CustomUser2>().Where(m => m.name == "u146").ToExecuteString();
                 Assert.AreEqual(1, users.Count());
                 Assert.AreEqual(1, users[0].id);
             }
@@ -61,15 +63,20 @@ namespace Vitorm.MsTest.CommonTest
         {
             [Label("Key")]
             [Label("Identity")]
+            [Property(name = "ColumnName", value = "userId")]
             public int id { get; set; }
 
-            [Property(name = "ColumnName", value = "name")]
+            [Property(name = "ColumnName", value = "userName")]
             [Property(name = "TypeName", value = "varchar(1000)")]
             [Label("Required")]
             public string name { get; set; }
+
+            [Property(name = "ColumnName", value = "userBirth")]
             public DateTime? birth { get; set; }
 
+            [Property(name = "ColumnName", value = "userFatherId")]
             public int? fatherId { get; set; }
+            [Property(name = "ColumnName", value = "userMotherId")]
             public int? motherId { get; set; }
 
             [Label("NotMapped")]
@@ -128,7 +135,7 @@ namespace Vitorm.MsTest.CommonTest
                         bool isKey = labels.Any(m => m.label == "Key");
 
                         // #2 column name and type
-                        var name = properties.FirstOrDefault(attr => attr.name == "ColumnName")?.value ?? propertyInfo.Name;
+                        var columnName = properties.FirstOrDefault(attr => attr.name == "ColumnName")?.value ?? propertyInfo.Name;
                         var databaseType = properties.FirstOrDefault(attr => attr.name == "TypeName")?.value;
                         int? columnOrder = int.TryParse(properties.FirstOrDefault(attr => attr.name == "ColumnOrder")?.value, out var order) ? order : null;
 
@@ -148,7 +155,7 @@ namespace Vitorm.MsTest.CommonTest
                             }
                         }
 
-                        return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
+                        return new ColumnDescriptor(propertyInfo, columnName: columnName, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
                     }).Where(column => column != null).ToArray();
 
                 return new EntityDescriptor(entityType, allColumns, tableName, schema);

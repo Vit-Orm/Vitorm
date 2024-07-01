@@ -5,12 +5,12 @@ namespace Vitorm.Entity.DataAnnotations
 {
     public class ColumnDescriptor : IColumnDescriptor
     {
-        public ColumnDescriptor(PropertyInfo propertyInfo, string name, bool isKey, bool isIdentity, string databaseType, bool isNullable, int? columnOrder = null, bool? isIndex = null)
+        public ColumnDescriptor(PropertyInfo propertyInfo, string columnName, bool isKey, bool isIdentity, string databaseType, bool isNullable, int? columnOrder = null, bool? isIndex = null)
         {
             this.propertyInfo = propertyInfo;
             type = propertyInfo.PropertyType;
 
-            this.name = name;
+            this.columnName = columnName;
             this.isKey = isKey;
             this.isIdentity = isIdentity;
             this.databaseType = databaseType;
@@ -23,8 +23,14 @@ namespace Vitorm.Entity.DataAnnotations
         PropertyInfo propertyInfo;
         public Type type { get; private set; }
 
-
-        public string name { get; private set; }
+        /// <summary>
+        /// property name in Entity Type
+        /// </summary>
+        public string propertyName => propertyInfo?.Name;
+        /// <summary>
+        /// column name in database
+        /// </summary>
+        public string columnName { get; private set; }
 
         public bool isKey { get; private set; }
 

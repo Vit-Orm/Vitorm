@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+
+using Vit.Linq.ExpressionTree.ComponentModel;
 
 
 namespace Vitorm
@@ -52,6 +58,31 @@ namespace Vitorm
             return Activator.CreateInstance(type);
         }
 
+        public static Model Clone<Model>(Model source)
+        {
+            if (null == source) return default;
+            var type = source.GetType();
+            var destination = (Model)Activator.CreateInstance(type);
+
+            foreach (var p in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (p.CanRead && p.CanWrite)
+                {
+                    var value = p.GetValue(source);
+                    if (value == null) continue;
+                    p.SetValue(destination, value);
+                }
+            }
+            foreach (var p in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                {
+                    var value = p.GetValue(source);
+                    if (value == null) continue;
+                    p.SetValue(destination, value);
+                }
+            }
+            return destination;
+        }
 
     }
 }

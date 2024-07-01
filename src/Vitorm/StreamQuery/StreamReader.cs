@@ -10,11 +10,11 @@ namespace Vitorm.StreamQuery
 
     public class ExpressionNode_RenameableMember : ExpressionNode
     {
-        private IStream stream;
+        protected IStream stream;
         public override string parameterName
         {
             get => stream?.alias;
-            set => throw new NotSupportedException();
+            set { }
         }
         public static ExpressionNode Member(IStream stream, Type memberType)
         {

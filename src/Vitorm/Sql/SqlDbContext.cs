@@ -215,7 +215,7 @@ namespace Vitorm.Sql
                 var entity = (Entity)Activator.CreateInstance(typeof(Entity));
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    var value = TypeUtil.ConvertToType(reader[column.name], column.type);
+                    var value = TypeUtil.ConvertToType(reader[column.columnName], column.type);
                     if (value != null)
                         column.SetValue(entity, value);
                 }

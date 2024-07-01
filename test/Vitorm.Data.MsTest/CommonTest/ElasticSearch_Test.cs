@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vitorm.Sql;
-
 using User = Vitorm.MsTest.ElasticSearch.User;
 
 namespace Vitorm.MsTest.ElasticSearch
@@ -30,6 +28,8 @@ namespace Vitorm.MsTest
         {
             Init();
 
+            Test_DbContext();
+            //Test_Transaction();
             Test_Get();
             Test_Query();
             //Test_QueryJoin();
@@ -39,7 +39,6 @@ namespace Vitorm.MsTest
             Test_Create();
             Test_Update();
             Test_Delete();
-            Test_DbContext();
         }
 
         public override User NewUser(int id, bool forAdd = false) => new User { key = id.ToString(), id = id, name = "testUser" + id };

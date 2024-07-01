@@ -485,31 +485,33 @@ namespace Vitorm.Sql
 
         #region Execute
         protected SqlExecutor sqlExecutor;
+        public static int? defaultCommandTimeout;
         public int? commandTimeout;
+
         public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
         {
-            commandTimeout ??= this.commandTimeout;
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
-            commandTimeout ??= this.commandTimeout;
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
-            commandTimeout ??= this.commandTimeout;
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             return sqlExecutor.ExecuteReader(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
         {
             var transaction = GetCurrentTransaction();
-            commandTimeout ??= this.commandTimeout;
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             return sqlExecutor.ExecuteScalar(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
         #endregion

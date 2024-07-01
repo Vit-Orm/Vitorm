@@ -21,17 +21,19 @@ namespace Vit.Extensions
         COMMIT;
         -- ROLLBACK;
          */
-        public static SqlDbContext UseMySql(this SqlDbContext dbContext, string ConnectionString)
+        public static SqlDbContext UseMySql(this SqlDbContext dbContext, string connectionString, int? commandTimeout = null)
         {
             ISqlTranslateService sqlTranslateService = Vitorm.MySql.SqlTranslateService.Instance;
 
-            Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(ConnectionString);
+            Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(connectionString);
 
 
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: ConnectionString.GetHashCode().ToString());
+            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: connectionString.GetHashCode().ToString());
 
             dbContext.createTransactionScope = (dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
             //dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope_Command(dbContext);
+
+            if (commandTimeout.HasValue) dbContext.commandTimeout = commandTimeout.Value;
 
             return dbContext;
         }

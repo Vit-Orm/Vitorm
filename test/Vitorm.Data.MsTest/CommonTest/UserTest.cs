@@ -8,13 +8,74 @@ namespace Vitorm.MsTest
     public abstract class UserTest<User> where User : Vitorm.MsTest.UserBase, new()
     {
 
-        public virtual void WaitForUpdate() {  }
+        public virtual void WaitForUpdate() { }
         public abstract User NewUser(int id, bool forAdd = false);
 
         public virtual List<User> NewUsers(int startId, int count = 1, bool forAdd = false)
         {
             return Enumerable.Range(startId, count).Select(id => NewUser(id, forAdd)).ToList();
         }
+
+
+        public void Test_DbContext()
+        {
+            #region #0 get DbContext and entityDescriptor
+            {
+                using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
+                var entityDescriptor = dbContext.GetEntityDescriptor(typeof(User));
+                Assert.IsNotNull(entityDescriptor);
+            }
+            #endregion
+        }
+
+        public void Test_Transaction()
+        {
+            #region #0 Transaction
+            {
+                using var dbContext = Data.DataProvider<User>()?.CreateSqlDbContext();
+
+                Assert.AreEqual("u400", dbContext.Get<User>(4).name);
+
+                using (var tran1 = dbContext.BeginTransaction())
+                {
+                    dbContext.Update(new User { id = 4, name = "u4001" });
+                    Assert.AreEqual("u4001", dbContext.Get<User>(4).name);
+
+                    using (var tran2 = dbContext.BeginTransaction())
+                    {
+                        dbContext.Update(new User { id = 4, name = "u4002" });
+                        Assert.AreEqual("u4002", dbContext.Get<User>(4).name);
+
+                        var userSet = dbContext.DbSet<User>();
+                        Assert.AreEqual("u4002", userSet.Get(4).name);
+                    }
+                    Assert.AreEqual("u4001", dbContext.Get<User>(4).name);
+
+                    using (var tran2 = dbContext.BeginTransaction())
+                    {
+                        dbContext.Update(new User { id = 4, name = "u4002" });
+                        Assert.AreEqual("u4002", dbContext.Get<User>(4).name);
+                        tran2.Rollback();
+                    }
+                    Assert.AreEqual("u4001", dbContext.Get<User>(4).name);
+
+                    using (var tran2 = dbContext.BeginTransaction())
+                    {
+                        dbContext.Update(new User { id = 4, name = "u4003" });
+                        Assert.AreEqual("u4003", dbContext.Get<User>(4).name);
+                        tran2.Commit();
+                    }
+                    Assert.AreEqual("u4003", dbContext.Get<User>(4).name);
+
+                    //Assert.AreEqual("u400", Data.Get<User>(4).name);
+                }
+
+                Assert.AreEqual("u400", dbContext.Get<User>(4).name);
+            }
+            #endregion
+        }
+
+
 
         public void Test_Get()
         {
@@ -162,12 +223,10 @@ namespace Vitorm.MsTest
 
             }
             #endregion
-
         }
 
         public void Test_Delete()
         {
-
             #region #7 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
             {
                 // #1 Delete
@@ -226,17 +285,5 @@ namespace Vitorm.MsTest
             #endregion
         }
 
-
-        public void Test_DbContext()
-        {
-            #region #8 get DbContext and entityDescriptor
-            {
-                using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
-                var entityDescriptor = dbContext.GetEntityDescriptor(typeof(User));
-                Assert.IsNotNull(entityDescriptor);
-            }
-            #endregion
-
-        }
     }
 }

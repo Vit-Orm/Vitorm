@@ -23,6 +23,8 @@ namespace Vitorm.MsTest
         {
             Init();
 
+            Test_DbContext();
+            Test_Transaction();
             Test_Get();
             Test_Query();
             Test_QueryJoin();
@@ -32,7 +34,6 @@ namespace Vitorm.MsTest
             Test_Create();
             Test_Update();
             Test_Delete();
-            Test_DbContext();
         }
 
         public override User NewUser(int id, bool forAdd = false) => new User { id = id, name = "testUser" + id };

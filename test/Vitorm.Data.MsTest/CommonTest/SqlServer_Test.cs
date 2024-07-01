@@ -1,16 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using User = Vitorm.MsTest.SqlServer.User;
-using Vitorm.DataProvider;
-using System.ComponentModel.DataAnnotations.Schema;
 using Vitorm.Sql;
 
 namespace Vitorm.MsTest.SqlServer
 {
     public class User : Vitorm.MsTest.UserBase
     {
-
         [System.ComponentModel.DataAnnotations.Key]
-        [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public override int id { get; set; }
     }
 }
@@ -28,6 +25,8 @@ namespace Vitorm.MsTest
         {
             Init();
 
+            Test_DbContext();
+            Test_Transaction();
             Test_Get();
             Test_Query();
             Test_QueryJoin();
@@ -37,7 +36,6 @@ namespace Vitorm.MsTest
             Test_Create();
             Test_Update();
             Test_Delete();
-            Test_DbContext();
         }
 
         public override User NewUser(int id, bool forAdd = false) => new User { id = forAdd ? 0 : id, name = "testUser" + id };

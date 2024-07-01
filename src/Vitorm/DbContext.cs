@@ -5,7 +5,7 @@ using System.Linq;
 using Vit.Linq.ExpressionTree;
 
 using Vitorm.Entity;
-using Vitorm.Entity.DataAnnotations;
+using Vitorm.Entity.Loader;
 
 namespace Vitorm
 {
@@ -46,8 +46,11 @@ namespace Vitorm
         }
         #endregion
 
+        public static DefaultEntityLoader defaultEntityLoader = new();
 
-        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => EntityDescriptor.GetEntityDescriptor(entityType);
+        public IEntityLoader entityLoader = defaultEntityLoader;
+
+        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => entityLoader.LoadDescriptor(entityType);
 
 
         public virtual ExpressionConvertService convertService => Environment.convertService;

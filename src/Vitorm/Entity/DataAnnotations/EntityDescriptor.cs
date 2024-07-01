@@ -6,25 +6,6 @@ namespace Vitorm.Entity.DataAnnotations
 {
     public partial class EntityDescriptor : IEntityDescriptor
     {
-
-        static ConcurrentDictionary<Type, EntityDescriptor> descMap = new();
-
-
-        public static IEntityDescriptor GetEntityDescriptor(Type entityType)
-        {
-            if (descMap.TryGetValue(entityType, out var entityDescriptor)) return entityDescriptor;
-
-            entityDescriptor = LoadFromType(entityType);
-            if (entityDescriptor != null) descMap[entityType] = entityDescriptor;
-
-            return entityDescriptor;
-        }
-
-        public static IEntityDescriptor GetEntityDescriptor<Entity>()
-        {
-            return GetEntityDescriptor(typeof(Entity));
-        }
-
         public EntityDescriptor(Type entityType, IColumnDescriptor[] allColumns, string tableName, string schema = null)
         {
             this.entityType = entityType;

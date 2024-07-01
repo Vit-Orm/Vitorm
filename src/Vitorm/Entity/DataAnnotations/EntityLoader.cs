@@ -2,11 +2,21 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using Vitorm.Entity.Loader;
 
 namespace Vitorm.Entity.DataAnnotations
 {
-    public partial class EntityDescriptor  
+    public class EntityLoader : IEntityLoader
     {
+        public void CleanCache()
+        {
+        }
+
+        public IEntityDescriptor LoadDescriptor(Type entityType)
+        {
+            return LoadFromType(entityType);
+        }
+
         public static bool GetTableName(Type entityType, out string tableName, out string schema)
         {
             var attribute = entityType?.GetCustomAttribute<global::System.ComponentModel.DataAnnotations.Schema.TableAttribute>();
@@ -17,7 +27,7 @@ namespace Vitorm.Entity.DataAnnotations
         public static string GetTableName(Type entityType) => GetTableName(entityType, out var tableName, out _) ? tableName : null;
 
 
-        private static EntityDescriptor LoadFromType(Type entityType)
+        public static EntityDescriptor LoadFromType(Type entityType)
         {
             if (!GetTableName(entityType, out var tableName, out var schema)) return null;
 
@@ -50,11 +60,12 @@ namespace Vitorm.Entity.DataAnnotations
                      }
                  }
 
-                 return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, databaseGenerated: databaseGenerated, databaseType: databaseType, nullable: nullable); 
+                 return new ColumnDescriptor(propertyInfo, name: name, isKey: isKey, databaseGenerated: databaseGenerated, databaseType: databaseType, nullable: nullable);
              }).Where(column => column != null).ToArray();
 
             return new EntityDescriptor(entityType, allColumns, tableName, schema);
         }
+
 
     }
 }

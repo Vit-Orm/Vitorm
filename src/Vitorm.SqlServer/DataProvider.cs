@@ -1,7 +1,9 @@
-﻿using Vitorm.Sql;
-using Vit.Extensions;
+﻿using System.Collections.Generic;
+
+using Vit.Extensions.Vitorm_Extensions;
+
 using Vitorm.DataProvider;
-using System.Collections.Generic;
+using Vitorm.Sql;
 
 namespace Vitorm.SqlServer
 {

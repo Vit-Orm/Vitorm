@@ -1,4 +1,4 @@
-﻿using Vit.Extensions;
+﻿using Vit.Extensions.Vitorm_Extensions;
 
 using Vitorm.Sql;
 
@@ -100,7 +100,6 @@ namespace Vitorm.MsTest
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion
-
 
             return dbContext;
         }

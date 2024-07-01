@@ -4,7 +4,7 @@ using System.Data;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Extensions
+namespace Vit.Extensions.Vitorm_Extensions
 {
     public static class DbContext_Extensions
     {

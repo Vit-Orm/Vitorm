@@ -191,6 +191,12 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
+        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        {
+            // DROP TABLE if exists "User";
+            return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";
+        }
+
 
         public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
         {

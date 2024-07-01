@@ -65,15 +65,22 @@ namespace Vitorm.Sql
         }
 
 
-        #region #0 Schema :  Create
+        #region #0 Schema :  Create Drop
 
         public override void Create<Entity>()
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
 
-
             string sql = sqlTranslateService.PrepareCreate(entityDescriptor);
+            Execute(sql: sql);
+        }
+        public override void Drop<Entity>()
+        {
+            // #0 get arg
+            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
+
+            string sql = sqlTranslateService.PrepareDrop(entityDescriptor);
             Execute(sql: sql);
         }
         #endregion
@@ -87,7 +94,7 @@ namespace Vitorm.Sql
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
             SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
-            var addType = sqlTranslateService.Entity_GetAddType(arg,entity);
+            var addType = sqlTranslateService.Entity_GetAddType(arg, entity);
             //if (addType == EAddType.unexpectedEmptyKey) throw new ArgumentException("Key could not be empty.");
 
 

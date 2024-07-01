@@ -69,8 +69,7 @@ namespace Vitorm.MsTest
 
             #region #1 init User
             {
-                dbContext.Execute(sql: "IF OBJECT_ID(N'User', N'U') IS  NOT  NULL \r\nDROP TABLE [User];");
-
+                dbContext.Drop<User>();
                 dbContext.Create<User>();
 
                 var users = new List<User> {
@@ -96,8 +95,7 @@ namespace Vitorm.MsTest
 
             #region #2 init Class
             {
-                dbContext.Execute(sql: "IF OBJECT_ID(N'UserClass', N'U') IS  NOT  NULL \r\nDROP TABLE [UserClass];");
-
+                dbContext.Drop<UserClass>();
                 dbContext.Create<UserClass>();
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }

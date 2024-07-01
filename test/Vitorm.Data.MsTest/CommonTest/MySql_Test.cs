@@ -49,8 +49,7 @@ namespace Vitorm.MsTest
             using var dbContext = Data.DataProvider<User>()?.CreateDbContext() as SqlDbContext;
 
 
-            dbContext.Execute(sql: "DROP TABLE  if exists `User`;");
-
+            dbContext.Drop<User>();
             dbContext.Create<User>();
 
             var users = new List<User> {

@@ -48,9 +48,7 @@ namespace Vitorm.MsTest
         {
             using var dbContext = Data.DataProvider<User>()?.CreateDbContext() as SqlDbContext;
 
-
-            dbContext.Execute(sql: "IF OBJECT_ID(N'User', N'U') IS  NOT  NULL \r\nDROP TABLE [User];");
-
+            dbContext.Drop<User>();
             dbContext.Create<User>();
 
             var users = new List<User> {

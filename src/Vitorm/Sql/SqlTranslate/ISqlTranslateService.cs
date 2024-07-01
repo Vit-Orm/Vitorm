@@ -32,8 +32,9 @@ namespace Vitorm.Sql.SqlTranslate
 
         string EvalExpression(QueryTranslateArgument arg, ExpressionNode data);
 
-        // #0 Schema :  PrepareCreate
+        // #0 Schema :  PrepareCreate PrepareDrop
         string PrepareCreate(IEntityDescriptor entityDescriptor);
+        string PrepareDrop(IEntityDescriptor entityDescriptor);
 
 
         // #1 Create :  PrepareAdd

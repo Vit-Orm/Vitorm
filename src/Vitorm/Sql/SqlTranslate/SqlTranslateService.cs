@@ -310,8 +310,9 @@ namespace Vitorm.Sql.SqlTranslate
         #endregion
 
 
-        // #0 Schema :  PrepareCreate
+        // #0 Schema :  PrepareCreate PrepareDrop
         public abstract string PrepareCreate(IEntityDescriptor entityDescriptor);
+        public abstract string PrepareDrop(IEntityDescriptor entityDescriptor);
 
 
         #region #1 Create :  PrepareAdd

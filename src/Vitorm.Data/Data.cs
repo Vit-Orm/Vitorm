@@ -104,6 +104,7 @@ namespace Vitorm
 
         // #0 Schema :  Create
         public static void Create<Entity>() => DataProvider<Entity>().Create<Entity>();
+        public static void Drop<Entity>() => DataProvider<Entity>().Drop<Entity>();
 
 
         // #1 Create :  Add AddRange

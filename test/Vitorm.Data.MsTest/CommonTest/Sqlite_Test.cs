@@ -49,6 +49,7 @@ namespace Vitorm.MsTest
 
             using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
 
+            dbContext.Drop<User>();
             dbContext.Create<User>();
 
             var users = new List<User> {

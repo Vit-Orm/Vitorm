@@ -216,6 +216,13 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
+        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        {
+            // DROP TABLE if exists `User`;
+            return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";
+        }
+
+
         public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
         {
             var result = PrepareAdd(arg, arg.entityDescriptor.columns);

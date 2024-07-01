@@ -72,6 +72,7 @@ namespace Vitorm.MsTest
 
             #region #1 init User
             {
+                dbContext.Drop<User>();
                 dbContext.Create<User>();
 
                 var users = new List<User> {
@@ -94,6 +95,7 @@ namespace Vitorm.MsTest
 
             #region #2 init Class
             {
+                dbContext.Drop<UserClass>();
                 dbContext.Create<UserClass>();
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }

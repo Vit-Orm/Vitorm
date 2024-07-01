@@ -21,7 +21,7 @@ namespace Vitorm.SqlServer
         protected ExecuteUpdateTranslateService executeUpdateTranslateService;
         protected ExecuteDeleteTranslateService executeDeleteTranslateService;
 
-    
+
         public SqlTranslateService()
         {
             queryTranslateService = new(this);
@@ -158,12 +158,12 @@ namespace Vitorm.SqlServer
             }
 
             return base.EvalExpression(arg, data);
-}
+        }
 
         #endregion
 
 
-    
+
 
 
         #region PrepareCreate
@@ -182,7 +182,7 @@ if object_id(N'[dbo].[User]', N'U') is null
             List<string> sqlFields = new();
 
             // #1 primary key
-            if(entityDescriptor.key!=null)
+            if (entityDescriptor.key != null)
                 sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.isIdentity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
 
             // #2 columns
@@ -226,7 +226,12 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-
+        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        {
+            // IF OBJECT_ID(N'User', N'U') IS NOT NULL  DROP TABLE [User];
+            var tableName = DelimitTableName(entityDescriptor);
+            return $@"IF OBJECT_ID(N'{tableName}', N'U') IS NOT NULL  DROP TABLE {tableName};";
+        }
 
         public override EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
         {

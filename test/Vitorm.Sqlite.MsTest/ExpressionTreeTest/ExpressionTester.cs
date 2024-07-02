@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 

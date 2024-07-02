@@ -207,7 +207,7 @@ namespace Vitorm.Sql.SqlTranslate
                         {
                             var member = ExpressionNode_RenameableMember.Member(stream: source, entityType);
                             member.memberName = entityDescriptor.keyName;
-                            orders.Add(new OrderField { member = member, asc = true });
+                            orders.Add(new ExpressionNodeOrderField { member = member, asc = true });
                         }
                     }
                 }

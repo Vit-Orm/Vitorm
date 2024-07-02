@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 using Vitorm.Entity;
 using Vitorm.Sql;

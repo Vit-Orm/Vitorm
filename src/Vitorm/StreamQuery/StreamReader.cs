@@ -344,14 +344,14 @@ namespace Vitorm.StreamQuery
 
                                     var sortField = ReadSortField(call.arguments[1], combinedStream);
 
-                                    var orderParam = new OrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
+                                    var orderParam = new ExpressionNodeOrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
 
                                     if (methodName.StartsWith("OrderBy"))
                                     {
-                                        combinedStream.orders = new List<OrderField>();
+                                        combinedStream.orders = new List<ExpressionNodeOrderField>();
                                     }
 
-                                    combinedStream.orders ??= new List<OrderField>();
+                                    combinedStream.orders ??= new List<ExpressionNodeOrderField>();
 
                                     combinedStream.orders.Add(orderParam);
 

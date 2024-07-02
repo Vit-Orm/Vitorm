@@ -5,7 +5,7 @@ using System.Linq;
 
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Core.Util.Reflection;
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq;
 
 using Vitorm.DataProvider;
 

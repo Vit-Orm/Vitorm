@@ -1,30 +1,30 @@
-﻿using System;
-using System.Data;
-
-using Vitorm.Sql;
-using Vitorm.Sql.SqlTranslate;
+﻿using Vitorm.Sql;
+using Vitorm.Sql.Transaction;
+using Vitorm.Sqlite;
 
 namespace Vitorm
 {
     public static class DbContext_Extensions_UseSqlite
     {
         public static SqlDbContext UseSqlite(this SqlDbContext dbContext, string connectionString, int? commandTimeout = null)
+            => UseSqlite(dbContext, new DbConfig(connectionString: connectionString, commandTimeout: commandTimeout));
+
+        public static SqlDbContext UseSqlite(this SqlDbContext dbContext, DbConfig config)
         {
-            ISqlTranslateService sqlTranslateService = Vitorm.Sqlite.SqlTranslateService.Instance;
+            dbContext.Init(
+                sqlTranslateService: Vitorm.Sqlite.SqlTranslateService.Instance,
+                createDbConnection: config.createDbConnection,
+                createReadOnlyDbConnection: config.createReadOnlyDbConnection,
+                dbHashCode: config.dbHashCode
+                );
 
-            Func<IDbConnection> createDbConnection = () => new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
+            dbContext.createTransactionScope = createTransactionScope;
 
-
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: connectionString.GetHashCode().ToString());
-
-            dbContext.createTransactionScope = (dbContext) => new Vitorm.Sqlite.SqlTransactionScope(dbContext);
-
-            if (commandTimeout.HasValue) dbContext.commandTimeout = commandTimeout.Value;
+            if (config.commandTimeout.HasValue) dbContext.commandTimeout = config.commandTimeout.Value;
 
             return dbContext;
         }
 
-
-
+        static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.Sqlite.SqlTransactionScope(dbContext);
     }
 }

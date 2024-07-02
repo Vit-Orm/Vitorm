@@ -18,15 +18,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Vitorm.ClickHouse\src\Vitorm.ClickHouse\Vitorm.ClickHouse.csproj" />
-      <ProjectReference Include="..\..\..\Vitorm.ElasticSearch\src\Vitorm.ElasticSearch\Vitorm.ElasticSearch.csproj" />
-      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
-      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
-      <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
-      <ProjectReference Include="..\..\src\Vitorm.Data\Vitorm.Data.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm.ClickHouse\src\Vitorm.ClickHouse\Vitorm.ClickHouse.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm.ElasticSearch\src\Vitorm.ElasticSearch\Vitorm.ElasticSearch.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.Data\Vitorm.Data.csproj" />
     </ItemGroup>
 
- 
+
     <ItemGroup>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>

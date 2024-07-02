@@ -7,6 +7,19 @@ using static Vitorm.Sql.Transaction.DbTransactionWrap;
 
 namespace Vitorm.MySql
 {
+    /*
+           // ref: https://dev.mysql.com/doc/refman/8.4/en/savepoint.html
+           //  https://dev.mysql.com/doc/refman/8.4/en/commit.html
+
+          START TRANSACTION;
+              SET autocommit=0;
+              SAVEPOINT tran0;
+                  select '';
+              -- ROLLBACK WORK TO SAVEPOINT tran0;
+              RELEASE SAVEPOINT tran0;
+          COMMIT;
+          -- ROLLBACK;
+    */
     public class SqlTransactionScope_Command : ITransactionScope
     {
         protected SqlDbContext dbContext;

@@ -5,22 +5,17 @@ using Vitorm.Sql;
 
 namespace Vitorm.MySql
 {
-
     public class DataProvider : SqlDataProvider
     {
         protected Dictionary<string, object> config;
-        protected string connectionString;
-        protected int? commandTimeout;
-        public override SqlDbContext CreateDbContext() => new SqlDbContext().UseMySql(connectionString: connectionString, commandTimeout: commandTimeout);
+        protected DbConfig dbConfig;
+
+        public override SqlDbContext CreateDbContext() => new SqlDbContext().UseMySql(dbConfig);
 
         public override void Init(Dictionary<string, object> config)
         {
             this.config = config;
-            if (config.TryGetValue("connectionString", out var connStr))
-                this.connectionString = connStr as string;
-
-            if (config.TryGetValue("commandTimeout", out var strCommandTimeout) && int.TryParse("" + strCommandTimeout, out var commandTimeout))
-                this.commandTimeout = commandTimeout;
+            this.dbConfig = new(config);
         }
     }
 }

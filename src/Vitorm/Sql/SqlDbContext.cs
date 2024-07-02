@@ -16,29 +16,50 @@ namespace Vitorm.Sql
     public partial class SqlDbContext : DbContext
     {
         protected Func<IDbConnection> createDbConnection { get; set; }
+        protected Func<IDbConnection> createReadOnlyDbConnection { get; set; }
         protected IDbConnection _dbConnection;
+        protected IDbConnection _readOnlyDbConnection;
         public override void Dispose()
         {
             try
             {
-                base.Dispose();
+                transactionScope?.Dispose();
             }
             finally
             {
+                transactionScope = null;
                 try
                 {
-                    transactionScope?.Dispose();
+                    _dbConnection?.Dispose();
                 }
                 finally
                 {
-                    transactionScope = null;
-
-                    _dbConnection?.Dispose();
                     _dbConnection = null;
+
+                    try
+                    {
+                        _readOnlyDbConnection?.Dispose();
+                    }
+                    finally
+                    {
+                        _readOnlyDbConnection = null;
+
+                        base.Dispose();
+                    }
                 }
             }
         }
         public virtual IDbConnection dbConnection => _dbConnection ??= createDbConnection();
+        public virtual IDbConnection readOnlyDbConnection
+        {
+            get
+            {
+                if (_readOnlyDbConnection != null) return _readOnlyDbConnection;
+                if (createReadOnlyDbConnection != null) return _readOnlyDbConnection = createReadOnlyDbConnection();
+
+                return dbConnection;
+            }
+        }
 
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
@@ -51,12 +72,14 @@ namespace Vitorm.Sql
         /// </summary>
         /// <param name="sqlTranslateService"></param>
         /// <param name="createDbConnection"></param>
+        /// <param name="createReadOnlyDbConnection"></param>
         /// <param name="sqlExecutor"></param>
         /// <param name="dbHashCode"> to identify whether contexts are from the same database </param>
-        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, SqlExecutor sqlExecutor = null, string dbHashCode = null)
+        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, Func<IDbConnection> createReadOnlyDbConnection = null, SqlExecutor sqlExecutor = null, string dbHashCode = null)
         {
             this.sqlTranslateService = sqlTranslateService;
             this.createDbConnection = createDbConnection;
+            this.createReadOnlyDbConnection = createReadOnlyDbConnection;
             this.sqlExecutor = sqlExecutor ?? SqlExecutor.Instance;
 
             if (string.IsNullOrEmpty(dbHashCode))
@@ -217,7 +240,7 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            using var reader = ExecuteReader(sql: sql, param: sqlParam);
+            using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
             if (reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(typeof(Entity));
@@ -261,7 +284,7 @@ namespace Vitorm.Sql
             return this;
         }
 
-        protected object ExecuteQuery(Expression expression, Type type)
+        protected virtual object ExecuteQuery(Expression expression, Type type)
         {
             // #1 convert to ExpressionNode 
             ExpressionNode node = convertService.ConvertToData(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
@@ -313,7 +336,7 @@ namespace Vitorm.Sql
 
                         (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                        var count = ExecuteScalar(sql: sql, param: sqlParam);
+                        var count = ExecuteScalar(sql: sql, param: sqlParam, useReadOnly: true);
                         return Convert.ToInt32(count);
                     }
                 case nameof(Orm_Extensions.ExecuteDelete):
@@ -337,7 +360,7 @@ namespace Vitorm.Sql
 
                         (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                        using var reader = ExecuteReader(sql: sql, param: sqlParam);
+                        using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
                         return dataReader.ReadData(reader);
                     }
                 case "ToList":
@@ -352,7 +375,7 @@ namespace Vitorm.Sql
 
                         (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-                        using var reader = ExecuteReader(sql: sql, param: sqlParam);
+                        using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
                         return dataReader.ReadData(reader);
                     }
             }
@@ -492,28 +515,53 @@ namespace Vitorm.Sql
         public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
         {
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+
             return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
+        public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
-            var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            var transaction = GetCurrentTransaction();
+
+            if (useReadOnly && transaction == null)
+            {
+                return sqlExecutor.Execute(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
+            }
+            else
+            {
+                return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            }
         }
 
-        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
+        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
-            var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            return sqlExecutor.ExecuteReader(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            var transaction = GetCurrentTransaction();
+
+            if (useReadOnly && transaction == null)
+            {
+                return sqlExecutor.ExecuteReader(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
+            }
+            else
+            {
+                return sqlExecutor.ExecuteReader(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            }
         }
 
-        public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null)
+        public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
-            var transaction = GetCurrentTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            return sqlExecutor.ExecuteScalar(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            var transaction = GetCurrentTransaction();
+
+            if (useReadOnly && transaction == null)
+            {
+                return sqlExecutor.ExecuteScalar(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
+            }
+            else
+            {
+                return sqlExecutor.ExecuteScalar(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            }
         }
         #endregion
 

@@ -80,7 +80,7 @@ namespace Vitorm
             }
             internal bool Match(string classFullName)
             {
-                return classFullName.StartsWith(@namespace);
+                return classFullName.StartsWith(classFullNamePrefix);
             }
         }
 

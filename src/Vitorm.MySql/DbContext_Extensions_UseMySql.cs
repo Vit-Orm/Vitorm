@@ -1,43 +1,32 @@
-﻿using System;
-using System.Data;
-
+﻿using Vitorm.MySql;
 using Vitorm.Sql;
-using Vitorm.Sql.SqlTranslate;
+using Vitorm.Sql.Transaction;
 
 namespace Vitorm
 {
     public static class DbContext_Extensions_UseMySql
     {
-        /*
-         // ref: https://dev.mysql.com/doc/refman/8.4/en/savepoint.html
-         //  https://dev.mysql.com/doc/refman/8.4/en/commit.html
-
-        START TRANSACTION;
-            SET autocommit=0;
-            SAVEPOINT tran0;
-                select '';
-            -- ROLLBACK WORK TO SAVEPOINT tran0;
-            RELEASE SAVEPOINT tran0;
-        COMMIT;
-        -- ROLLBACK;
-         */
         public static SqlDbContext UseMySql(this SqlDbContext dbContext, string connectionString, int? commandTimeout = null)
+               => UseMySql(dbContext, new DbConfig(connectionString: connectionString, commandTimeout: commandTimeout));
+
+        public static SqlDbContext UseMySql(this SqlDbContext dbContext, DbConfig config)
         {
-            ISqlTranslateService sqlTranslateService = Vitorm.MySql.SqlTranslateService.Instance;
+            dbContext.Init(
+                sqlTranslateService: Vitorm.MySql.SqlTranslateService.Instance,
+                createDbConnection: config.createDbConnection,
+                createReadOnlyDbConnection: config.createReadOnlyDbConnection,
+                    dbHashCode: config.dbHashCode
+                );
 
-            Func<IDbConnection> createDbConnection = () => new MySqlConnector.MySqlConnection(connectionString);
+            dbContext.createTransactionScope = createTransactionScope;
 
-
-            dbContext.Init(sqlTranslateService: sqlTranslateService, createDbConnection: createDbConnection, dbHashCode: connectionString.GetHashCode().ToString());
-
-            dbContext.createTransactionScope = (dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
-            //dbContext.createTransactionScope = (dbContext) => new Vitorm.Mysql.SqlTransactionScope_Command(dbContext);
-
-            if (commandTimeout.HasValue) dbContext.commandTimeout = commandTimeout.Value;
+            if (config.commandTimeout.HasValue) dbContext.commandTimeout = config.commandTimeout.Value;
 
             return dbContext;
         }
 
+        static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
+        //static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionScope_Command(dbContext);
 
 
     }

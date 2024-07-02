@@ -1,5 +1,4 @@
 ﻿using Vit.Core.Util.ConfigurationManager;
-using Vit.Extensions.Vitorm_Extensions;
 
 using Vitorm.Sql;
 

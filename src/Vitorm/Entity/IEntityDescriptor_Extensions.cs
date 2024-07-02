@@ -2,7 +2,7 @@
 
 using Vitorm.Entity;
 
-namespace Vit.Extensions.Vitorm_Extensions
+namespace Vitorm
 {
     public static partial class IEntityDescriptor_Extensions
     {

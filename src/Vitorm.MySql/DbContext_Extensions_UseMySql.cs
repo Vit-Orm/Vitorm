@@ -4,9 +4,9 @@ using System.Data;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 
-namespace Vit.Extensions.Vitorm_Extensions
+namespace Vitorm
 {
-    public static class DbContext_Extensions
+    public static class DbContext_Extensions_UseMySql
     {
         /*
          // ref: https://dev.mysql.com/doc/refman/8.4/en/savepoint.html

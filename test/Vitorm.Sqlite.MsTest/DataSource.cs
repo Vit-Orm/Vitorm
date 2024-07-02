@@ -1,6 +1,4 @@
-﻿using Vit.Extensions.Vitorm_Extensions;
-
-using Vitorm.Sql;
+﻿using Vitorm.Sql;
 
 namespace Vitorm.MsTest
 {

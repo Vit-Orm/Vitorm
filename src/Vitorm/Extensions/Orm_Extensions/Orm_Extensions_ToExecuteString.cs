@@ -2,26 +2,26 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Vit.Extensions.Vitorm_Extensions
+namespace Vitorm
 {
 
     public static partial class Orm_Extensions
     {
         /// <summary>
-        /// delete from first collection if joined multiple collections
+        /// if mysql or sqlserver or sqlite , will get sql string
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static int ExecuteDelete(this IQueryable source)
+        public static string ToExecuteString(this IQueryable source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return source.Provider.Execute<int>(
+            return source.Provider.Execute<string>(
                 Expression.Call(
                     null,
-                    new Func<IQueryable, int>(ExecuteDelete).Method
+                    new Func<IQueryable, string>(ToExecuteString).Method
                     , source.Expression));
         }
     }

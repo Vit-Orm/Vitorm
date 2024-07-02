@@ -2,7 +2,6 @@
 using Vitorm.DataReader;
 using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
-using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.Sql.SqlTranslate
 {

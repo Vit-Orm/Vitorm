@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vit.Extensions.Vitorm_Extensions;
-
 
 namespace Vitorm.MsTest
 {

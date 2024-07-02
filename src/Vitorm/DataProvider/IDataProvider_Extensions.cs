@@ -1,7 +1,7 @@
 ﻿using Vitorm.DataProvider;
 using Vitorm.Sql;
 
-namespace Vit.Extensions.Vitorm_Extensions
+namespace Vitorm
 {
     public static class IDataProvider_Extensions
     {

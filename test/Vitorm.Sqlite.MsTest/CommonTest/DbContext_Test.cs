@@ -6,7 +6,6 @@ using Vitorm.Entity;
 using Vitorm.Entity.DataAnnotations;
 using Vitorm.Entity.Loader;
 using Vitorm.Entity.LoaderAttribute;
-using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.MsTest.CommonTest
 {

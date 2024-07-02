@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vit.Linq;
-using Vitorm.Sql.Transaction;
+using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vitorm.Sql.SqlTranslate;
+using Vitorm.Sql.Transaction;
 using Vitorm.StreamQuery;
-using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.Sql
 {

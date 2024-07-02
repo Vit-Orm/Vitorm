@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Vit.Extensions.Vitorm_Extensions
+namespace Vitorm
 {
 
     public static partial class Orm_Extensions

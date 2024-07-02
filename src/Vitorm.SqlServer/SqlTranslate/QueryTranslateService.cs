@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Vit.Extensions.Vitorm_Extensions;
-
 using Vitorm.DataReader;
 using Vitorm.Sql.DataReader;
 using Vitorm.Sql.SqlTranslate;

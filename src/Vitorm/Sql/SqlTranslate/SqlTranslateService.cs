@@ -8,10 +8,6 @@ using Vitorm.StreamQuery;
 using System.Collections;
 using System.Text;
 using System.Linq.Expressions;
-using static Vitorm.Sql.SqlDbContext;
-using System.Data;
-using Vit.Linq.ExpressionTree.ExpressionConvertor;
-using Vit.Extensions.Vitorm_Extensions;
 
 namespace Vitorm.Sql.SqlTranslate
 {

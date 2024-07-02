@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Extensions.Vitorm_Extensions;
-
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 

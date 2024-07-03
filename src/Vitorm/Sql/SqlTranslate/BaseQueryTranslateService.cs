@@ -38,7 +38,7 @@ namespace Vitorm.Sql.SqlTranslate
             #region #2 join
             if (stream.joins != null)
             {
-                sql +=  ReadJoin(arg,stream);
+                sql += ReadJoin(arg, stream);
             }
             #endregion
 
@@ -128,9 +128,9 @@ namespace Vitorm.Sql.SqlTranslate
             {
                 throw new NotSupportedException("[QueryTranslator] groupByFields is not valid: must be New or Member");
             }
-           return String.Join(", ", fields);
+            return String.Join(", ", fields);
         }
-        protected virtual string ReadOrderBy(QueryTranslateArgument arg, CombinedStream stream) 
+        protected virtual string ReadOrderBy(QueryTranslateArgument arg, CombinedStream stream)
         {
             var fields = stream.orders.Select(field =>
                 {
@@ -148,7 +148,7 @@ namespace Vitorm.Sql.SqlTranslate
             if (stream is SourceStream sourceStream)
             {
                 IQueryable query = sourceStream.GetSource() as IQueryable;
-                var entityDescriptor = arg.dbContext.GetEntityDescriptor(query.ElementType) ;
+                var entityDescriptor = arg.dbContext.GetEntityDescriptor(query.ElementType);
                 return $"{sqlTranslator.DelimitTableName(entityDescriptor)} as " + stream.alias;
             }
             if (stream is CombinedStream baseStream)
@@ -182,7 +182,7 @@ namespace Vitorm.Sql.SqlTranslate
             //    throw new NotSupportedException("resultEntityType could not be null");
 
             var sqlFields = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-            if (arg.dataReader == null) arg.dataReader = reader;
+            arg.dataReader ??= reader;
             return (stream.distinct == true ? "distinct " : "") + sqlFields;
         }
 

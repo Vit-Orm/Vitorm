@@ -98,7 +98,7 @@ namespace Vitorm.SqlServer
                                     var value = methodCall.arguments[0];
                                     return $"{EvalExpression(arg, str)} like '%'+{EvalExpression(arg, value)}+'%'";
                                 }
-                            #endregion
+                                #endregion
                         }
                         break;
                     }

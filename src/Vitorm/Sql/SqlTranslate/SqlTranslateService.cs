@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vitorm.Entity;
-using System.Linq;
 using Vitorm.StreamQuery;
-using System.Collections;
-using System.Text;
-using System.Linq.Expressions;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -210,7 +211,7 @@ namespace Vitorm.Sql.SqlTranslate
                                     var parameterValue = source;
 
 
-                                    Func<ExpressionNode_Member, ExpressionNode> GetParameter = (member) =>
+                                    ExpressionNode GetParameter(ExpressionNode_Member member)
                                     {
                                         if (member.nodeType == NodeType.Member && member.parameterName == parameterName)
                                         {
@@ -224,7 +225,7 @@ namespace Vitorm.Sql.SqlTranslate
                                             }
                                         }
                                         return default;
-                                    };
+                                    }
 
                                     var body = StreamReader.DeepClone(lambdaFieldSelect.body, GetParameter);
                                     var funcName = methodCall.methodName;
@@ -335,7 +336,7 @@ namespace Vitorm.Sql.SqlTranslate
             var entityDescriptor = arg.entityDescriptor;
 
             // #1 GetSqlParams 
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
+            Dictionary<string, object> GetSqlParams(object entity)
             {
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in columns)
@@ -343,7 +344,7 @@ namespace Vitorm.Sql.SqlTranslate
                     sqlParam[column.columnName] = column.GetValue(entity);
                 }
                 return sqlParam;
-            };
+            }
 
             #region #2 columns 
             List<string> columnNames = new List<string>();
@@ -398,7 +399,7 @@ namespace Vitorm.Sql.SqlTranslate
             var sqlParam = new Dictionary<string, object>();
 
             // #1 GetSqlParams
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
+            Dictionary<string, object> GetSqlParams(object entity)
             {
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in entityDescriptor.allColumns)
@@ -410,7 +411,7 @@ namespace Vitorm.Sql.SqlTranslate
                 }
                 //sqlParam[entityDescriptor.keyName] = entityDescriptor.key.Get(entity);
                 return sqlParam;
-            };
+            }
 
             // #2 columns
             List<string> columnsToUpdate = new List<string>();

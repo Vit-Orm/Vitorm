@@ -6,6 +6,7 @@ using System.Reflection;
 
 using Vit.Linq.ExpressionTree;
 using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vitorm.Sql.SqlTranslate;
 
 namespace Vitorm.Sql.DataReader
@@ -116,7 +117,7 @@ namespace Vitorm.Sql.DataReader
                 if (isValueType)
                 {
                     // Value arg
-                    string sqlFieldName = sqlTranslator.GetSqlField(member,arg.dbContext);
+                    string sqlFieldName = sqlTranslator.GetSqlField(member, arg.dbContext);
                     argReader = new ValueReader(this, argType, argUniqueKey, argName, sqlFieldName);
                 }
                 else
@@ -147,7 +148,7 @@ namespace Vitorm.Sql.DataReader
             }
             return argReader.argName;
         }
- 
+
 
 
     }

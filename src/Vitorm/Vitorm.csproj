@@ -15,18 +15,25 @@
         <Description>Vitorm : simple orm</Description>
         <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/VitormLib/Vitorm</RepositoryUrl>
+        <PackageTags>orm</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
-      <None Include="..\..\doc\vitorm_logo_v1.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-      </None>
+        <None Include="..\..\doc\vitorm_logo_v1.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-        <PackageReference Include="Vit.Linq" Version="2.2.22" />
+        <PackageReference Include="Vit.Linq" Version="2.2.23" />
     </ItemGroup>
 
 </Project>

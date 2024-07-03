@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using User = Vitorm.MsTest.SqlServer.User;
+
 using Vitorm.Sql;
+
+using User = Vitorm.MsTest.SqlServer.User;
 
 namespace Vitorm.MsTest.SqlServer
 {

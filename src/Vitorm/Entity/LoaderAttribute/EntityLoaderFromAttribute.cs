@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+
 using Vitorm.Entity.Loader;
 
 namespace Vitorm.Entity.LoaderAttribute

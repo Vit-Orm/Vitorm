@@ -1,8 +1,9 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
-using System.Collections.Generic;
+
 using static Vitorm.Sql.Transaction.DbTransactionWrap;
 
 namespace Vitorm.MySql
@@ -73,7 +74,7 @@ namespace Vitorm.MySql
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
             public IDbConnection Connection => dbContext.dbConnection;
-            SqlDbContext dbContext;
+            readonly SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
 
             public DbTransactionWrap_Command(SqlDbContext dbContext)
@@ -117,7 +118,7 @@ namespace Vitorm.MySql
             public virtual System.Data.IsolationLevel IsolationLevel => default;
 
             public IDbConnection Connection => dbContext.dbConnection;
-            SqlDbContext dbContext;
+            readonly SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
             protected string savePointName;
 

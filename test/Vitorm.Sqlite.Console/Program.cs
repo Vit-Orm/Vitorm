@@ -7,7 +7,7 @@ namespace App
         static void Main(string[] args)
         {
             // #1 Create an empty SQLite database file and configures Vitorm
-            File.WriteAllBytes("sqlite.db", new byte[0]);
+            File.WriteAllBytes("sqlite.db", Array.Empty<byte>());
             using var dbContext = new Vitorm.Sql.SqlDbContext();
             dbContext.UseSqlite("data source=sqlite.db");
 

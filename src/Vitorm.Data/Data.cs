@@ -42,6 +42,8 @@ namespace Vitorm
 
 
         #region LoadDataProvider
+
+        public static IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
         public static IDataProvider DataProvider(Type entityType)
         {
             return providerMap.GetOrAdd(entityType, GetDataProviderFromConfig);
@@ -53,19 +55,19 @@ namespace Vitorm
                     ?? throw new NotImplementedException("can not find config for type: " + entityType.FullName);
             }
         }
-        public static IDataProvider DataProvider(string classFullName)
+        public static IDataProvider DataProvider(string @namespace)
         {
-            return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider;
+            return providerCache.FirstOrDefault(cache => cache.@namespace == @namespace)?.dataProvider;
         }
-        public static IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
+
 
 
         public class DataProviderCache
         {
-            public IDataProvider dataProvider;
-            public string @namespace;
-            private string classFullNamePrefix;
-            public Dictionary<string, object> dataSourceConfig;
+            public readonly IDataProvider dataProvider;
+            public readonly string @namespace;
+            private readonly string classFullNamePrefix;
+            public readonly Dictionary<string, object> dataSourceConfig;
 
             public DataProviderCache(IDataProvider dataProvider, Dictionary<string, object> dataSourceConfig)
             {

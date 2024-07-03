@@ -437,7 +437,7 @@ namespace Vitorm.StreamQuery
             if (fields?.nodeType == NodeType.Member)
             {
                 ExpressionNode_Member member = fields;
-                if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null) 
+                if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null)
                     isDefaultSelect = true;
             }
             else if (fields?.nodeType == NodeType.New)

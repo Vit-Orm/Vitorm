@@ -1,7 +1,9 @@
-﻿using System.Linq.Expressions;
-using Vit.Linq;
+﻿using System.Data;
+using System.Linq.Expressions;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data;
+
+using Vit.Linq;
 
 namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
 {
@@ -12,13 +14,14 @@ namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
         public static List<User> Test(IQueryable<User> query, Expression<Func<User, bool>> predicate)
         {
             var expected = GetSourceData().AsQueryable().Where(predicate).ToList();
+
             {
                 var actual = query.Where(predicate).ToList();
                 Check(expected, actual);
                 return actual;
             }
 
-            void Check(List<User> expected, List<User> actual)
+            static void Check(List<User> expected, List<User> actual)
             {
                 Assert.AreEqual(expected.Count, actual.Count);
                 for (var t = 0; t < expected.Count; t++)

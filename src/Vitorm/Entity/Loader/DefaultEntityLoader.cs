@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+
 using Vitorm.Entity.LoaderAttribute;
 
 namespace Vitorm.Entity.Loader
@@ -15,7 +16,7 @@ namespace Vitorm.Entity.Loader
             loaders.Add(new EntityLoaderFromAttribute());
         }
 
-        ConcurrentDictionary<Type, IEntityDescriptor> descriptorCache = new();
+        readonly ConcurrentDictionary<Type, IEntityDescriptor> descriptorCache = new();
 
         public void CleanCache()
         {

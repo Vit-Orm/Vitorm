@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Vitorm.Entity;
+﻿using Vitorm.Entity;
 
 namespace Vitorm.Sql.SqlTranslate
 {

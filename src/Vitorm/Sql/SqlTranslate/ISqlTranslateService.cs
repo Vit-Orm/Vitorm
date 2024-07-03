@@ -45,7 +45,7 @@ namespace Vitorm.Sql.SqlTranslate
 
         // #2 Retrieve : PrepareGet PrepareQuery
         string PrepareGet(SqlTranslateArgument arg);
-        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg,CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 
@@ -59,7 +59,7 @@ namespace Vitorm.Sql.SqlTranslate
 
         (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys);
 
-        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg,CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 

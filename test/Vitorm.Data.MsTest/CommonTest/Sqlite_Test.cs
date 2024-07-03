@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using User = Vitorm.MsTest.Sqlite.User;
-using Vitorm.DataProvider;
-using Vitorm.Sql;
 
 namespace Vitorm.MsTest.Sqlite
 {

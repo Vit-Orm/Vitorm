@@ -20,7 +20,7 @@ namespace Vitorm.Entity.DataAnnotations
             this.isIndex = isIndex;
         }
 
-        PropertyInfo propertyInfo;
+        readonly PropertyInfo propertyInfo;
         public Type type { get; private set; }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace Vitorm.StreamQuery
             this.alias = alias;
         }
         public string alias { get; private set; }
-        private object source;
+        private readonly object source;
 
         public int? hashCode
         {

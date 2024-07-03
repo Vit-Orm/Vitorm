@@ -4,10 +4,11 @@ using System.Linq.Expressions;
 
 using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vitorm.Entity;
+using Vitorm.MySql.TranslateService;
 using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
-using Vitorm.MySql.TranslateService;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.MySql

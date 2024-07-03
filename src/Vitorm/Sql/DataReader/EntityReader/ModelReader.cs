@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
 using Vitorm.Entity;
 using Vitorm.Sql.SqlTranslate;
 
@@ -15,7 +14,7 @@ namespace Vitorm.Sql.DataReader
         public Type argType { get; set; }
 
         //EntityPropertyReader keyPropertyReader;
-        List<EntityPropertyReader> proppertyReaders = new();
+        readonly List<EntityPropertyReader> proppertyReaders = new();
 
         public ModelReader(EntityReader entityReader, ISqlTranslateService sqlTranslator, string tableName, string argUniqueKey, string argName, Type argType, IEntityDescriptor entityDescriptor)
         {

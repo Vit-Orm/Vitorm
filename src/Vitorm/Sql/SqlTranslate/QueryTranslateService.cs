@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Vitorm.DataReader;
 using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
@@ -31,7 +32,7 @@ namespace Vitorm.Sql.SqlTranslate
                 case "Count":
                     {
                         var reader = new NumScalarReader();
-                        if (arg.dataReader == null) arg.dataReader = reader;
+                        arg.dataReader ??= reader;
                         return prefix + " " + "count(*)";
                     }
                 case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
@@ -49,12 +50,12 @@ namespace Vitorm.Sql.SqlTranslate
 
                         var nullable = stream.method.Contains("OrDefault");
                         var reader = new FirstEntityReader { nullable = nullable };
-                        return prefix + " " + BuildReader(arg,stream,reader);
+                        return prefix + " " + BuildReader(arg, stream, reader);
                     }
             }
             throw new NotSupportedException("not supported method: " + stream.method);
         }
-     
+
 
 
     }

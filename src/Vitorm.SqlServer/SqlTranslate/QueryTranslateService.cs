@@ -7,7 +7,7 @@ using Vitorm.StreamQuery;
 
 namespace Vitorm.SqlServer.SqlTranslate
 {
-    public class QueryTranslateService: BaseQueryTranslateService
+    public class QueryTranslateService : BaseQueryTranslateService
     {
 
         /* // sql
@@ -36,8 +36,8 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                 case "Count":
                     {
                         var reader = new NumScalarReader();
-                        if (arg.dataReader == null) arg.dataReader = reader;
-                        return prefix+" "+ "count(*)";
+                        arg.dataReader ??= reader;
+                        return prefix + " " + "count(*)";
                     }
                 case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
                     {

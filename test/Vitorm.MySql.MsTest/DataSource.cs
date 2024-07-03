@@ -55,7 +55,7 @@ namespace Vitorm.MsTest
     {
         public static void WaitForUpdate() { }
 
-        static string connectionString = Appsettings.json.GetStringByPath("Vitorm.MySql.connectionString");
+        static readonly string connectionString = Appsettings.json.GetStringByPath("Vitorm.MySql.connectionString");
         public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
 
         public static SqlDbContext CreateDbContext()

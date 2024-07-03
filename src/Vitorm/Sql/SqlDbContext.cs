@@ -311,8 +311,7 @@ namespace Vitorm.Sql
 
             // #3.3 Query
             // #3.3.1
-            var combinedStream = stream as CombinedStream;
-            if (combinedStream == null) combinedStream = new CombinedStream("tmp") { source = stream };
+            if (stream is not CombinedStream combinedStream) combinedStream = new CombinedStream("tmp") { source = stream };
 
             // #3.3.2 execute and read result
             switch (combinedStream.method)

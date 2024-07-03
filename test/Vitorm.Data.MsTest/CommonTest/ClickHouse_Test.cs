@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using User = Vitorm.MsTest.ClickHouse.User;
+
 using Vitorm.Sql;
+
+using User = Vitorm.MsTest.ClickHouse.User;
 
 namespace Vitorm.MsTest.ClickHouse
 {

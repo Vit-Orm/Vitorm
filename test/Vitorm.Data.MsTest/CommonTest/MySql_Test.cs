@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using User = Vitorm.MsTest.MySql.User;
+
 using Vitorm.Sql;
+
+using User = Vitorm.MsTest.MySql.User;
 
 namespace Vitorm.MsTest.MySql
 {

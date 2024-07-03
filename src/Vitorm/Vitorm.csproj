@@ -17,7 +17,7 @@
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/VitormLib/Vitorm</RepositoryUrl>
-        <PackageTags>orm</PackageTags>
+        <PackageTags>orm vitorm database mysql sqlserver sqlite clickhouse elasticsearch</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,8 +26,8 @@
             <PackagePath>\</PackagePath>
         </None>
         <None Include="..\..\README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
+          <Pack>True</Pack>
+          <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
 

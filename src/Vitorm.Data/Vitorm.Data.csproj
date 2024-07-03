@@ -13,8 +13,11 @@
     <PropertyGroup>
         <Authors>Lith</Authors>
         <Description>Data access for Database</Description>
-        <PackageProjectUrl>https://github.com/VitormLib/Vitorm.ClickHouse</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/VitormLib/Vitorm</RepositoryUrl>
+        <PackageTags>orm vitorm database mysql sqlserver sqlite clickhouse elasticsearch</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,6 +33,13 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Vitorm\src\Vitorm\Vitorm.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -15,6 +15,9 @@
         <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
 
         <PackageReference Include="Vit.Core" Version="2.1.22" />
+
+        <PackageReference Include="Vitorm.ClickHouse" />
+        <PackageReference Include="Vitorm.ElasticSearch" />
     </ItemGroup>
 
     <ItemGroup>

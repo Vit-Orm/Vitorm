@@ -46,6 +46,7 @@ namespace Vitorm.Sql.SqlTranslate
         // #2 Retrieve : PrepareGet PrepareQuery
         string PrepareGet(SqlTranslateArgument arg);
         (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 

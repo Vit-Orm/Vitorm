@@ -56,10 +56,6 @@ namespace Vitorm.MsTest
         {
             var guid = Guid.NewGuid().ToString();
             var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{guid}.sqlite.db");
-            if (File.Exists(filePath)) File.Delete(filePath);
-            File.WriteAllBytes(filePath, new byte[0]);
-
-
             var connectionString = $"data source={filePath}";
 
             var dbContext = new SqlDbContext();

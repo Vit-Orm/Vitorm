@@ -52,8 +52,7 @@ namespace App
     {
         static void Main(string[] args)
         {
-            // #1 Create an empty SQLite database file and configures Vitorm
-            File.WriteAllBytes("sqlite.db", new byte[0]);
+            // #1 Configure Vitorm
             using var dbContext = new Vitorm.Sql.SqlDbContext();
             dbContext.UseSqlite("data source=sqlite.db");
 
@@ -211,8 +210,7 @@ namespace App
     {
         static void Main(string[] args)
         {
-            // #1 Create an empty SQLite database file and configures Vitorm.Data
-            File.WriteAllBytes("sqlite.db", new byte[0]);
+            // #1 No need to init Vitorm.Data
 
             // #2 Create Table
             Data.Drop<User>();

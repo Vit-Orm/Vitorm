@@ -5,10 +5,13 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>App</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.31" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.31" />
     </ItemGroup>
 
     <ItemGroup>

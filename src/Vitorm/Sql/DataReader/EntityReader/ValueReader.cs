@@ -11,8 +11,8 @@ namespace Vitorm.Sql.DataReader
 
         public Type argType { get => valueType; }
 
-        public ValueReader(EntityReader entityReader, Type valueType, string argUniqueKey, string argName, string sqlFieldName)
-                     : base(entityReader.sqlFields, valueType, sqlFieldName)
+        public ValueReader(Type valueType, string argUniqueKey, string argName, int sqlColumnIndex)
+                     : base(valueType, sqlColumnIndex)
         {
             this.argUniqueKey = argUniqueKey;
             this.argName = argName;

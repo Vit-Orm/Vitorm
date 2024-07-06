@@ -5,7 +5,7 @@ using System.Linq;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.SqlServer.TranslateService
+namespace Vitorm.SqlServer.SqlTranslate
 {
     public class ExecuteUpdateTranslateService : Vitorm.SqlServer.SqlTranslate.BaseQueryTranslateService
     {

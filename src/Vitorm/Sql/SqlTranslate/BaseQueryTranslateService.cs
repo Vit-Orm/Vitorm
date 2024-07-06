@@ -20,7 +20,7 @@ namespace Vitorm.Sql.SqlTranslate
             this.sqlTranslator = sqlTranslator;
         }
 
-
+        public virtual string BuildCountQuery(QueryTranslateArgument arg, CombinedStream stream) => throw new NotImplementedException();
 
         public virtual string BuildQuery(QueryTranslateArgument arg, CombinedStream stream)
         {
@@ -132,14 +132,14 @@ namespace Vitorm.Sql.SqlTranslate
         }
         protected virtual string ReadOrderBy(QueryTranslateArgument arg, CombinedStream stream)
         {
-            var fields = stream.orders.Select(field =>
+            var columns = stream.orders.Select(field =>
                 {
-                    var sqlField = sqlTranslator.EvalExpression(arg, field.member);
-                    return sqlField + " " + (field.asc ? "asc" : "desc");
+                    var sqlColumnName = sqlTranslator.EvalExpression(arg, field.member);
+                    return sqlColumnName + " " + (field.asc ? "asc" : "desc");
                 }
-            ).ToList();
+            );
 
-            return String.Join(", ", fields);
+            return String.Join(", ", columns);
         }
         #endregion
 
@@ -181,9 +181,18 @@ namespace Vitorm.Sql.SqlTranslate
             //if (resultEntityType == null)
             //    throw new NotSupportedException("resultEntityType could not be null");
 
-            var sqlFields = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-            arg.dataReader ??= reader;
-            return (stream.distinct == true ? "distinct " : "") + sqlFields;
+            if (stream.method == "Count")
+            {
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
+                arg.dataReader ??= reader;
+                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
+            }
+
+            {
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
+                arg.dataReader ??= reader;
+                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
+            }
         }
 
         protected virtual void ReverseOrder(QueryTranslateArgument arg, CombinedStream stream)

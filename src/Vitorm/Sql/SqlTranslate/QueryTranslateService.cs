@@ -1,6 +1,5 @@
 ﻿using System;
 
-using Vitorm.DataReader;
 using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
 
@@ -25,16 +24,17 @@ namespace Vitorm.Sql.SqlTranslate
         }
 
 
+        public override string BuildCountQuery(QueryTranslateArgument arg, CombinedStream stream)
+        {
+            // select count(*) from (select distinct fatherid,motherId from "User" u) u;
+            return $"select count(*) from ({BuildQuery(arg, stream)}) u;";
+        }
+
         protected override string ReadSelect(QueryTranslateArgument arg, CombinedStream stream, string prefix = "select")
         {
             switch (stream.method)
             {
                 case "Count":
-                    {
-                        var reader = new NumScalarReader();
-                        arg.dataReader ??= reader;
-                        return prefix + " " + "count(*)";
-                    }
                 case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
                     {
                         var reader = new EntityReader();

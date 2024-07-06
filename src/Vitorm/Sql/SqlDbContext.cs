@@ -330,13 +330,27 @@ namespace Vitorm.Sql
                     {
                         // Count
 
+                        // deal with skip and take , no need to pass to PrepareCountQuery
+                        combinedStream.orders = null;
+                        (int skip, int? take) range = (combinedStream.skip ?? 0, combinedStream.take);
+                        combinedStream.take = null;
+                        combinedStream.skip = null;
+
                         // get arg
                         var arg = new QueryTranslateArgument(this, null);
 
-                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                        (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
 
                         var count = ExecuteScalar(sql: sql, param: sqlParam, useReadOnly: true);
-                        return Convert.ToInt32(count);
+                        var rowCount = Convert.ToInt32(count);
+                        if (rowCount > 0)
+                        {
+                            if (range.skip > 0) rowCount = Math.Max(rowCount - range.skip, 0);
+
+                            if (combinedStream.take.HasValue)
+                                rowCount = Math.Min(rowCount, range.take.Value);
+                        }
+                        return rowCount;
                     }
                 case nameof(Orm_Extensions.ExecuteDelete):
                     {

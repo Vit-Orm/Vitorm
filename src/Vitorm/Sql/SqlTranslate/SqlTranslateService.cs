@@ -383,7 +383,19 @@ namespace Vitorm.Sql.SqlTranslate
             return sql;
         }
 
-        public abstract (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        protected abstract BaseQueryTranslateService queryTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam, arg.dataReader);
+        }
+
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = queryTranslateService.BuildCountQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
+
         #endregion
 
 
@@ -428,7 +440,13 @@ namespace Vitorm.Sql.SqlTranslate
             return (sql, GetSqlParams);
         }
 
-        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream);
+
+        protected abstract BaseQueryTranslateService executeUpdateTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
 
         #endregion
 
@@ -476,10 +494,12 @@ namespace Vitorm.Sql.SqlTranslate
         }
 
 
-
-        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
-
-
+        protected abstract BaseQueryTranslateService executeDeleteTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
         #endregion
 
 

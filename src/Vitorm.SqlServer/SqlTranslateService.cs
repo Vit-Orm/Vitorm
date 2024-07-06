@@ -6,10 +6,7 @@ using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
-using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
-using Vitorm.SqlServer.TranslateService;
-using Vitorm.StreamQuery;
 
 namespace Vitorm.SqlServer
 {
@@ -17,16 +14,16 @@ namespace Vitorm.SqlServer
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 
-        protected Vitorm.SqlServer.SqlTranslate.QueryTranslateService queryTranslateService;
-        protected ExecuteUpdateTranslateService executeUpdateTranslateService;
-        protected ExecuteDeleteTranslateService executeDeleteTranslateService;
+        protected override BaseQueryTranslateService queryTranslateService { get; }
+        protected override BaseQueryTranslateService executeUpdateTranslateService { get; }
+        protected override BaseQueryTranslateService executeDeleteTranslateService { get; }
 
 
         public SqlTranslateService()
         {
-            queryTranslateService = new(this);
-            executeUpdateTranslateService = new ExecuteUpdateTranslateService(this);
-            executeDeleteTranslateService = new ExecuteDeleteTranslateService(this);
+            queryTranslateService = new Vitorm.SqlServer.SqlTranslate.QueryTranslateService(this);
+            executeUpdateTranslateService = new Vitorm.SqlServer.SqlTranslate.ExecuteUpdateTranslateService(this);
+            executeDeleteTranslateService = new Vitorm.SqlServer.SqlTranslate.ExecuteDeleteTranslateService(this);
         }
 
         /// <summary>
@@ -164,8 +161,6 @@ namespace Vitorm.SqlServer
 
 
 
-
-
         #region PrepareCreate
         public override string PrepareCreate(IEntityDescriptor entityDescriptor)
         {
@@ -259,24 +254,6 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             return result;
         }
-
-        public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam, arg.dataReader);
-        }
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
 
 
     }

@@ -41,12 +41,6 @@ namespace Vitorm.MsTest
 
         public void Init()
         {
-
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"sqlite.db");
-            if (File.Exists(filePath)) File.Delete(filePath);
-            File.WriteAllBytes(filePath, new byte[0]);
-
-
             using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
 
             dbContext.Drop<User>();

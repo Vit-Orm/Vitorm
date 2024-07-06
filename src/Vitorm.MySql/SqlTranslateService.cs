@@ -7,9 +7,7 @@ using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.MySql.TranslateService;
-using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
-using Vitorm.StreamQuery;
 
 namespace Vitorm.MySql
 {
@@ -17,9 +15,9 @@ namespace Vitorm.MySql
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 
-        protected QueryTranslateService queryTranslateService;
-        protected ExecuteUpdateTranslateService executeUpdateTranslateService;
-        protected ExecuteDeleteTranslateService executeDeleteTranslateService;
+        protected override BaseQueryTranslateService queryTranslateService { get; }
+        protected override BaseQueryTranslateService executeUpdateTranslateService { get; }
+        protected override BaseQueryTranslateService executeDeleteTranslateService { get; }
 
         public SqlTranslateService()
         {
@@ -233,26 +231,6 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             return result;
         }
-
-        public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam, arg.dataReader);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-
 
     }
 }

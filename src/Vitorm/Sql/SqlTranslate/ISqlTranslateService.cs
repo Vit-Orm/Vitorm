@@ -32,18 +32,21 @@ namespace Vitorm.Sql.SqlTranslate
 
         string EvalExpression(QueryTranslateArgument arg, ExpressionNode data);
 
-        // #0 Schema :  PrepareCreate
+        // #0 Schema :  PrepareCreate PrepareDrop
         string PrepareCreate(IEntityDescriptor entityDescriptor);
+        string PrepareDrop(IEntityDescriptor entityDescriptor);
 
 
         // #1 Create :  PrepareAdd
-
+        EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity);
         (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg);
+        (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg);
 
 
         // #2 Retrieve : PrepareGet PrepareQuery
         string PrepareGet(SqlTranslateArgument arg);
-        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg,CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 
@@ -57,7 +60,7 @@ namespace Vitorm.Sql.SqlTranslate
 
         (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys);
 
-        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg,CombinedStream combinedStream);
+        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 

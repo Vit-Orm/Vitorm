@@ -47,7 +47,11 @@ UPDATE User SET name = 'u'||id  where id > 0;
 
             var sqlToUpdateCols = columnsToUpdate
                 .Select(m => m.name)
-                .Select(name => $"{NewLine}  {sqlTranslator.DelimitIdentifier(name)} = (SELECT {sqlTranslator.DelimitIdentifier("_" + name)} FROM tmp WHERE tmp.{sqlTranslator.DelimitIdentifier(keyName)} = {sqlTranslator.DelimitTableName(entityDescriptor)}.{sqlTranslator.DelimitIdentifier(keyName)} )");
+                .Select(name =>
+                {
+                    var columnName = entityDescriptor.GetColumnNameByPropertyName(name);
+                    return $"{NewLine}  {sqlTranslator.DelimitIdentifier(columnName)} = (SELECT {sqlTranslator.DelimitIdentifier("_" + name)} FROM tmp WHERE tmp.{sqlTranslator.DelimitIdentifier(keyName)} = {sqlTranslator.DelimitTableName(entityDescriptor)}.{sqlTranslator.DelimitIdentifier(keyName)} )";
+                });
 
             sql += string.Join(",", sqlToUpdateCols);
 
@@ -55,7 +59,7 @@ UPDATE User SET name = 'u'||id  where id > 0;
 
             return sql;
         }
- 
+
 
         public ExecuteUpdateTranslateService(SqlTranslateService sqlTranslator) : base(sqlTranslator)
         {
@@ -64,7 +68,7 @@ UPDATE User SET name = 'u'||id  where id > 0;
         protected override string ReadSelect(QueryTranslateArgument arg, CombinedStream stream, string prefix = "select")
         {
             var entityDescriptor = arg.dbContext.GetEntityDescriptor(arg.resultEntityType);
-            var columnsToUpdate = (stream as StreamToUpdate) ?.fieldsToUpdate?.memberArgs;
+            var columnsToUpdate = (stream as StreamToUpdate)?.fieldsToUpdate?.memberArgs;
 
             if (columnsToUpdate?.Any() != true) throw new ArgumentException("can not get columns to update");
 
@@ -72,7 +76,7 @@ UPDATE User SET name = 'u'||id  where id > 0;
 
             foreach (var column in columnsToUpdate)
             {
-                sqlFields.Add($"({sqlTranslator.EvalExpression( arg,  column.value)}) as {sqlTranslator.DelimitIdentifier("_" + column.name)}");
+                sqlFields.Add($"({sqlTranslator.EvalExpression(arg, column.value)}) as {sqlTranslator.DelimitIdentifier("_" + column.name)}");
             }
 
             // primary key

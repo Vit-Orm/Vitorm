@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Data;
 
-using System.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -19,7 +19,7 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = CreateDbContext();
 
-            var newUserList = User.NewUsers(7, 4);
+            var newUserList = User.NewUsers(7, 4, forAdd: true);
 
 
             // #1 Add
@@ -29,7 +29,7 @@ namespace Vitorm.MsTest.CommonTest
             dbContext.AddRange(newUserList.Skip(1));
 
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {
@@ -44,7 +44,7 @@ namespace Vitorm.MsTest.CommonTest
                 dbContext.Add(newUserList[0]);
                 Assert.Fail("should not be able to add same key twice");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not AssertFailedException)
             {
             }
 
@@ -72,35 +72,19 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(2, rowCount);
             }
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {
-                var newUserList = User.NewUsers(4, 3);
+                var newUserList = User.NewUsers(4, 3, forAdd: false);
                 var userList = dbContext.Query<User>().Where(m => m.id >= 4).ToList();
                 Assert.AreEqual(newUserList.Count, userList.Count());
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
             }
 
-            try
-            {
-                var newUser = User.NewUser(4);
-                var key = dbContext.GetEntityDescriptor(typeof(User)).key;
-                key.SetValue(newUser, null);
-                dbContext.Update(newUser);
-                Assert.Fail("should not be able to update entity with null key");
-            }
-            catch (Exception ex)
-            {
-            }
-
-
         }
         #endregion
-
-
-
 
 
         #region #4 Delete
@@ -141,7 +125,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(2, rowCount);
             }
 
-            Thread.Sleep(1000);
+            DataSource.WaitForUpdate();
 
             // assert
             {

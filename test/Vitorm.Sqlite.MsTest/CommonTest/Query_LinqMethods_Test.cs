@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Vit.Extensions.Vitorm_Extensions;
-using System.Data;
+﻿using System.Data;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -122,21 +122,59 @@ namespace Vitorm.MsTest.CommonTest
 
         }
 
+
+        [TestMethod]
+        public void Test_OrderBy()
+        {
+            using var dbContext = DataSource.CreateDbContext();
+            var userQuery = dbContext.Query<User>();
+
+            {
+                var query = userQuery.OrderByDescending(user => user.id);
+
+                //var sql = query.ToExecuteString();
+
+                var userList = query.ToList();
+                Assert.AreEqual(6, userList.Count);
+                Assert.AreEqual(6, userList[0].id);
+            }
+            {
+                var query = userQuery.OrderByDescending(user => user.id).Select(user => new { fid = user.fatherId, user.id });
+
+                //var sql = query.ToExecuteString();
+
+                var userList = query.ToList();
+                Assert.AreEqual(6, userList.Count);
+                Assert.AreEqual(6, userList[0].id);
+            }
+
+        }
+
+
+
+
+
         [TestMethod]
         public void Test_Count()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
+            // Count
             {
-                var count = (from user in userQuery
-                             where user.id > 2
-                             select new
-                             {
-                                 user
-                             }).Count();
+                var query = userQuery.Where(user => user.id > 2);
 
+                var count = query.Count();
                 Assert.AreEqual(4, count);
+            }
+            // Skip Take Count
+            {
+                var query = userQuery.Where(user => user.id > 2);
+
+                query = query.Skip(1).Take(10);
+
+                var count = query.Count();
+                Assert.AreEqual(3, count);
             }
         }
 
@@ -199,7 +237,7 @@ namespace Vitorm.MsTest.CommonTest
                     var user = userQuery.First(user => user.id == 13);
                     Assert.Fail("IQueryalbe.First should throw Exception");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
 
@@ -263,7 +301,7 @@ namespace Vitorm.MsTest.CommonTest
                     var user = userQuery.Last(user => user.id == 13);
                     Assert.Fail("IQueryalbe.First should throw Exception");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
 

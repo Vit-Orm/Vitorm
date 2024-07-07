@@ -46,7 +46,7 @@ namespace Vitorm.MySql
         public class DbTransactionWrapSavePoint : DbTransactionWrap
         {
             public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
-            string savePointName;
+            readonly string savePointName;
             public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
             {
                 this.savePointName = savePointName;

@@ -20,7 +20,7 @@ namespace Vitorm.Sql.SqlTranslate
             this.sqlTranslator = sqlTranslator;
         }
 
-
+        public virtual string BuildCountQuery(QueryTranslateArgument arg, CombinedStream stream) => throw new NotImplementedException();
 
         public virtual string BuildQuery(QueryTranslateArgument arg, CombinedStream stream)
         {
@@ -38,7 +38,7 @@ namespace Vitorm.Sql.SqlTranslate
             #region #2 join
             if (stream.joins != null)
             {
-                sql +=  ReadJoin(arg,stream);
+                sql += ReadJoin(arg, stream);
             }
             #endregion
 
@@ -128,18 +128,18 @@ namespace Vitorm.Sql.SqlTranslate
             {
                 throw new NotSupportedException("[QueryTranslator] groupByFields is not valid: must be New or Member");
             }
-           return String.Join(", ", fields);
-        }
-        protected virtual string ReadOrderBy(QueryTranslateArgument arg, CombinedStream stream) 
-        {
-            var fields = stream.orders.Select(field =>
-                {
-                    var sqlField = sqlTranslator.EvalExpression(arg, field.member);
-                    return sqlField + " " + (field.asc ? "asc" : "desc");
-                }
-            ).ToList();
-
             return String.Join(", ", fields);
+        }
+        protected virtual string ReadOrderBy(QueryTranslateArgument arg, CombinedStream stream)
+        {
+            var columns = stream.orders.Select(field =>
+                {
+                    var sqlColumnName = sqlTranslator.EvalExpression(arg, field.member);
+                    return sqlColumnName + " " + (field.asc ? "asc" : "desc");
+                }
+            );
+
+            return String.Join(", ", columns);
         }
         #endregion
 
@@ -148,7 +148,7 @@ namespace Vitorm.Sql.SqlTranslate
             if (stream is SourceStream sourceStream)
             {
                 IQueryable query = sourceStream.GetSource() as IQueryable;
-                var entityDescriptor = arg.dbContext.GetEntityDescriptor(query.ElementType) ;
+                var entityDescriptor = arg.dbContext.GetEntityDescriptor(query.ElementType);
                 return $"{sqlTranslator.DelimitTableName(entityDescriptor)} as " + stream.alias;
             }
             if (stream is CombinedStream baseStream)
@@ -181,9 +181,18 @@ namespace Vitorm.Sql.SqlTranslate
             //if (resultEntityType == null)
             //    throw new NotSupportedException("resultEntityType could not be null");
 
-            var sqlFields = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-            if (arg.dataReader == null) arg.dataReader = reader;
-            return (stream.distinct == true ? "distinct " : "") + sqlFields;
+            if (stream.method == "Count")
+            {
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
+                arg.dataReader ??= reader;
+                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
+            }
+
+            {
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
+                arg.dataReader ??= reader;
+                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
+            }
         }
 
         protected virtual void ReverseOrder(QueryTranslateArgument arg, CombinedStream stream)
@@ -207,7 +216,7 @@ namespace Vitorm.Sql.SqlTranslate
                         {
                             var member = ExpressionNode_RenameableMember.Member(stream: source, entityType);
                             member.memberName = entityDescriptor.keyName;
-                            orders.Add(new OrderField { member = member, asc = true });
+                            orders.Add(new ExpressionNodeOrderField { member = member, asc = true });
                         }
                     }
                 }

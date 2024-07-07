@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Vit.Extensions.Vitorm_Extensions;
-using System.Data;
+﻿using System.Data;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -17,7 +17,7 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Linq Expresssion
+            // Linq Expression
             {
                 var query =
                         from user in userQuery
@@ -66,19 +66,22 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Linq Expresssion
+            // Linq Expression
             {
                 var query =
                     from user in userQuery
                     from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
                     from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 2
+                    from userClass in dbContext.Query<UserClass>().Where(userClass => user.classId == userClass.id).DefaultIfEmpty()
+                    where user.id > 1 && userClass.id == 1
                     orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
+                        userClass,
+                        userClass.name,
                         testId = user.id + 100,
                         hasFather = father.name != null ? true : false
                     };

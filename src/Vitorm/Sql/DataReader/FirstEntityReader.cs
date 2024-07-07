@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Vitorm.Sql.DataReader
 {
-    public class FirstEntityReader: EntityReader
+    public class FirstEntityReader : EntityReader
     {
         public bool nullable = true;
         public override object ReadData(IDataReader reader)

@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
-using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
-using Vitorm.SqlServer.TranslateService;
-using Vitorm.StreamQuery;
 
 namespace Vitorm.SqlServer
 {
@@ -19,16 +14,16 @@ namespace Vitorm.SqlServer
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 
-        protected Vitorm.SqlServer.SqlTranslate.QueryTranslateService queryTranslateService;
-        protected ExecuteUpdateTranslateService executeUpdateTranslateService;
-        protected ExecuteDeleteTranslateService executeDeleteTranslateService;
+        protected override BaseQueryTranslateService queryTranslateService { get; }
+        protected override BaseQueryTranslateService executeUpdateTranslateService { get; }
+        protected override BaseQueryTranslateService executeDeleteTranslateService { get; }
 
-    
+
         public SqlTranslateService()
         {
-            queryTranslateService = new(this);
-            executeUpdateTranslateService = new ExecuteUpdateTranslateService(this);
-            executeDeleteTranslateService = new ExecuteDeleteTranslateService(this);
+            queryTranslateService = new Vitorm.SqlServer.SqlTranslate.QueryTranslateService(this);
+            executeUpdateTranslateService = new Vitorm.SqlServer.SqlTranslate.ExecuteUpdateTranslateService(this);
+            executeDeleteTranslateService = new Vitorm.SqlServer.SqlTranslate.ExecuteDeleteTranslateService(this);
         }
 
         /// <summary>
@@ -47,7 +42,7 @@ namespace Vitorm.SqlServer
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public override string EscapeIdentifier(string identifier) => identifier.Replace("[", "\"[").Replace("]", "\"]");
+        public override string EscapeIdentifier(string identifier) => identifier?.Replace("[", "\"[").Replace("]", "\"]");
 
         public override string DelimitTableName(IEntityDescriptor entityDescriptor)
         {
@@ -100,7 +95,7 @@ namespace Vitorm.SqlServer
                                     var value = methodCall.arguments[0];
                                     return $"{EvalExpression(arg, str)} like '%'+{EvalExpression(arg, value)}+'%'";
                                 }
-                            #endregion
+                                #endregion
                         }
                         break;
                     }
@@ -119,14 +114,14 @@ namespace Vitorm.SqlServer
                         // Nullable
                         if (targetType.IsGenericType) targetType = targetType.GetGenericArguments()[0];
 
-                        string targetDbType = GetDbType(targetType);
+                        string targetDbType = GetColumnDbType(targetType);
 
                         var sourceType = convert.body.Member_GetType();
                         if (sourceType != null)
                         {
                             if (sourceType.IsGenericType) sourceType = sourceType.GetGenericArguments()[0];
 
-                            if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
+                            if (targetDbType == GetColumnDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
 
                         return $"cast({EvalExpression(arg, convert.body)} as {targetDbType})";
@@ -149,40 +144,47 @@ namespace Vitorm.SqlServer
                         ExpressionNode_Binary binary = data;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
                     }
+                case nameof(ExpressionType.Conditional):
+                    {
+                        // IIF(`t0`.`fatherId` is not null,true, false)
+                        ExpressionNode_Conditional conditional = data;
+                        return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
+                    }
                     #endregion
 
             }
 
             return base.EvalExpression(arg, data);
-}
+        }
 
         #endregion
 
-
-    
 
 
         #region PrepareCreate
         public override string PrepareCreate(IEntityDescriptor entityDescriptor)
         {
             /* //sql
-CREATE TABLE user (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name varchar(100) DEFAULT NULL,
-  birth date DEFAULT NULL,
-  fatherId int DEFAULT NULL,
-  motherId int DEFAULT NULL
-) ;
+if object_id(N'[dbo].[User]', N'U') is null
+    CREATE TABLE [dbo].[User] (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      name varchar(100) DEFAULT NULL,
+      birth date DEFAULT NULL,
+      fatherId int DEFAULT NULL,
+      motherId int DEFAULT NULL
+    ) ;
               */
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.databaseGenerated == DatabaseGeneratedOption.Identity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
+            if (entityDescriptor.key != null)
+                sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.isIdentity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
+if object_id(N'{DelimitTableName(entityDescriptor)}', N'U') is null
 CREATE TABLE {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
@@ -190,13 +192,13 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var dbType = column.databaseType ?? GetDbType(column.type);
+                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {dbType} {(column.nullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
 
-        protected readonly static Dictionary<Type, string> dbTypeMap = new()
+        protected readonly static Dictionary<Type, string> columnDbTypeMap = new()
         {
             [typeof(DateTime)] = "datetime",
             [typeof(string)] = "varchar(max)",
@@ -210,44 +212,48 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
             [typeof(byte)] = "tinyint",
             [typeof(bool)] = "bit",
         };
-        protected override string GetDbType(Type type)
+        protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 
-            if (dbTypeMap.TryGetValue(type, out var dbType)) return dbType;
+            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
             throw new NotSupportedException("unsupported column type:" + type.Name);
         }
         #endregion
 
-
-
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
         {
-            var result = base.PrepareAdd(arg);
+            // IF OBJECT_ID(N'User', N'U') IS NOT NULL  DROP TABLE [User];
+            var tableName = DelimitTableName(entityDescriptor);
+            return $@"IF OBJECT_ID(N'{tableName}', N'U') IS NOT NULL  DROP TABLE {tableName};";
+        }
+
+        public override EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
+        {
+            var key = arg.entityDescriptor.key;
+            if (key == null) return EAddType.noKeyColumn;
+
+            var keyValue = key.GetValue(entity);
+            var keyIsEmpty = keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+
+            if (key.isIdentity)
+            {
+                return keyIsEmpty ? EAddType.identityKey : throw new ArgumentException("Cannot insert explicit value for identity column.");
+            }
+            else
+            {
+                return !keyIsEmpty ? EAddType.keyWithValue : throw new ArgumentException("Key could not be empty.");
+            }
+        }
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
+        {
+            var result = PrepareAdd(arg, arg.entityDescriptor.columns);
 
             // get generated id
             result.sql += "select convert(int,isnull(SCOPE_IDENTITY(),-1));";
 
             return result;
         }
-
-        public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam, arg.dataReader);
-        }
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
 
 
     }

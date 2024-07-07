@@ -1,28 +1,41 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Vitorm.Entity
 {
     public interface IColumnDescriptor
     {
         Type type { get; }
-        string name { get; }
+        /// <summary>
+        /// property name in Entity Type
+        /// </summary>
+        string propertyName { get; }
+        /// <summary>
+        /// column name in database
+        /// </summary>
+        string columnName { get; }
         bool isKey { get; }
 
         /// <summary>
-        /// Specifies how the database generates values for a property.   None / Identity / Computed
+        /// whether column is Identity
         /// </summary>
-        DatabaseGeneratedOption? databaseGenerated { get; }
+        bool isIdentity { get; }
+        /// <summary>
+        /// whether column could be null
+        /// </summary>
+        bool isNullable { get; }
+
+        int? columnOrder { get; }
+        bool? isIndex { get; }
+
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
         string databaseType { get; }
-        /// <summary>
-        /// whether column could be null
-        /// </summary>
-        bool nullable { get; }
+
 
         void SetValue(object entity, object value);
         object GetValue(object entity);
+
+
     }
 }

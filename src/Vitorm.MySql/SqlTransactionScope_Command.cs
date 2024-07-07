@@ -1,12 +1,26 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
-using System.Collections.Generic;
+
 using static Vitorm.Sql.Transaction.DbTransactionWrap;
 
 namespace Vitorm.MySql
 {
+    /*
+           // ref: https://dev.mysql.com/doc/refman/8.4/en/savepoint.html
+           //  https://dev.mysql.com/doc/refman/8.4/en/commit.html
+
+          START TRANSACTION;
+              SET autocommit=0;
+              SAVEPOINT tran0;
+                  select '';
+              -- ROLLBACK WORK TO SAVEPOINT tran0;
+              RELEASE SAVEPOINT tran0;
+          COMMIT;
+          -- ROLLBACK;
+    */
     public class SqlTransactionScope_Command : ITransactionScope
     {
         protected SqlDbContext dbContext;
@@ -60,7 +74,7 @@ namespace Vitorm.MySql
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
             public IDbConnection Connection => dbContext.dbConnection;
-            SqlDbContext dbContext;
+            readonly SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
 
             public DbTransactionWrap_Command(SqlDbContext dbContext)
@@ -104,7 +118,7 @@ namespace Vitorm.MySql
             public virtual System.Data.IsolationLevel IsolationLevel => default;
 
             public IDbConnection Connection => dbContext.dbConnection;
-            SqlDbContext dbContext;
+            readonly SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
             protected string savePointName;
 

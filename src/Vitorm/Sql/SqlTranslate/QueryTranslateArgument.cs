@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-
-using Vitorm.Entity;
 
 namespace Vitorm.Sql.SqlTranslate
 {
     public class QueryTranslateArgument
     {
         public DbContext dbContext { get; protected set; }
- 
+
         public Type resultEntityType { get; protected set; }
 
 

@@ -84,7 +84,7 @@ value(Vit.Linq.Converter.OrderedQueryable`1[Vit.Linq.MsTest.Converter.Join_Test+
 
 
         //  a1.id, b2.id
-        public List<OrderField> orders { get; set; }
+        public List<ExpressionNodeOrderField> orders { get; set; }
 
 
         public int? skip { get; set; }

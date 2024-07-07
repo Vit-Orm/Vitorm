@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
@@ -46,7 +45,7 @@ namespace Vitorm.SqlServer
     public class DbTransactionWrapSavePoint : DbTransactionWrap
     {
         public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
-        string savePointName;
+        readonly string savePointName;
         public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
         {
             this.savePointName = savePointName;

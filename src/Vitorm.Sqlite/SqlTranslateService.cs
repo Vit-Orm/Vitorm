@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
-using Vitorm.Sql;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.Sqlite.TranslateService;
-using Vitorm.StreamQuery;
 
 namespace Vitorm.Sqlite
 {
@@ -17,9 +15,9 @@ namespace Vitorm.Sqlite
     {
         public static readonly SqlTranslateService Instance = new SqlTranslateService();
 
-        protected QueryTranslateService queryTranslateService;
-        protected ExecuteUpdateTranslateService executeUpdateTranslateService;
-        protected ExecuteDeleteTranslateService executeDeleteTranslateService;
+        protected override BaseQueryTranslateService queryTranslateService { get; }
+        protected override BaseQueryTranslateService executeUpdateTranslateService { get; }
+        protected override BaseQueryTranslateService executeDeleteTranslateService { get; }
 
         public SqlTranslateService()
         {
@@ -70,7 +68,7 @@ namespace Vitorm.Sqlite
                                     var value = methodCall.arguments[0];
                                     return $"{EvalExpression(arg, str)} like '%'||{EvalExpression(arg, value)}||'%'";
                                 }
-                            #endregion
+                                #endregion
                         }
                         break;
                     }
@@ -89,14 +87,14 @@ namespace Vitorm.Sqlite
                         // Nullable
                         if (targetType.IsGenericType) targetType = targetType.GetGenericArguments()[0];
 
-                        string targetDbType = GetDbType(targetType);
+                        string targetDbType = GetColumnDbType(targetType);
 
                         var sourceType = convert.body.Member_GetType();
                         if (sourceType != null)
                         {
                             if (sourceType.IsGenericType) sourceType = sourceType.GetGenericArguments()[0];
 
-                            if (targetDbType == GetDbType(sourceType)) return EvalExpression(arg, convert.body);
+                            if (targetDbType == GetColumnDbType(sourceType)) return EvalExpression(arg, convert.body);
                         }
 
                         if (targetDbType == "datetime")
@@ -122,6 +120,12 @@ namespace Vitorm.Sqlite
                     {
                         ExpressionNode_Binary binary = data;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
+                    }
+                case nameof(ExpressionType.Conditional):
+                    {
+                        // IIF(`t0`.`fatherId` is not null,true, false)
+                        ExpressionNode_Conditional conditional = data;
+                        return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }
                     #endregion
 
@@ -161,12 +165,12 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var dbType = column.databaseType ?? GetDbType(column.type);
+                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
                 // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.name)} {dbType} {(column.nullable ? "DEFAULT NULL" : "NOT NULL")}";
+                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
             }
         }
-        protected override string GetDbType(Type type)
+        protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 
@@ -185,71 +189,11 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
         {
-            /* //sql
-             insert into user(name,birth,fatherId,motherId) values('','','');
-             select seq from sqlite_sequence where name='user';
-              */
-            var entityDescriptor = arg.entityDescriptor;
-
-            var columns = entityDescriptor.allColumns;
-
-            // #1 GetSqlParams 
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
-            {
-                var sqlParam = new Dictionary<string, object>();
-                foreach (var column in columns)
-                {
-                    var columnName = column.name;
-                    var value = column.GetValue(entity);
-
-                    sqlParam[columnName] = value;
-                }
-                return sqlParam;
-            };
-
-            #region #2 columns 
-            List<string> columnNames = new List<string>();
-            List<string> valueParams = new List<string>();
-            string columnName;
-
-            foreach (var column in columns)
-            {
-                columnName = column.name;
-
-                columnNames.Add(DelimitIdentifier(columnName));
-                valueParams.Add(GenerateParameterName(columnName));
-            }
-            #endregion
-
-            // #3 build sql
-            string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
-            //sql+=$"select seq from sqlite_sequence where name = '{tableName}'; ";
-            sql += "select null;";
-            return (sql, GetSqlParams);
+            // DROP TABLE if exists "User";
+            return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";
         }
-
-        public override (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam, arg.dataReader);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-        public override (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
-        {
-            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
-        }
-
-
 
     }
 }

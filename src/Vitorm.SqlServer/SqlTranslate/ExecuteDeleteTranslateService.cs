@@ -1,7 +1,7 @@
 ﻿using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.SqlServer.TranslateService
+namespace Vitorm.SqlServer.SqlTranslate
 {
     public class ExecuteDeleteTranslateService : Vitorm.SqlServer.SqlTranslate.BaseQueryTranslateService
     {

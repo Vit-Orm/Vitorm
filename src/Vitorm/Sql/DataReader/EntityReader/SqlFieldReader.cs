@@ -1,35 +1,29 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
 
 namespace Vitorm.Sql.DataReader
 {
 
     class SqlFieldReader
     {
-        public int sqlFieldIndex { get; set; }
+        public int sqlColumnIndex { get; set; }
         protected Type valueType { get; set; }
         protected Type underlyingType;
 
 
-        public SqlFieldReader(List<string> sqlFields, Type valueType, string sqlFieldName)
+        public SqlFieldReader(Type valueType, int sqlColumnIndex)
         {
             this.valueType = valueType;
             underlyingType = TypeUtil.GetUnderlyingType(valueType);
 
-            sqlFieldIndex = sqlFields.IndexOf(sqlFieldName);
-            if (sqlFieldIndex < 0)
-            {
-                sqlFieldIndex = sqlFields.Count;
-                sqlFields.Add(sqlFieldName);
-            }
+            this.sqlColumnIndex = sqlColumnIndex;
         }
 
 
 
         public object Read(IDataReader reader)
         {
-            var value = reader.GetValue(sqlFieldIndex);
+            var value = reader.GetValue(sqlColumnIndex);
             return TypeUtil.ConvertToUnderlyingType(value, underlyingType);
         }
 

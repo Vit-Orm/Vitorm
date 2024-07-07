@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Data;
 
-using System.Data;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -21,7 +20,7 @@ namespace Vitorm.MsTest.CommonTest
             {
                 var userList = userQuery.Where(u => new[] { 3, 5 }.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);
-                Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3,5 }).Count());
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
             }
 
             // Enumerable.Contains

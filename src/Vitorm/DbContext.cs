@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Vit.Linq.ExpressionTree;
+using Vit.Linq.ExpressionTree.ExpressionConvertor.MethodCalls;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Dapper;
+using Vitorm.Entity.Loader;
 
 namespace Vitorm
 {
-    public class DbContext : IDisposable
+    public class DbContext : IDbContext, IDisposable
     {
         public DbContext()
         {
@@ -17,9 +18,35 @@ namespace Vitorm
         }
 
 
+        #region ExpressionConvertService
+        public static ExpressionConvertService CreateDefaultExpressionConvertService()
+        {
+            var convertService = new ExpressionConvertService();
+            convertService.RegisterMethodConvertor(new MethodConvertor_ForType(typeof(DbFunction)));
+            convertService.RegisterMethodConvertor(new MethodConvertor_ForType(typeof(Orm_Extensions)));
+            return convertService;
+        }
+        public static ExpressionConvertService defaultExpressionConvertService = CreateDefaultExpressionConvertService();
+
+        public virtual ExpressionConvertService convertService => defaultExpressionConvertService;
+        #endregion
+
+
+
+        #region EntityLoader
+
+        public static DefaultEntityLoader defaultEntityLoader = new();
+
+        public IEntityLoader entityLoader = defaultEntityLoader;
+        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => entityLoader.LoadDescriptor(entityType);
+        #endregion
+
+
+
+
         #region DbSet
 
-        public IDbSet DefaultDbSetCreator(Type entityType)
+        protected IDbSet DefaultDbSetCreator(Type entityType)
         {
             var entityDescriptor = GetEntityDescriptor(entityType);
             return DbSetConstructor.CreateDbSet(this, entityType, entityDescriptor);
@@ -27,7 +54,7 @@ namespace Vitorm
 
         protected virtual Func<Type, IDbSet> dbSetCreator { set; get; }
 
-        Dictionary<Type, IDbSet> dbSetMap = null;
+        protected Dictionary<Type, IDbSet> dbSetMap = null;
 
         public virtual IDbSet DbSet(Type entityType)
         {
@@ -47,15 +74,11 @@ namespace Vitorm
         #endregion
 
 
-        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => EntityDescriptor.GetEntityDescriptor(entityType);
 
 
-        public virtual ExpressionConvertService convertService => Environment.convertService;
-
-
-
-        // #1 Schema :  Create
+        // #0 Schema :  Create Drop
         public virtual void Create<Entity>() => throw new NotImplementedException();
+        public virtual void Drop<Entity>() => throw new NotImplementedException();
 
 
         // #1 Create :  Add AddRange

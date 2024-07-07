@@ -1,39 +1,19 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 
-namespace Vitorm.Entity.Dapper
+namespace Vitorm.Entity.DataAnnotations
 {
     public partial class EntityDescriptor : IEntityDescriptor
     {
-
-        static ConcurrentDictionary<Type, EntityDescriptor> descMap = new();
-
-
-        public static IEntityDescriptor GetEntityDescriptor(Type entityType)
-        {
-            if (descMap.TryGetValue(entityType, out var entityDescriptor)) return entityDescriptor;
-
-            entityDescriptor = LoadFromType(entityType);
-            if (entityDescriptor != null) descMap[entityType] = entityDescriptor;
-
-            return entityDescriptor;
-        }
-
-        public static IEntityDescriptor GetEntityDescriptor<Entity>()
-        {
-            return GetEntityDescriptor(typeof(Entity));
-        }
-
         public EntityDescriptor(Type entityType, IColumnDescriptor[] allColumns, string tableName, string schema = null)
         {
             this.entityType = entityType;
             this.tableName = tableName;
             this.schema = schema;
 
-            this.allColumns = allColumns;
             this.key = allColumns.FirstOrDefault(m => m.isKey);
-            this.columns = allColumns.Where(m => !m.isKey).ToArray();
+            this.columns = allColumns.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            this.allColumns = allColumns.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
         }
 
 
@@ -44,7 +24,7 @@ namespace Vitorm.Entity.Dapper
         /// <summary>
         /// primary key name
         /// </summary>
-        public string keyName => key?.name;
+        public string keyName => key?.columnName;
 
         /// <summary>
         /// primary key

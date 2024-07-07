@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Extensions.Vitorm_Extensions;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 namespace Vitorm.StreamQuery
@@ -10,11 +9,11 @@ namespace Vitorm.StreamQuery
 
     public class ExpressionNode_RenameableMember : ExpressionNode
     {
-        private IStream stream;
+        protected IStream stream;
         public override string parameterName
         {
             get => stream?.alias;
-            set => throw new NotSupportedException();
+            set { }
         }
         public static ExpressionNode Member(IStream stream, Type memberType)
         {
@@ -167,7 +166,7 @@ namespace Vitorm.StreamQuery
                         }
                         else
                         {
-                            groupedStream.having = ExpressionNode.And(groupedStream.having, having);
+                            groupedStream.having = ExpressionNode.AndAlso(groupedStream.having, having);
                         }
                         return groupedStream;
                     }
@@ -187,7 +186,7 @@ namespace Vitorm.StreamQuery
                         }
                         else
                         {
-                            combinedStream.where = ExpressionNode.And(combinedStream.where, where);
+                            combinedStream.where = ExpressionNode.AndAlso(combinedStream.where, where);
                         }
                         return combinedStream;
                     }
@@ -345,14 +344,14 @@ namespace Vitorm.StreamQuery
 
                                     var sortField = ReadSortField(call.arguments[1], combinedStream);
 
-                                    var orderParam = new OrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
+                                    var orderParam = new ExpressionNodeOrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
 
                                     if (methodName.StartsWith("OrderBy"))
                                     {
-                                        combinedStream.orders = new List<OrderField>();
+                                        combinedStream.orders = new List<ExpressionNodeOrderField>();
                                     }
 
-                                    combinedStream.orders ??= new List<OrderField>();
+                                    combinedStream.orders ??= new List<ExpressionNodeOrderField>();
 
                                     combinedStream.orders.Add(orderParam);
 
@@ -438,7 +437,7 @@ namespace Vitorm.StreamQuery
             if (fields?.nodeType == NodeType.Member)
             {
                 ExpressionNode_Member member = fields;
-                if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null) 
+                if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null)
                     isDefaultSelect = true;
             }
             else if (fields?.nodeType == NodeType.New)

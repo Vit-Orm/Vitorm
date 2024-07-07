@@ -20,7 +20,7 @@ namespace Vitorm
                      .Invoke(null, new object[] { dbContext, entityDescriptor }) as IDbSet;
         }
 
-        static MethodInfo _CreateDbSet = new Func<DbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
+        static readonly MethodInfo _CreateDbSet = new Func<DbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
                    .Method.GetGenericMethodDefinition();
         public static IDbSet CreateDbSet<Entity>(DbContext dbContext, IEntityDescriptor entityDescriptor)
         {
@@ -45,6 +45,7 @@ namespace Vitorm
         }
 
         public virtual void Create() => dbContext.Create<Entity>();
+        public virtual void Drop() => dbContext.Drop<Entity>();
 
 
 

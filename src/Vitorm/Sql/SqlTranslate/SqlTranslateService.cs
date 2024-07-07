@@ -1,22 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
+
 using Vitorm.Entity;
-using System.Linq;
 using Vitorm.StreamQuery;
-using System.Collections;
-using System.Text;
 
 namespace Vitorm.Sql.SqlTranslate
 {
     public abstract class SqlTranslateService : ISqlTranslateService
     {
-        public SqlTranslateService()
-        {
-        }
-
-
 
         #region DelimitIdentifier
         /// <summary>
@@ -35,7 +32,7 @@ namespace Vitorm.Sql.SqlTranslate
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string EscapeIdentifier(string identifier) => identifier.Replace("\"", "\"\"");
+        public virtual string EscapeIdentifier(string identifier) => identifier?.Replace("\"", "\"\"");
 
         /// <summary>
         ///     Generates a valid parameter name for the given candidate name.
@@ -69,7 +66,22 @@ namespace Vitorm.Sql.SqlTranslate
             if (string.IsNullOrWhiteSpace(memberName))
             {
                 var entityType = member.Member_GetType();
-                memberName = dbContext.GetEntityDescriptor(entityType)?.keyName;
+                var entityDescriptor = dbContext.GetEntityDescriptor(entityType);
+                memberName = entityDescriptor?.keyName;
+            }
+            else if (member.objectValue != null)
+            {
+                var entityType = member.objectValue.Member_GetType();
+                if (entityType != null)
+                {
+                    var entityDescriptor = dbContext.GetEntityDescriptor(entityType);
+                    if (entityDescriptor != null)
+                    {
+                        var columnName = entityDescriptor.GetColumnNameByPropertyName(memberName);
+                        if (string.IsNullOrEmpty(columnName)) throw new NotSupportedException("[QueryTranslator] can not find database column name for property : " + memberName);
+                        memberName = columnName;
+                    }
+                }
             }
 
             // 1: {"nodeType":"Member","parameterName":"a0","memberName":"id"}
@@ -77,7 +89,7 @@ namespace Vitorm.Sql.SqlTranslate
             return GetSqlField(member.objectValue?.parameterName ?? member.parameterName, memberName);
         }
 
-        protected abstract string GetDbType(Type type);
+        protected abstract string GetColumnDbType(Type type);
 
 
         #region EvalExpression
@@ -93,22 +105,27 @@ namespace Vitorm.Sql.SqlTranslate
         {
             switch (data.nodeType)
             {
-                case NodeType.And:
-                    ExpressionNode_And and = data;
-                    return $"({EvalExpression(arg, and.left)}) and ({EvalExpression(arg, and.right)})";
-
-                case NodeType.Or:
-                    ExpressionNode_Or or = data;
-                    return $"({EvalExpression(arg, or.left)}) or ({EvalExpression(arg, or.right)})";
-
+                case NodeType.AndAlso:
+                    {
+                        ExpressionNode_AndAlso and = data;
+                        return $"({EvalExpression(arg, and.left)} and {EvalExpression(arg, and.right)})";
+                    }
+                case NodeType.OrElse:
+                    {
+                        ExpressionNode_OrElse or = data;
+                        return $"({EvalExpression(arg, or.left)} or {EvalExpression(arg, or.right)})";
+                    }
                 case NodeType.Not:
-                    ExpressionNode_Not not = data;
-                    return $"not ({EvalExpression(arg, not.body)})";
-
+                    {
+                        ExpressionNode_Not not = data;
+                        return $"(not {EvalExpression(arg, not.body)})";
+                    }
                 case NodeType.ArrayIndex:
-                    throw new NotSupportedException(data.nodeType);
-                //ExpressionNode_ArrayIndex arrayIndex = data;
-                //return Expression.ArrayIndex(ToExpression(arg, arrayIndex.left), ToExpression(arg, arrayIndex.right));
+                    {
+                        throw new NotSupportedException(data.nodeType);
+                        //ExpressionNode_ArrayIndex arrayIndex = data;
+                        //return Expression.ArrayIndex(ToExpression(arg, arrayIndex.left), ToExpression(arg, arrayIndex.right));
+                    }
                 case NodeType.Equal:
                 case NodeType.NotEqual:
                     {
@@ -127,16 +144,26 @@ namespace Vitorm.Sql.SqlTranslate
                         }
 
                         var @operator = operatorMap[data.nodeType];
-                        return $"{EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)}";
+                        return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
                     }
                 case NodeType.LessThan:
                 case NodeType.LessThanOrEqual:
                 case NodeType.GreaterThan:
                 case NodeType.GreaterThanOrEqual:
+                case nameof(ExpressionType.Divide):
+                case nameof(ExpressionType.Modulo):
+                case nameof(ExpressionType.Multiply):
+                case nameof(ExpressionType.Power):
+                case nameof(ExpressionType.Subtract):
                     {
                         ExpressionNode_Binary binary = data;
                         var @operator = operatorMap[data.nodeType];
-                        return $"{EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)}";
+                        return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
+                    }
+                case nameof(ExpressionType.Negate):
+                    {
+                        ExpressionNode_Unary unary = data;
+                        return $"(-{EvalExpression(arg, unary.body)})";
                     }
                 case NodeType.MethodCall:
                     {
@@ -171,15 +198,20 @@ namespace Vitorm.Sql.SqlTranslate
                                 }
                             case nameof(Enumerable.Max) or nameof(Enumerable.Min) or nameof(Enumerable.Sum) or nameof(Enumerable.Average) when methodCall.arguments.Length == 2:
                                 {
-                                    var stream = methodCall.arguments[0] as ExpressionNode_Member;
-                                    if (stream?.nodeType != NodeType.Member) break;
+                                    var source = methodCall.arguments[0];
+                                    if (source?.nodeType != NodeType.Member) break;
+
+                                    var entityType = methodCall.MethodCall_GetParamTypes()[0].GetGenericArguments()[0];
+                                    source = TypeUtil.Clone(source).Member_SetType(entityType);
 
 
                                     var lambdaFieldSelect = methodCall.arguments[1] as ExpressionNode_Lambda;
 
                                     var parameterName = lambdaFieldSelect.parameterNames[0];
-                                    var parameterValue = (ExpressionNode)stream;
-                                    Func<ExpressionNode_Member, ExpressionNode> GetParameter = (member) =>
+                                    var parameterValue = source;
+
+
+                                    ExpressionNode GetParameter(ExpressionNode_Member member)
                                     {
                                         if (member.nodeType == NodeType.Member && member.parameterName == parameterName)
                                         {
@@ -193,7 +225,7 @@ namespace Vitorm.Sql.SqlTranslate
                                             }
                                         }
                                         return default;
-                                    };
+                                    }
 
                                     var body = StreamReader.DeepClone(lambdaFieldSelect.body, GetParameter);
                                     var funcName = methodCall.methodName;
@@ -205,7 +237,6 @@ namespace Vitorm.Sql.SqlTranslate
                         }
                         throw new NotSupportedException("[QueryTranslator] not suported MethodCall: " + methodCall.methodName);
                     }
-
 
                 #region Read Value
 
@@ -266,59 +297,78 @@ namespace Vitorm.Sql.SqlTranslate
             [NodeType.LessThanOrEqual] = "<=",
             [NodeType.GreaterThan] = ">",
             [NodeType.GreaterThanOrEqual] = ">=",
+
+            [nameof(ExpressionType.Divide)] = "/",
+            [nameof(ExpressionType.Modulo)] = "%",
+            [nameof(ExpressionType.Multiply)] = "*",
+            [nameof(ExpressionType.Power)] = "^",
+            [nameof(ExpressionType.Subtract)] = "-",
         };
         #endregion
 
 
-        // #0 Schema :  PrepareCreate
+        // #0 Schema :  PrepareCreate PrepareDrop
         public abstract string PrepareCreate(IEntityDescriptor entityDescriptor);
+        public abstract string PrepareDrop(IEntityDescriptor entityDescriptor);
 
 
         #region #1 Create :  PrepareAdd
-        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
+        {
+            var key = arg.entityDescriptor.key;
+            if (key == null) return EAddType.noKeyColumn;
+
+            var keyValue = key.GetValue(entity);
+            if (keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type))) return EAddType.keyWithValue;
+
+            if (key.isIdentity) return EAddType.identityKey;
+
+            throw new ArgumentException("Key could not be empty.");
+            //return EAddType.unexpectedEmptyKey;
+        }
+
+        protected virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, IColumnDescriptor[] columns)
         {
             /* //sql
-             insert into user(name,birth,fatherId,motherId) values('','','');
-             select seq from sqlite_sequence where name='user';
+             insert into user(name,fatherId,motherId) values('',0,0);
               */
+
             var entityDescriptor = arg.entityDescriptor;
 
-            var columns = entityDescriptor.columns;
-
             // #1 GetSqlParams 
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
+            Dictionary<string, object> GetSqlParams(object entity)
             {
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in columns)
                 {
-                    var columnName = column.name;
-                    var value = column.GetValue(entity);
-
-                    sqlParam[columnName] = value;
+                    sqlParam[column.columnName] = column.GetValue(entity);
                 }
                 return sqlParam;
-            };
+            }
 
             #region #2 columns 
             List<string> columnNames = new List<string>();
             List<string> valueParams = new List<string>();
-            string columnName;
 
             foreach (var column in columns)
             {
-                columnName = column.name;
-
-                columnNames.Add(DelimitIdentifier(columnName));
-                valueParams.Add(GenerateParameterName(columnName));
+                columnNames.Add(DelimitIdentifier(column.columnName));
+                valueParams.Add(GenerateParameterName(column.columnName));
             }
             #endregion
 
             // #3 build sql
             string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
-            //sql+=$"select seq from sqlite_sequence where name = '{tableName}'; ";
 
             return (sql, GetSqlParams);
         }
+
+        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+        {
+            return PrepareAdd(arg, arg.entityDescriptor.allColumns);
+        }
+
+        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg) => throw new NotImplementedException();
         #endregion
 
 
@@ -333,7 +383,19 @@ namespace Vitorm.Sql.SqlTranslate
             return sql;
         }
 
-        public abstract (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        protected abstract BaseQueryTranslateService queryTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam, arg.dataReader);
+        }
+
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = queryTranslateService.BuildCountQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
+
         #endregion
 
 
@@ -349,26 +411,26 @@ namespace Vitorm.Sql.SqlTranslate
             var sqlParam = new Dictionary<string, object>();
 
             // #1 GetSqlParams
-            Func<object, Dictionary<string, object>> GetSqlParams = (entity) =>
+            Dictionary<string, object> GetSqlParams(object entity)
             {
                 var sqlParam = new Dictionary<string, object>();
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    var columnName = column.name;
+                    var columnName = column.columnName;
                     var value = column.GetValue(entity);
 
                     sqlParam[columnName] = value;
                 }
                 //sqlParam[entityDescriptor.keyName] = entityDescriptor.key.Get(entity);
                 return sqlParam;
-            };
+            }
 
             // #2 columns
             List<string> columnsToUpdate = new List<string>();
             string columnName;
             foreach (var column in entityDescriptor.columns)
             {
-                columnName = column.name;
+                columnName = column.columnName;
                 columnsToUpdate.Add($"{DelimitIdentifier(columnName)}={GenerateParameterName(columnName)}");
             }
 
@@ -378,7 +440,13 @@ namespace Vitorm.Sql.SqlTranslate
             return (sql, GetSqlParams);
         }
 
-        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream);
+
+        protected abstract BaseQueryTranslateService executeUpdateTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
 
         #endregion
 
@@ -426,10 +494,12 @@ namespace Vitorm.Sql.SqlTranslate
         }
 
 
-
-        public abstract (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
-
-
+        protected abstract BaseQueryTranslateService executeDeleteTranslateService { get; }
+        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
+        {
+            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
+            return (sql, arg.sqlParam);
+        }
         #endregion
 
 

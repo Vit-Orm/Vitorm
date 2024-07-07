@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Vit.Extensions.Vitorm_Extensions;
-using System.Data;
+﻿using System.Data;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace Vitorm.MsTest.CommonTest
@@ -15,7 +15,7 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Linq Expresssion
+            // Linq Expression
             {
                 var query =
                     from user in userQuery
@@ -58,7 +58,7 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Linq Expresssion
+            // Linq Expression
             {
                 var query =
                     from user in userQuery

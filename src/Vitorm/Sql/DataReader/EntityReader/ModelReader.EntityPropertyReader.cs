@@ -10,8 +10,8 @@ namespace Vitorm.Sql.DataReader
         {
             public IColumnDescriptor column { get; protected set; }
 
-            public EntityPropertyReader(EntityReader entityReader, IColumnDescriptor column, string sqlFieldName)
-                : base(entityReader.sqlFields, column.type, sqlFieldName)
+            public EntityPropertyReader(IColumnDescriptor column, int sqlColumnIndex)
+                : base(column.type, sqlColumnIndex)
             {
                 this.column = column;
             }

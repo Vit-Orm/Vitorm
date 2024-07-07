@@ -42,7 +42,11 @@ where t0.id = tmp.id ;
 
             var sqlToUpdateCols = columnsToUpdate
                 .Select(m => m.name)
-                .Select(name => $"{NewLine}  {sqlTranslator.GetSqlField("t0", name)} = {sqlTranslator.GetSqlField("tmp", name)} ");
+                .Select(name =>
+                {
+                    var columnName = entityDescriptor.GetColumnNameByPropertyName(name);
+                    return $"{NewLine}  {sqlTranslator.GetSqlField("t0", columnName)} = {sqlTranslator.GetSqlField("tmp", name)} ";
+                });
 
             sql += string.Join(",", sqlToUpdateCols);
 

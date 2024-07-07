@@ -26,14 +26,15 @@
             <PackagePath>\</PackagePath>
         </None>
         <None Include="..\..\README.md">
-          <Pack>True</Pack>
-          <PackagePath>\</PackagePath>
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-        <PackageReference Include="Vit.Linq" Version="2.2.23" />
+        <PackageReference Include="Vit.Linq" Version="2.2.24-preview" />
     </ItemGroup>
+
 
 </Project>

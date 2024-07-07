@@ -19,7 +19,7 @@ namespace App.Runner
                 };
             Data.AddRange(users);
 
-            users = Enumerable.Range(7, 1000).Select(id => new User { id = id, name = "user" + id }).ToList();
+            users = Enumerable.Range(7, 1500).Select(id => new User { id = id, name = "user" + id }).ToList();
             Data.AddRange(users);
         }
 

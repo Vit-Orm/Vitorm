@@ -11,16 +11,26 @@ namespace App.Runner
     public partial class BenchmarkRunner_ReduceMember
     {
         [Params(100)]
-        public int N;
-
-        [Params(true, false)]
-        public bool queryJoin = true;
-
-        //[Params(true, false)]
-        public bool reduceMember = true;
+        public int N = 1;
 
         [Params(true, false)]
         public bool executeQuery = false;
+
+        [Params(false, true)]
+        public bool queryJoin = true;
+
+        [Params(true, false)]
+        public bool reduceMember = true;
+
+        //[Params(0, 10)]
+        public int? skip = 10;
+        //[Params(10, 100, 1000)]
+        public int take = 100;
+
+
+
+        IQueryable<User> userQuery;
+        public IQueryable<User> GetQueryable() => userQuery;
 
 
         [GlobalSetup]
@@ -32,12 +42,8 @@ namespace App.Runner
         [Benchmark]
         public void Run()
         {
-            Run(N, queryJoin);
-        }
+            userQuery = Data.Query<User>();
 
-
-        public void Run(int N, bool queryJoin)
-        {
             for (int i = 0; i < N; i++)
             {
                 if (queryJoin) QueryJoin();
@@ -45,62 +51,69 @@ namespace App.Runner
             }
         }
 
+
+        #region Executor
+        int exceptUserId = 1;
         public void QueryJoin()
         {
-            var userSet = Data.Query<User>();
+            var userSet = GetQueryable();
 
             var minId = 1;
-            var config = new { maxId = 100, offsetId = 100 };
+            var config = new { maxId = 10000 };
+            var offsetId = 100;
 
             var query =
                     from user in userSet
                     from father in userSet.Where(father => user.fatherId == father.id).DefaultIfEmpty()
                     from mother in userSet.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > minId && user.id < config.maxId
+                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
                     orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
-                        testId = user.id + config.offsetId,
+                        testId = user.id + offsetId,
                         hasFather = father.name != null ? true : false
                     }
                     ;
 
-            query = query.Skip(1).Take(2);
-
-            if (executeQuery)
-            {
-                var userList = query.ToList();
-            }
-            else
-            {
-                var sql = query.ToExecuteString();
-            }
+            Execute(query);
         }
 
         public void Query()
         {
-            var minId = 1;
-            var config = new { maxId = 100 };
+            var userSet = GetQueryable();
 
-            var userSet = Data.Query<User>();
-            var query1 =
+            var minId = 1;
+            var config = new { maxId = 10000 };
+
+            var query =
                     from user in userSet
-                    where user.id > minId && user.id < config.maxId
+                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
                     orderby user.id
                     select user;
 
-            var query = query1.Skip(1).Take(2);
+            Execute(query);
+        }
+        #endregion
+
+
+        public void Execute<Result>(IQueryable<Result> query)
+        {
+            if (skip > 0) query = query.Skip(skip.Value);
+            query = query.Take(take);
 
             if (executeQuery)
             {
                 var userList = query.ToList();
+                var rowCount = userList.Count();
+                if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
             }
             else
             {
                 var sql = query.ToExecuteString();
+                if (string.IsNullOrEmpty(sql)) throw new Exception($"query failed, can not generated sql script");
             }
         }
 

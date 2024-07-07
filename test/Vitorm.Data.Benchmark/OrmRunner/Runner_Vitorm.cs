@@ -5,62 +5,91 @@ namespace App.OrmRunner
     public partial class Runner_Vitorm : IRunner
     {
 
-        IQueryable<User> users = Data.Query<User>();
-        public IQueryable<User> GetQueryable() => users;
+        RunConfig config;
 
+        int? skip => config.skip;
+        int take => config.take;
+        bool executeQuery => config.executeQuery;
+
+
+        IQueryable<User> userQuery;
+        public IQueryable<User> GetQueryable() => userQuery;
 
         public void Run(RunConfig config)
         {
+            this.config = config;
+
             for (int i = 0; i < config.repeatCount; i++)
             {
-                if (config.queryJoin) QueryJoin(config.take);
-                else Query(config.take);
+                userQuery = Data.Query<User>();
+                if (config.queryJoin) QueryJoin();
+                else Query();
             }
         }
 
-        public void QueryJoin(int take)
+        #region Executor
+        int exceptUserId = 1;
+        public void QueryJoin()
         {
-            var queryable = GetQueryable();
+            var userSet = GetQueryable();
+
+            var minId = 1;
+            var config = new { maxId = 10000 };
+            var offsetId = 100;
+
             var query =
-                    from user in queryable
-                    from father in queryable.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in queryable.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
+                    from user in userSet
+                    from father in userSet.Where(father => user.fatherId == father.id).DefaultIfEmpty()
+                    from mother in userSet.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
+                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
                     orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
-                        testId = user.id + 100,
+                        testId = user.id + offsetId,
                         hasFather = father.name != null ? true : false
                     }
                     ;
 
-            query = query.Skip(1).Take(take);
-
-            var userList = query.ToList();
-            var rowCount = userList.Count();
-            if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
+            Execute(query);
         }
 
-        public void Query(int take)
+        public void Query()
         {
-            var userSet = Data.Query<User>();
-            var query1 =
+            var userSet = GetQueryable();
+
+            var minId = 1;
+            var config = new { maxId = 10000 };
+
+            var query =
                     from user in userSet
-                    where user.id > 1
+                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
                     orderby user.id
                     select user;
 
-            var query = query1.Skip(1).Take(take);
-
-            var userList = query.ToList();
-            var rowCount = userList.Count();
-            if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
+            Execute(query);
         }
+        #endregion
 
+        public void Execute<Result>(IQueryable<Result> query)
+        {
+            if (skip > 0) query = query.Skip(skip.Value);
+            query = query.Take(take);
 
+            if (executeQuery)
+            {
+                var userList = query.ToList();
+                var rowCount = userList.Count();
+                if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
+            }
+            else
+            {
+                var sql = query.ToExecuteString();
+                if (string.IsNullOrEmpty(sql)) throw new Exception($"query failed, can not generated sql script");
+            }
+        }
 
 
         // Entity Definition

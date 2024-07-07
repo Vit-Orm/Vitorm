@@ -12,6 +12,7 @@
       <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.31" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.31" />
+      <PackageReference Include="SqlSugarCore" Version="5.1.4.160" />
     </ItemGroup>
 
     <ItemGroup>

@@ -41,7 +41,7 @@ namespace Vitorm.MySql
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public override string EscapeIdentifier(string identifier) => identifier.Replace("`", "\\`");
+        public override string EscapeIdentifier(string identifier) => identifier?.Replace("`", "\\`");
 
 
         #region EvalExpression

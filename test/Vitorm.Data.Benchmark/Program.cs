@@ -1,61 +1,31 @@
-﻿using App.QueryTest;
-
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Order;
+﻿
 using BenchmarkDotNet.Running;
 
 namespace App
 {
 
-    public class Program
+    public partial class Program
     {
         static void Main(string[] args)
         {
-            QueryTest_Vitorm.InitDb();
-
-            //new QueryTest_Vitorm().Query(take: 100);
-            //new QueryTest_Vitorm().QueryJoin(take: 100);
-
-            //new QueryTest_EntityFramework().Query(take: 100);
-            //new QueryTest_EntityFramework().QueryJoin(take: 100);
+            // #1 init
+            //App.Runner.EnvSetup.InitDb();
 
 
-            var summary = BenchmarkRunner.Run<VitormBenchmark>();
-            //BenchmarkRunner.Run<OtherTest.VitormBenchmark_ReduceMember>();
-        }
+
+            // #2
+            //new App.OrmRunner.Runner_Vitorm().Query(take: 100);
+            //new App.OrmRunner.Runner_Vitorm().QueryJoin(take: 100);
+            //new App.OrmRunner.Runner_EntityFramework().Query(take: 100);
+            //new App.OrmRunner.Runner_EntityFramework().QueryJoin(take: 100);
+            var summary = BenchmarkRunner.Run<App.OrmRunner.BenchmarkRunner>();
 
 
-        [Orderer(SummaryOrderPolicy.FastestToSlowest)]
-        [InProcess]
-        public class VitormBenchmark
-        {
-            [Params(100)]
-            public int N;
 
-            [Params(10, 100, 500, 1000)]
-            public int rowCount;
+            // #3
+            //new App.Runner.ReduceMember.BenchmarkRunner().QueryJoin();
+            //BenchmarkRunner.Run<App.Runner.BenchmarkRunner_ReduceMember>();
 
-            [Params(typeof(QueryTest_Vitorm), typeof(QueryTest_EntityFramework))]
-            public Type testType;
-
-            [Params(true, false)]
-            public bool queryJoin;
-
-
-            IBenchmarkQuery queryTest;
-
-            [GlobalSetup]
-            public void Setup()
-            {
-                queryTest = Activator.CreateInstance(testType) as IBenchmarkQuery;
-            }
-
-            [Benchmark]
-            public void Run()
-            {
-                var config = new QueryConfig { repeatCount = N, queryJoin = queryJoin, take = rowCount };
-                queryTest.Query(config);
-            }
         }
     }
 

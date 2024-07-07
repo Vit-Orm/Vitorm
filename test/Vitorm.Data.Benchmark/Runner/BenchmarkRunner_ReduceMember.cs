@@ -4,20 +4,23 @@ using Vit.Linq.ExpressionTree;
 
 using Vitorm;
 
-namespace App.OtherTest
+namespace App.Runner
 {
-    //[Orderer(SummaryOrderPolicy.FastestToSlowest)]
+    //[Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.FastestToSlowest)]
     [InProcess]
-    public class VitormBenchmark_ReduceMember
+    public partial class BenchmarkRunner_ReduceMember
     {
         [Params(100)]
         public int N;
 
         [Params(true, false)]
-        public bool queryJoin;
+        public bool queryJoin = true;
+
+        //[Params(true, false)]
+        public bool reduceMember = true;
 
         [Params(true, false)]
-        public bool reduceMember;
+        public bool executeQuery = false;
 
 
         [GlobalSetup]
@@ -33,7 +36,7 @@ namespace App.OtherTest
         }
 
 
-        public static void Run(int N, bool queryJoin)
+        public void Run(int N, bool queryJoin)
         {
             for (int i = 0; i < N; i++)
             {
@@ -42,58 +45,63 @@ namespace App.OtherTest
             }
         }
 
-        public static void QueryJoin()
+        public void QueryJoin()
         {
             var userSet = Data.Query<User>();
+
+            var minId = 1;
+            var config = new { maxId = 100, offsetId = 100 };
+
             var query =
                     from user in userSet
                     from father in userSet.Where(father => user.fatherId == father.id).DefaultIfEmpty()
                     from mother in userSet.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
+                    where user.id > minId && user.id < config.maxId
                     orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
-                        testId = user.id + 100,
+                        testId = user.id + config.offsetId,
                         hasFather = father.name != null ? true : false
                     }
                     ;
 
             query = query.Skip(1).Take(2);
 
-            var sql = query.ToExecuteString();
-            //var userList = query.ToList();
+            if (executeQuery)
+            {
+                var userList = query.ToList();
+            }
+            else
+            {
+                var sql = query.ToExecuteString();
+            }
         }
 
-        public static void Query()
+        public void Query()
         {
+            var minId = 1;
+            var config = new { maxId = 100 };
+
             var userSet = Data.Query<User>();
             var query1 =
                     from user in userSet
-                    where user.id > 1
+                    where user.id > minId && user.id < config.maxId
                     orderby user.id
                     select user;
 
             var query = query1.Skip(1).Take(2);
 
-            var sql = query.ToExecuteString();
-            //var userList = query.ToList();
-        }
-
-
-
-        // Entity Definition
-        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
-        public class User
-        {
-            [System.ComponentModel.DataAnnotations.Key]
-            public int id { get; set; }
-            public string name { get; set; }
-            public DateTime? birth { get; set; }
-            public int? fatherId { get; set; }
-            public int? motherId { get; set; }
+            if (executeQuery)
+            {
+                var userList = query.ToList();
+            }
+            else
+            {
+                var sql = query.ToExecuteString();
+            }
         }
 
     }

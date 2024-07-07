@@ -42,7 +42,7 @@ namespace Vitorm.SqlServer
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public override string EscapeIdentifier(string identifier) => identifier.Replace("[", "\"[").Replace("]", "\"]");
+        public override string EscapeIdentifier(string identifier) => identifier?.Replace("[", "\"[").Replace("]", "\"]");
 
         public override string DelimitTableName(IEntityDescriptor entityDescriptor)
         {

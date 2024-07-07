@@ -32,7 +32,7 @@ namespace Vitorm.Sql.SqlTranslate
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string EscapeIdentifier(string identifier) => identifier.Replace("\"", "\"\"");
+        public virtual string EscapeIdentifier(string identifier) => identifier?.Replace("\"", "\"\"");
 
         /// <summary>
         ///     Generates a valid parameter name for the given candidate name.

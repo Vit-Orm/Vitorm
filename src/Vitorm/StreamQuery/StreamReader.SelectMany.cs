@@ -132,7 +132,7 @@ namespace Vitorm.StreamQuery
 
 
             // #3 read SelectedFields
-            SelectedFields select;
+            ResultSelector select;
             {
                 // left
                 var parameterName = resultSelector.parameterNames[0];
@@ -144,7 +144,7 @@ namespace Vitorm.StreamQuery
                 parameterValue = ExpressionNode_RenameableMember.Member(stream: rightStreamToJoin.right, resultSelector.Lambda_GetParamTypes()[1]);
                 argForSelect = argForSelect.SetParameter(parameterName, parameterValue);
 
-                select = ReadFieldSelect(argForSelect, resultSelector);
+                select = ReadResultSelector(argForSelect, resultSelector);
             }
 
             // #4 combine stream

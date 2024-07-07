@@ -2,9 +2,9 @@
 
 namespace Vitorm.StreamQuery
 {
-    public class SelectedFields
+    public class ResultSelector
     {
-        // root value of ExpressionNode_Member is IStream
+        public ExpressionNode_Lambda resultSelector { get; set; }
         public ExpressionNode fields { get; set; }
 
         public bool? isDefaultSelect { get; set; }

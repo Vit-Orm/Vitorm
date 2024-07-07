@@ -197,7 +197,7 @@ namespace Vitorm.StreamQuery
         {
             Type entityType = source.GetEntityType();
             var selectedFields = ExpressionNode.Member(parameterName: source.alias, memberName: null).Member_SetType(entityType);
-            var select = new SelectedFields { fields = selectedFields, isDefaultSelect = true };
+            var select = new ResultSelector { fields = selectedFields, isDefaultSelect = true };
 
             return new CombinedStream(NewAliasName()) { source = source, select = select };
         }
@@ -268,7 +268,7 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
                                                 var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
 
                                                 return new CombinedStream(NewAliasName()) { source = sourceStream, select = select };
                                             }
@@ -281,7 +281,7 @@ namespace Vitorm.StreamQuery
                                                 var noChildParameterValue = ExpressionNode_RenameableMember.Member(stream: groupedStream.source, resultSelector.Lambda_GetParamTypes()[0]);
                                                 var newArg = arg.WithParameter(parameterName, parameterValue, noChildParameterValue: noChildParameterValue);
 
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
                                                 groupedStream.select = select;
                                                 return groupedStream;
                                             }
@@ -290,7 +290,7 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = combinedStream.select.fields;
                                                 var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
 
                                                 combinedStream.select = select;
                                                 return combinedStream;
@@ -308,14 +308,14 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
 
-                                                var select = ReadFieldSelect(arg.WithParameter(parameterName, parameterValue), resultSelector);
+                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
                                                 return new StreamToUpdate(sourceStream) { fieldsToUpdate = select.fields };
                                             }
                                         case CombinedStream combinedStream:
                                             {
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = combinedStream.select.fields;
-                                                var select = ReadFieldSelect(arg.WithParameter(parameterName, parameterValue), resultSelector);
+                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
 
                                                 return new StreamToUpdate(source) { fieldsToUpdate = select.fields };
                                             }
@@ -425,7 +425,7 @@ namespace Vitorm.StreamQuery
             var fields = arg.DeepClone(node);
             return fields;
         }
-        SelectedFields ReadFieldSelect(Argument arg, ExpressionNode_Lambda resultSelector)
+        ResultSelector ReadResultSelector(Argument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
             if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)
@@ -452,7 +452,7 @@ namespace Vitorm.StreamQuery
                 isDefaultSelect = !(existCalculatedField ?? false);
             }
 
-            return new() { fields = fields, isDefaultSelect = isDefaultSelect };
+            return new() { fields = fields, isDefaultSelect = isDefaultSelect, resultSelector = resultSelector };
         }
 
         ExpressionNode ReadSortField(ExpressionNode_Lambda resultSelector, CombinedStream stream)

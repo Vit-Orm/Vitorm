@@ -181,15 +181,9 @@ namespace Vitorm.Sql.SqlTranslate
             //if (resultEntityType == null)
             //    throw new NotSupportedException("resultEntityType could not be null");
 
-            if (stream.method == "Count")
-            {
-                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-                arg.dataReader ??= reader;
-                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
-            }
 
             {
-                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, stream.select, selectedFields);
                 arg.dataReader ??= reader;
                 return (stream.distinct == true ? "distinct " : "") + sqlColumns;
             }

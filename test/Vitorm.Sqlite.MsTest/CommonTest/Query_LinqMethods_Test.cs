@@ -105,6 +105,13 @@ namespace Vitorm.MsTest.CommonTest
             }
 
 
+
+            {
+                userQuery.Where(user => user.id == 3).Select(u => new { u.id, u.fatherId }).ToList();
+
+            }
+
+
             {
                 var query =
                     from user in userQuery

@@ -48,7 +48,7 @@ value(Vit.Linq.Converter.OrderedQueryable`1[Vit.Linq.MsTest.Converter.Join_Test+
         public string alias { get; protected set; }
 
         // ExpressionNode_New   new { c = a , d = b }
-        public SelectedFields select { get; set; }
+        public ResultSelector select { get; set; }
         public bool? distinct;
 
 

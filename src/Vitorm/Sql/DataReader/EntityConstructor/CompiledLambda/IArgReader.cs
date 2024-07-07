@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Vitorm.Sql.DataReader
+namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 {
     public interface IArgReader
     {

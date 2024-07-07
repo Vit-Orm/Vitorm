@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vitorm.Sql.DataReader
+namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 {
 
     class ValueReader : SqlFieldReader, IArgReader

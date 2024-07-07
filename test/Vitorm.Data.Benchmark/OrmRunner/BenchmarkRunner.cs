@@ -27,7 +27,7 @@ namespace App.OrmRunner
         [Params(false, true)]
         public bool queryJoin = false;
 
-        //[Params(0, 10)]
+        [Params(0, 10)]
         public int? skip = 10;
 
         [Params(10, 1000)]
@@ -35,7 +35,7 @@ namespace App.OrmRunner
 
 
 
-        [Params(typeof(Runner_Vitorm), typeof(Runner_EntityFramework), typeof(Runner_SqlSuger))]
+        [Params(typeof(Runner_Vitorm), typeof(Runner_EntityFramework) )]
         public Type runner;
 
 

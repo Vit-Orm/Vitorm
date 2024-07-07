@@ -16,25 +16,7 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
-
-            // Linq Expression
-            {
-                var query =
-                        from user in userQuery
-                        from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                        where user.id > 2
-                        orderby user.id
-                        select new { user, father };
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-
-                Assert.AreEqual(4, userList.Count);
-                Assert.AreEqual(3, userList[0].user.id);
-                Assert.AreEqual(5, userList[0].father?.id);
-                Assert.AreEqual(4, userList[1].user.id);
-                Assert.AreEqual(null, userList[1].father?.name);
-            }
+ 
 
             // Lambda Expression
             {

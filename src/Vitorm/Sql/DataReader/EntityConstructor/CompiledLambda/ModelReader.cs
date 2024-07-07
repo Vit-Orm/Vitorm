@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 
 using Vitorm.Entity;
-using Vitorm.Sql.SqlTranslate;
+using Vitorm.Sql.SqlTranslate; 
 
-namespace Vitorm.Sql.DataReader
+namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 {
-    partial class ModelReader : IArgReader
+    class ModelReader : IArgReader
     {
         public string argName { get; set; }
         public string argUniqueKey { get; set; }
@@ -15,7 +15,7 @@ namespace Vitorm.Sql.DataReader
 
         readonly List<EntityPropertyReader> propertyReaders = new();
 
-        public ModelReader(EntityReader entityReader, ISqlTranslateService sqlTranslator, string tableName, string argUniqueKey, string argName, Type argType, IEntityDescriptor entityDescriptor)
+        public ModelReader(SqlColumns sqlColumns, ISqlTranslateService sqlTranslator, string tableName, string argUniqueKey, string argName, Type argType, IEntityDescriptor entityDescriptor)
         {
             this.argUniqueKey = argUniqueKey;
             this.argName = argName;
@@ -25,7 +25,7 @@ namespace Vitorm.Sql.DataReader
             {
                 foreach (var column in entityDescriptor.allColumns)
                 {
-                    var sqlColumnIndex = entityReader.sqlColumns.AddSqlColumnAndGetIndex(sqlTranslator, tableName, columnDescriptor: column);
+                    var sqlColumnIndex = sqlColumns.AddSqlColumnAndGetIndex(sqlTranslator, tableName, columnDescriptor: column);
                     propertyReaders.Add(new EntityPropertyReader(column, sqlColumnIndex));
                 }
             }

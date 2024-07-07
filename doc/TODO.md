@@ -1,11 +1,37 @@
 ﻿
 # TODO
 
- - support Async methods
- - support ClickHouse  
 
- - try to make it clean  
+# group then orderBy aggregate column
+> [QueryTranslator] not suported MethodCall: Sum
+``` csharp
+using var dbContext = DataSource.CreateDbContext();
+var userQuery = dbContext.Query<User>();
+{
+    var query =
+         userQuery
+        .GroupBy(user => new { user.fatherId, user.motherId })
+        .OrderBy(m => m.Sum(m => m.id))
+        .Select(userGroup => new
+        {
+            userGroup.Key.fatherId,
+            userGroup.Key.motherId,
+            sumId = userGroup.Sum(m => m.id),
+        });
 
- - DbContext.QueryProcedure<Entity>(arg)  
- - Save SaveRange  
- - DbFunction.PrimitiveSql  
+
+    var sql = query.ToExecuteString();
+    var rows = query.ToList();
+    var count = query.Count();
+}
+```
+
+
+
+# order by calculated column
+users.Select(user => new { user.id, fid = user.fatherId ?? -1 }).OrderBy(m => m.fid)
+
+
+
+# DbContext.QueryProcedure<Entity>(arg)  
+# DbFunction.PrimitiveSql  

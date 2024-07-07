@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
+using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.Sql.Transaction;
 using Vitorm.StreamQuery;
@@ -15,6 +16,28 @@ namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {
+
+        /// <summary>
+        /// Vitorm.Sql.DataReader.EntityReader.IEntityReader
+        /// 
+        /// SqlDbContext.defaultEntityReaderType = typeof(global::Vitorm.Sql.DataReader.EntityReader.EntityConstructor.EntityReader) ;  // default
+        /// SqlDbContext.defaultEntityReaderType = typeof(global::Vitorm.Sql.DataReader.EntityReader.CompiledLambda.EntityReader) ;
+        /// </summary>
+        public static Type defaultEntityReaderType = typeof(Vitorm.Sql.DataReader.EntityReader.EntityConstructor.EntityReader);
+        public Type entityReaderType { get; protected set; } = defaultEntityReaderType;
+
+        /// <summary>
+        ///   SetEntityReader<global::Vitorm.Sql.DataReader.EntityReader.EntityConstructor.EntityReader>();  // default
+        ///   SetEntityReader<global::Vitorm.Sql.DataReader.EntityReader.CompiledLambda.EntityReader>();
+        /// </summary>
+        /// <typeparam name="EntityReader"></typeparam>
+        public virtual void SetEntityReader<EntityReader>()
+            where EntityReader : IEntityReader, new()
+        {
+            entityReaderType = typeof(EntityReader);
+        }
+
+
         protected Func<IDbConnection> createDbConnection { get; set; }
         protected Func<IDbConnection> createReadOnlyDbConnection { get; set; }
         protected IDbConnection _dbConnection;

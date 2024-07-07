@@ -53,7 +53,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                     string sqlRowNumber;
                     if (stream.orders?.Any() == true)
                     {
-                        var sqlColumns = ((EntityReader)arg.dataReader).sqlColumns;
+                        var sqlColumns = ((DataReader)arg.dataReader).sqlColumns;
                         var orderBy = ReadOrderBy(arg, stream);
                         sqlRowNumber = $" ROW_NUMBER() OVER(ORDER BY {orderBy}) AS [__RowNumber__]";
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 
-namespace Vitorm.Sql.DataReader.EntityConstructor
+namespace Vitorm.Sql.DataReader.EntityReader
 {
-    class SqlFieldReader
+    public class SqlFieldReader
     {
         public int sqlColumnIndex { get; set; }
         protected Type valueType { get; set; }

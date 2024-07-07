@@ -8,16 +8,19 @@ using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Sql.SqlTranslate;
 
-namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
+namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
 {
-    public class EntityConstructor: IEntityConstructor
+    /// <summary>
+    ///  get all sql column values, compile EntityGenerator to Lambda .  Invoke the lambda when reading rows , pass sql column values as lambda args. 
+    /// </summary>
+    public class EntityReader: IEntityReader
     {
         protected List<IArgReader> entityArgReaders = new List<IArgReader>();
         protected Delegate lambdaCreateEntity;
 
-        public void Init(EntityConstructorConfig config, Type entityType, ExpressionNode resultSelector)
+        public void Init(EntityReaderConfig config, Type entityType, ExpressionNode resultSelector)
         {
-            QueryTranslateArgument arg = config.arg;
+            QueryTranslateArgument arg = config.queryTranslateArgument;
             ExpressionConvertService convertService = config.convertService;
             ISqlTranslateService sqlTranslateService = config.sqlTranslateService;
 
@@ -70,9 +73,8 @@ namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 
 
 
-        protected string GetArgument(EntityConstructorConfig config, ExpressionNode_Member member)
+        protected string GetArgument(EntityReaderConfig config, ExpressionNode_Member member)
         {
-
             // 1: {"nodeType":"Member","parameterName":"a0","memberName":"id"}
             // 2: {"nodeType":"Member","objectValue":{"parameterName":"a0","nodeType":"Member"},"memberName":"id"}
             var tableName = member.objectValue?.parameterName ?? member.parameterName;
@@ -93,22 +95,22 @@ namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
                 if (isValueType)
                 {
                     // Value arg
-                    var sqlColumnIndex = config.sqlColumns.AddSqlColumnAndGetIndex(config.sqlTranslateService, member, config.arg.dbContext);
+                    var sqlColumnIndex = config.sqlColumns.AddSqlColumnAndGetIndex(config.sqlTranslateService, member, config.queryTranslateArgument.dbContext);
                     argReader = new ValueReader(argType, argUniqueKey, argName, sqlColumnIndex);
                 }
                 else
                 {
                     // Entity arg
-                    var entityDescriptor = config.arg.dbContext.GetEntityDescriptor(argType);
+                    var entityDescriptor = config.queryTranslateArgument.dbContext.GetEntityDescriptor(argType);
 
-                    argReader = new ModelReader(config.sqlColumns, config.sqlTranslateService, tableName, argUniqueKey, argName, argType, entityDescriptor);
+                    argReader = new ModelReader(config.sqlColumns, config.sqlTranslateService, tableName, argUniqueKey, argName, entityDescriptor);
                 }
                 entityArgReaders.Add(argReader);
             }
             return argReader.argName;
         }
 
-        protected string GetArgument(EntityConstructorConfig config, string sqlColumnSentence, Type columnType)
+        protected string GetArgument(EntityReaderConfig config, string sqlColumnSentence, Type columnType)
         {
             var argUniqueKey = $"argFunc_{sqlColumnSentence}";
 
@@ -141,7 +143,7 @@ namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
             var lambdaNode = ExpressionNode.Lambda(entityArgReaders.Select(m => m.argName).ToArray(), newExp);
             // var strNode = Json.Serialize(lambdaNode);
 
-            var lambdaExp = convertService.ToLambdaExpression(lambdaNode, entityArgReaders.Select(m => m.argType).ToArray());
+            var lambdaExp = convertService.ToLambdaExpression(lambdaNode, entityArgReaders.Select(m => m.entityType).ToArray());
 
             return lambdaExp.Compile();
         }

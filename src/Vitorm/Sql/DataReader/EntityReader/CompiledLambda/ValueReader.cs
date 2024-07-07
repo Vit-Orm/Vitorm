@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
+namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
 {
 
     class ValueReader : SqlFieldReader, IArgReader
@@ -9,7 +9,7 @@ namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 
         public string argUniqueKey { get; set; }
 
-        public Type argType { get => valueType; }
+        public Type entityType { get => valueType; }
 
         public ValueReader(Type valueType, string argUniqueKey, string argName, int sqlColumnIndex)
                      : base(valueType, sqlColumnIndex)

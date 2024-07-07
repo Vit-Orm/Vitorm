@@ -178,6 +178,7 @@ namespace Vitorm.MsTest.CommonTest
                                 motherName = mother.name,
                             };
 
+                var sql= query.ToExecuteString(); 
                 var userList = query.ToList();
 
                 Assert.AreEqual(2, userList.Count);

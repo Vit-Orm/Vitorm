@@ -5,12 +5,12 @@ namespace Vitorm.Sql.SqlTranslate
 {
     public class QueryTranslateArgument
     {
-        public DbContext dbContext { get; protected set; }
+        public SqlDbContext dbContext { get; protected set; }
 
         public Type resultEntityType { get; protected set; }
 
 
-        public QueryTranslateArgument(DbContext dbContext, Type resultEntityType)
+        public QueryTranslateArgument(SqlDbContext dbContext, Type resultEntityType)
         {
             this.dbContext = dbContext;
             this.resultEntityType = resultEntityType;

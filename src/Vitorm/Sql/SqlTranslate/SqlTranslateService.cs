@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
+//using System.Range;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate
@@ -233,7 +236,51 @@ namespace Vitorm.Sql.SqlTranslate
 
                                     return $"{funcName}({EvalExpression(arg, body)})";
                                 }
-                                #endregion
+                            #endregion
+
+
+                            // ##4 String.Format(format: "{0}_{1}_{2}", "0", "1", "2")
+                            case nameof(String.Format):
+                                {
+                                    // convert to ExpressionNode.Add
+
+                                    // "{0}_{1}_{2}"
+                                    var format = methodCall.arguments[0].value as string;
+                                    var args = methodCall.arguments.AsQueryable().Skip(1).ToArray();
+
+                                    var nodeParts = SplitToNodeParts(format, args);
+
+                                    ExpressionNode nodeForAdd = null;
+                                    foreach (var node in nodeParts)
+                                    {
+                                        if (nodeForAdd == null) nodeForAdd = node;
+                                        else nodeForAdd = ExpressionNode.Binary(nameof(ExpressionType.Add), nodeForAdd, node);
+                                    }
+
+                                    return $"({EvalExpression(arg, nodeForAdd)})";
+
+
+                                    static IEnumerable<ExpressionNode> SplitToNodeParts(string format, ExpressionNode[] args)
+                                    {
+                                        string pattern = @"(\{\d+\})|([^{}]+)";
+                                        var matches = Regex.Matches(format, pattern);
+
+                                        foreach (Match match in matches)
+                                        {
+                                            var str = match.Value;
+                                            if (str.StartsWith("{") && str.EndsWith("}"))
+                                            {
+                                                var argIndex = int.Parse(str.Substring(1, str.Length - 2));
+                                                yield return args[argIndex];
+                                            }
+                                            else
+                                            {
+                                                yield return ExpressionNode.Constant(str, typeof(string));
+                                            }
+                                        }
+                                    }
+                                }
+
                         }
                         throw new NotSupportedException("[QueryTranslator] not suported MethodCall: " + methodCall.methodName);
                     }

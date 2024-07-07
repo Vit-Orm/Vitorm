@@ -5,6 +5,7 @@ using System.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 using Vitorm.Entity;
+using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
 
 namespace Vitorm.Sql.DataReader
@@ -16,13 +17,13 @@ namespace Vitorm.Sql.DataReader
         /// <summary>
         /// entity field , try get sql column and return sqlColumnIndex
         /// </summary>
-        /// <param name="sqlTranslator"></param>
+        /// <param name="sqlTranslateService"></param>
         /// <param name="tableName"></param>
         /// <param name="columnDescriptor"></param>
         /// <returns></returns>
-        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslator, string tableName, IColumnDescriptor columnDescriptor)
+        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslateService, string tableName, IColumnDescriptor columnDescriptor)
         {
-            var sqlColumnName = sqlTranslator.GetSqlField(tableName, columnDescriptor.columnName);
+            var sqlColumnName = sqlTranslateService.GetSqlField(tableName, columnDescriptor.columnName);
 
             var sqlColumnIndex = columns.FirstOrDefault(m => m.sqlColumnName == sqlColumnName)?.sqlColumnIndex ?? -1;
             if (sqlColumnIndex < 0)
@@ -54,13 +55,13 @@ namespace Vitorm.Sql.DataReader
         /// <summary>
         ///  alias table column  (  users.Select(u=> new { u.id } )   )
         /// </summary>
-        /// <param name="sqlTranslator"></param>
+        /// <param name="sqlTranslateService"></param>
         /// <param name="member"></param>
         /// <param name="dbContext"></param>
         /// <returns></returns>
-        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslator, ExpressionNode_Member member, DbContext dbContext)
+        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslateService, ExpressionNode_Member member, DbContext dbContext)
         {
-            var sqlColumnName = sqlTranslator.GetSqlField(member, dbContext);
+            var sqlColumnName = sqlTranslateService.GetSqlField(member, dbContext);
 
             var sqlColumnIndex = columns.FirstOrDefault(m => m.sqlColumnName == sqlColumnName)?.sqlColumnIndex ?? -1;
             if (sqlColumnIndex < 0)
@@ -69,6 +70,15 @@ namespace Vitorm.Sql.DataReader
                 columns.Add(new Column { member = member, sqlColumnName = sqlColumnName, sqlColumnAlias = "c" + sqlColumnIndex, sqlColumnIndex = sqlColumnIndex });
             }
             return sqlColumnIndex;
+        }
+
+        public int AddSqlColumnAndGetIndex(EntityReaderConfig config, ExpressionNode valueNode)
+        {
+            if (valueNode.nodeType == NodeType.Member) return AddSqlColumnAndGetIndex(config.sqlTranslateService, (ExpressionNode_Member)valueNode, config.queryTranslateArgument.dbContext);
+
+            var sqlColumnSentence = config.sqlTranslateService.EvalExpression(config.queryTranslateArgument, valueNode);
+
+            return AddSqlColumnAndGetIndex(sqlColumnSentence);
         }
 
 

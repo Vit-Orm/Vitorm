@@ -5,6 +5,12 @@ namespace Vitorm.MsTest
     [System.ComponentModel.DataAnnotations.Schema.Table("User")]
     public class User
     {
+        public User() { }
+
+        public User(int nid) { id = nid; }
+        public User(string name) { this.name = name; }
+
+
         [System.ComponentModel.DataAnnotations.Key]
         [System.ComponentModel.DataAnnotations.Schema.Column("userId")]
         public int id { get; set; }

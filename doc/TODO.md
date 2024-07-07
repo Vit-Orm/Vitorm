@@ -2,6 +2,12 @@
 # TODO
 
 
+# SqlServer  Select 
+ select  IIF([t0].[FatherId] is not null,true,false) as c13, [t0].[FatherId] is not null as c14, [t0].[Name] as c15
+ from [dbo].[User] as t0
+
+
+
 # group then orderBy aggregate column
 > [QueryTranslator] not suported MethodCall: Sum
 ``` csharp

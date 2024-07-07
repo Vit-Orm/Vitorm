@@ -3,20 +3,20 @@ using BenchmarkDotNet.Configs;
 
 namespace App.OrmRunner
 {
+    class Config : ManualConfig
+    {
+        // https://benchmarkdotnet.org/articles/configs/configs.html
+        public Config()
+        {
+            WithOptions(ConfigOptions.DisableOptimizationsValidator);
+        }
+    }
+
     [Config(typeof(Config))]
     //[Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.FastestToSlowest)]
     [InProcess]
     public class BenchmarkRunner
     {
-        private class Config : ManualConfig
-        {
-            // https://benchmarkdotnet.org/articles/configs/configs.html
-            public Config()
-            {
-                WithOptions(ConfigOptions.DisableOptimizationsValidator);
-            }
-        }
-
 
         //[Params(100)]
         public int N = 100;
@@ -27,15 +27,15 @@ namespace App.OrmRunner
         [Params(false, true)]
         public bool queryJoin = false;
 
+
+        [Params(10, 100, 1000)]
+        public int take = 100;
+
         [Params(0, 10)]
         public int? skip = 10;
 
-        [Params(10, 1000)]
-        public int take = 100;
 
-
-
-        [Params(typeof(Runner_Vitorm), typeof(Runner_EntityFramework) )]
+        [Params(typeof(Runner_Vitorm), typeof(Runner_EntityFramework))]
         public Type runner;
 
 

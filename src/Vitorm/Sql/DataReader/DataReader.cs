@@ -6,17 +6,17 @@ using System.Reflection;
 using Vit.Linq.ExpressionTree;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
-using Vitorm.Sql.DataReader.EntityConstructor;
+using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.DataReader
 {
-    public partial class EntityReader : IDbDataReader
+    public partial class DataReader : IDbDataReader
     {
         public SqlColumns sqlColumns { get; } = new();
 
-        protected IEntityConstructor entityConstructor = new EntityConstructor.CompiledLambda.EntityConstructor();
+        protected IEntityReader entityReader;
 
 
         protected Type entityType;
@@ -28,14 +28,16 @@ namespace Vitorm.Sql.DataReader
         {
             this.entityType = entityType;
 
-            var config = new EntityConstructorConfig { arg = arg, convertService = convertService, sqlTranslateService = sqlTranslateService, sqlColumns = sqlColumns };
+            var config = new EntityReaderConfig { queryTranslateArgument = arg, convertService = convertService, sqlTranslateService = sqlTranslateService, sqlColumns = sqlColumns };
 
-            entityConstructor.Init(config, entityType, selectedFields);
+            entityReader = Activator.CreateInstance(arg.dbContext.entityReaderType) as IEntityReader;
+
+            entityReader.Init(config, entityType, selectedFields);
 
             return sqlColumns.GetSqlColumns();
         }
 
-    
+
 
         public virtual object ReadData(IDataReader reader)
         {
@@ -51,7 +53,7 @@ namespace Vitorm.Sql.DataReader
 
             while (reader.Read())
             {
-                var row = (Entity)entityConstructor.ReadEntity(reader);
+                var row = (Entity)entityReader.ReadEntity(reader);
                 list.Add(row);
             }
             return list;

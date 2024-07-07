@@ -2,11 +2,11 @@
 
 using Vitorm.Sql.SqlTranslate;
 
-namespace Vitorm.Sql.DataReader.EntityConstructor
+namespace Vitorm.Sql.DataReader.EntityReader
 {
-    public class EntityConstructorConfig
+    public class EntityReaderConfig
     {
-        public QueryTranslateArgument arg;
+        public QueryTranslateArgument queryTranslateArgument;
 
         public ExpressionConvertService convertService;
         public ISqlTranslateService sqlTranslateService;

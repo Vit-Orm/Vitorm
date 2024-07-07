@@ -37,7 +37,7 @@ namespace Vitorm.Sql.SqlTranslate
                 case "Count":
                 case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
                     {
-                        var reader = new EntityReader();
+                        var reader = new DataReader.DataReader();
                         return prefix + " " + BuildReader(arg, stream, reader);
                     }
                 case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
@@ -49,7 +49,7 @@ namespace Vitorm.Sql.SqlTranslate
                             ReverseOrder(arg, stream);
 
                         var nullable = stream.method.Contains("OrDefault");
-                        var reader = new FirstEntityReader { nullable = nullable };
+                        var reader = new DataReader_FirstRow { nullable = nullable };
                         return prefix + " " + BuildReader(arg, stream, reader);
                     }
             }

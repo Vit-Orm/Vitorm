@@ -7,7 +7,7 @@ namespace Vitorm
     {
         public static Type GetUnderlyingType(Type type)
         {
-            if (type.IsGenericType && typeof(Nullable<>) == type.GetGenericTypeDefinition())
+            if (type?.IsGenericType == true && typeof(Nullable<>) == type.GetGenericTypeDefinition())
             {
                 return type.GetGenericArguments()[0];
             }
@@ -40,7 +40,7 @@ namespace Vitorm
         {
             if (value == null || value is DBNull) return null;
 
-            if (!underlyingType.IsInstanceOfType(value))
+            if (underlyingType?.IsInstanceOfType(value) == false)
                 value = Convert.ChangeType(value, underlyingType);
             return value;
         }

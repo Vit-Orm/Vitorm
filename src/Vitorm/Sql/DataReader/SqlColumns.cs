@@ -72,11 +72,11 @@ namespace Vitorm.Sql.DataReader
             return sqlColumnIndex;
         }
 
-        public int AddSqlColumnAndGetIndex(EntityReaderConfig config, ExpressionNode valueNode)
+        public int AddSqlColumnAndGetIndex(EntityReaderConfig config, ExpressionNode valueNode, Type valueType)
         {
             if (valueNode.nodeType == NodeType.Member) return AddSqlColumnAndGetIndex(config.sqlTranslateService, (ExpressionNode_Member)valueNode, config.queryTranslateArgument.dbContext);
 
-            var sqlColumnSentence = config.sqlTranslateService.EvalExpression(config.queryTranslateArgument, valueNode);
+            var sqlColumnSentence = config.sqlTranslateService.EvalSelectExpression(config.queryTranslateArgument, valueNode, valueType);
 
             return AddSqlColumnAndGetIndex(sqlColumnSentence);
         }

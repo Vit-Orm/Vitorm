@@ -158,7 +158,7 @@ namespace Vitorm.Sql.SqlTranslate
             }
             throw new NotSupportedException();
         }
-        protected virtual string BuildReader(QueryTranslateArgument arg, CombinedStream stream, DataReader.DataReader reader)
+        protected virtual string BuildDataReader(QueryTranslateArgument arg, CombinedStream stream, DataReader.DataReader reader)
         {
             var resultEntityType = arg.resultEntityType;
             ExpressionNode selectedFields = stream.select?.fields;

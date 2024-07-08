@@ -30,6 +30,14 @@ namespace Vitorm.Sql.SqlTranslate
         string GetSqlField(string tableName, string columnName);
         string GetSqlField(ExpressionNode_Member member, DbContext dbContext);
 
+        /// <summary>
+        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="data"></param>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
+        string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null);
         string EvalExpression(QueryTranslateArgument arg, ExpressionNode data);
 
         // #0 Schema :  PrepareCreate PrepareDrop

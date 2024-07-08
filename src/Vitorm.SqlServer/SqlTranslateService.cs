@@ -54,6 +54,29 @@ namespace Vitorm.SqlServer
 
 
         #region EvalExpression
+
+        /// <summary>
+        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="data"></param>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
+        public override string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null)
+        {
+            var selectFieldSentence = base.EvalSelectExpression(arg, data, columnType);
+            if (columnType == typeof(bool) || columnType == typeof(bool?))
+            {
+                if (!selectFieldSentence.StartsWith("IIF(", StringComparison.OrdinalIgnoreCase))
+                {
+                    // select IIF(userFatherId is not null, 1, 0) as hasFather, * from [User]
+                    return $"IIF({base.EvalSelectExpression(arg, data, columnType)}, 1, 0)";
+                }
+            }
+            return selectFieldSentence;
+        }
+
+
         /// <summary>
         /// read where or value or on
         /// </summary>
@@ -65,6 +88,16 @@ namespace Vitorm.SqlServer
         {
             switch (data.nodeType)
             {
+                case NodeType.Constant:
+                    {
+                        ExpressionNode_Constant constant = data;
+                        var value = constant.value;
+                        if (value is bool boolean)
+                        {
+                            return boolean ? "1" : "0";
+                        }
+                        break;
+                    }
                 case NodeType.MethodCall:
                     {
                         ExpressionNode_MethodCall methodCall = data;
@@ -146,7 +179,7 @@ namespace Vitorm.SqlServer
                     }
                 case nameof(ExpressionType.Conditional):
                     {
-                        // IIF(`t0`.`fatherId` is not null,true, false)
+                        // IIF(`t0`.`fatherId` is not null, 1, 0)
                         ExpressionNode_Conditional conditional = data;
                         return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }

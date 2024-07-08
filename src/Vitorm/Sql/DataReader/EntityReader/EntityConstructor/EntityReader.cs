@@ -22,7 +22,6 @@ namespace Vitorm.Sql.DataReader.EntityReader.EntityConstructor
                 case NodeType.New:
                     {
                         ExpressionNode_New newNode = resultSelector;
-
                         return new ModelReader(config, this, newNode);
                     }
                 case NodeType.Member:
@@ -47,6 +46,11 @@ namespace Vitorm.Sql.DataReader.EntityReader.EntityConstructor
 
                             return new EntityReader_(config, tableName, argType, entityDescriptor);
                         }
+                    }
+                case NodeType.Constant:
+                    {
+                        ExpressionNode_Constant constant = resultSelector;
+                        return new ConstantValueReader(constant.value, constant.valueType?.ToType());
                     }
                 default:
                     {

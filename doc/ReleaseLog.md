@@ -8,7 +8,9 @@
 > userQuery.Select(user => new { name = $"{user.id}_{user.fatherId}_{user.motherId}" });
 
 - fix treat String.Add as Numeric.Add issue
-
+- support bool and bool? column mapping
+- [Vitorm.SqlServer] fix bool type was not supported in database issue (especially in select sentence)
+- [Vitorm.ClickHouse] fix String.Add null value and cast issue : ifNull(  cast( (userFatherId) as Nullable(String) ) , ''  )
 -----------------------
 # 1.1.0
 

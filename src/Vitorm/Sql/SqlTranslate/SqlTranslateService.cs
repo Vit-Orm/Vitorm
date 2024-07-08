@@ -98,6 +98,18 @@ namespace Vitorm.Sql.SqlTranslate
         #region EvalExpression
 
         /// <summary>
+        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="data"></param>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
+        public virtual string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null)
+        {
+            return EvalExpression(arg, data);
+        }
+
+        /// <summary>
         /// read where or value or on
         /// </summary>
         /// <param name="arg"></param>

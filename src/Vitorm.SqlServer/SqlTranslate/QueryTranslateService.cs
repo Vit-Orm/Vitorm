@@ -43,7 +43,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                 case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
                     {
                         var reader = new DataReader();
-                        return prefix + " " + BuildReader(arg, stream, reader);
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
                     }
                 case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
                     {
@@ -55,7 +55,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
 
                         var nullable = stream.method.Contains("OrDefault");
                         var reader = new DataReader_FirstRow { nullable = nullable };
-                        return prefix + " " + BuildReader(arg, stream, reader);
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
                     }
             }
             throw new NotSupportedException("not supported method: " + stream.method);

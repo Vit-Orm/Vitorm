@@ -24,8 +24,6 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-
-
             {
                 var query =
                     from user in userQuery
@@ -191,7 +189,7 @@ namespace Vitorm.MsTest.CommonTest
                         uniqueId1 = user.id + "_" + user.fatherId + "_" + user.motherId,
                         uniqueId2 = $"{user.id}_{user.fatherId}_{user.motherId}"
                     };
-
+                var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual("1_4_6", userList[0].uniqueId1);

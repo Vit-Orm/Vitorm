@@ -104,14 +104,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3.0, userList.First());
             }
 
-
-
-            {
-                userQuery.Where(user => user.id == 3).Select(u => new { u.id, u.fatherId }).ToList();
-
-            }
-
-
             {
                 var query =
                     from user in userQuery

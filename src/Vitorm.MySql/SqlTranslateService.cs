@@ -129,7 +129,21 @@ namespace Vitorm.MySql
                         // ##1 String Add
                         if (data.valueType?.ToType() == typeof(string))
                         {
-                            return $"CONCAT({EvalExpression(arg, binary.left)} ,{EvalExpression(arg, binary.right)})";
+                            //  select ifNull( cast( (userFatherId) as char ) , '' )  from `User`
+
+                            return $"CONCAT( {BuildSqlSentence(binary.left)} , {BuildSqlSentence(binary.right)} )";
+
+                            string BuildSqlSentence(ExpressionNode node)
+                            {
+                                if (node.nodeType == NodeType.Constant)
+                                {
+                                    ExpressionNode_Constant constant = node;
+                                    if (constant.value == null) return "''";
+                                    else return $"cast( ({EvalExpression(arg, node)}) as char )";
+                                }
+                                else
+                                    return $"ifNull( cast( ({EvalExpression(arg, node)}) as char ) , '')";
+                            }
                         }
 
                         // ##2 Numberic Add

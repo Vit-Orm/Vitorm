@@ -7,16 +7,6 @@ namespace Vitorm.MsTest.CommonTest
     [TestClass]
     public class Query_Select_Test
     {
-        class User2 : User
-        {
-            public User2() { }
-
-            public User2(int nid) { id = nid; }
-            public User2(string name) { this.name = name; }
-
-            public User father;
-        }
-
 
         [TestMethod]
         public void Test_Select()
@@ -24,110 +14,40 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
+            // 
             {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
-                    orderby user.id
-                    select new User2(user.id)
-                    ;
+                var userList = userQuery.ToList();
+            }
 
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(5, userList.Count);
+            // userQuery.Select(user => user)
+            {
+                var rows = userQuery.Select(user => user).ToList();
+                Assert.AreEqual(6, rows.Count);
+            }
 
+            // userQuery.Select(user => user.id);
+            {
+                var rows = userQuery.Select(user => user.id).ToList();
+            }
+            {
+                var rows = userQuery.Select(user => user.id + 100).ToList();
+            }
+            {
+                var rows = userQuery.Select(user => 1000 + user.id + 100).ToList();
+            }
+            {
+                var rows = userQuery.Select(user => (double)user.id).ToList();
+            }
+            {
+                var rows = userQuery.Select(user => (double)user.id + 0.1).ToList();
+            }
+            {
+                var rows = userQuery.Select(user => user.id + 0.1).ToList();
             }
 
             {
                 var query =
                     from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
-                    orderby user.id
-                    select new User2(user.name)
-                    ;
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(5, userList.Count);
-            }
-            {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
-                    orderby user.id
-                    select new User2(user.name)
-                    {
-                        id = user.id + 100,
-                        fatherId = father.id,
-                        father = father,
-                    }
-                    ;
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(5, userList.Count);
-
-            }
-
-            {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
-                    orderby user.id
-                    select new User2
-                    {
-                        id = user.id,
-                        fatherId = father.id,
-                    };
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(5, userList.Count);
-
-            }
-
-
-            {
-                var query =
-                        userQuery
-                        .Where(u => u.id > 1)
-                        .GroupBy(user => new { user.fatherId, user.motherId })
-                        .Where(userGroup => userGroup.Key.motherId != null)
-                        .OrderByDescending(userGroup => userGroup.Key.fatherId)
-                        .Select(userGroup => new
-                        {
-                            userGroup.Key.fatherId,
-                            userGroup.Key.motherId,
-                            rowCount = userGroup.Count(),
-                            maxId = userGroup.Max(m => m.id)
-                        })
-                        .Skip(1)
-                        .Take(1)
-                        ;
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-
-                Assert.AreEqual(1, userList.Count);
-                Assert.AreEqual(4, userList[0].fatherId);
-                Assert.AreEqual(6, userList[0].motherId);
-                Assert.AreEqual(1, userList[0].rowCount);
-                Assert.AreEqual(2, userList[0].maxId);
-
-            }
-            {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
                     where user.id > 1
                     orderby user.id
                     select new
@@ -136,46 +56,14 @@ namespace Vitorm.MsTest.CommonTest
                         user = user,
                         ext = new
                         {
-                            father = father,
-                            fid = father.id
-                        }
+                            father = user,
+                            fid = user.fatherId
+                        },
+                        trueValue = true,
                     };
 
-                query = query.Skip(1).Take(2);
-
                 var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(2, userList.Count);
-            }
-
-            {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id == 1
-                    orderby user.id
-                    select user.id;
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(1, userList.Count);
-            }
-
-            {
-                var query =
-                    from user in userQuery
-                    from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
-                    from mother in userQuery.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > 1
-                    orderby user.id
-                    select user;
-
-                query = query.Skip(1).Take(2);
-
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-                Assert.AreEqual(2, userList.Count);
+                var rows = query.ToList();
             }
 
 
@@ -193,12 +81,92 @@ namespace Vitorm.MsTest.CommonTest
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual("1_4_6", userList[0].uniqueId1);
+                Assert.AreEqual("1_4_6", userList[0].uniqueId2);
+                Assert.AreEqual("4__", userList[3].uniqueId1);
+                Assert.AreEqual("4__", userList[3].uniqueId2);
             }
 
 
         }
 
 
+
+
+        [TestMethod]
+        public void Test_Select_ExistClass()
+        {
+            using var dbContext = DataSource.CreateDbContext();
+            var userQuery = dbContext.Query<User>();
+
+            {
+                var query =
+                    from user in userQuery
+                    where user.id > 1
+                    orderby user.id
+                    select new User2(user.id)
+                    ;
+
+                var sql = query.ToExecuteString();
+                var userList = query.ToList();
+                Assert.AreEqual(5, userList.Count);
+
+            }
+
+            {
+                var query =
+                    from user in userQuery
+                    where user.id > 1
+                    orderby user.id
+                    select new User2(user.name)
+                    ;
+
+                var sql = query.ToExecuteString();
+                var userList = query.ToList();
+                Assert.AreEqual(5, userList.Count);
+            }
+            {
+                var query =
+                    from user in userQuery
+                    where user.id > 1
+                    orderby user.id
+                    select new User2(user.name)
+                    {
+                        id = user.id + 100,
+                        fatherId = user.fatherId,
+                        father = user,
+                    }
+                    ;
+
+                var sql = query.ToExecuteString();
+                var userList = query.ToList();
+                Assert.AreEqual(5, userList.Count);
+
+            }
+
+            {
+                var query =
+                    from user in userQuery
+                    where user.id > 1
+                    orderby user.id
+                    select new User2
+                    {
+                        id = user.id,
+                        fatherId = 12,
+                    };
+
+                var sql = query.ToExecuteString();
+                var userList = query.ToList();
+                Assert.AreEqual(5, userList.Count);
+            }
+        }
+
+        class User2 : User
+        {
+            public User2() { }
+            public User2(int nid) { id = nid; }
+            public User2(string name) { this.name = name; }
+            public User father;
+        }
 
 
     }

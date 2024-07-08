@@ -84,7 +84,7 @@ namespace Vitorm.Sql.DataReader
 
         public string GetSqlColumns()
         {
-            var sqlColumns = columns.Select(column => column.sqlColumnName + " as " + column.sqlColumnAlias);
+            var sqlColumns = columns.Select(column => "(" + column.sqlColumnName + ") as " + column.sqlColumnAlias);
             return String.Join(", ", sqlColumns);
         }
 

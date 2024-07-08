@@ -254,7 +254,7 @@ namespace Vitorm.Sql.SqlTranslate
                                     foreach (var node in nodeParts)
                                     {
                                         if (nodeForAdd == null) nodeForAdd = node;
-                                        else nodeForAdd = ExpressionNode.Binary(nameof(ExpressionType.Add), nodeForAdd, node);
+                                        else nodeForAdd = ExpressionNode.Add(left: nodeForAdd, right: node, typeof(string));
                                     }
 
                                     return $"({EvalExpression(arg, nodeForAdd)})";

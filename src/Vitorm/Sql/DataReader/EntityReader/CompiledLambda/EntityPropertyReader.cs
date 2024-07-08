@@ -1,6 +1,7 @@
 ﻿using System.Data;
 
 using Vitorm.Entity;
+using Vitorm.Sql.DataReader.EntityReader;
 
 namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 {

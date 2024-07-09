@@ -156,7 +156,7 @@ namespace Vitorm.StreamQuery
                         var parameterName = predicateLambda.parameterNames[0];
                         var groupByFields = groupedStream.groupByFields;
                         var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                        var parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                        var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
                         var newArg = arg.WithParameter(parameterName, parameterValue);
 
                         ExpressionNode having = ReadWhere(newArg, predicateLambda.body);
@@ -277,7 +277,7 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var groupByFields = groupedStream.groupByFields;
                                                 var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                                                var parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                                                var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
                                                 var noChildParameterValue = ExpressionNode_RenameableMember.Member(stream: groupedStream.source, resultSelector.Lambda_GetParamTypes()[0]);
                                                 var newArg = arg.WithParameter(parameterName, parameterValue, noChildParameterValue: noChildParameterValue);
 
@@ -462,7 +462,7 @@ namespace Vitorm.StreamQuery
             {
                 var groupByFields = stream.groupByFields;
                 var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
             }
             else
             {

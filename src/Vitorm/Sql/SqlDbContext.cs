@@ -310,7 +310,7 @@ namespace Vitorm.Sql
         protected virtual object ExecuteQuery(Expression expression, Type type)
         {
             // #1 convert to ExpressionNode 
-            ExpressionNode node = convertService.ConvertToData(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
+            ExpressionNode node = convertService.ConvertToLambdaData(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
             //var strNode = Json.Serialize(node);
 
 

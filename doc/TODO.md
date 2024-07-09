@@ -33,5 +33,9 @@ users.Select(user => new { user.id, fid = user.fatherId ?? -1 }).OrderBy(m => m.
 
 
 
+
+
 # DbContext.QueryProcedure<Entity>(arg)  
-# DbFunction.PrimitiveSql  
+# DbFunction.PrimitiveSql 
+
+# nested stream, like :  group then join then group

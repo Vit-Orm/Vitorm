@@ -30,8 +30,8 @@ namespace Vitorm.MsTest.CommonTest
             {
                 dbSet.ChangeTable(tableName + "2");
 
-                dbSet.Drop();
-                dbSet.Create();
+                dbSet.TryDropTable();
+                dbSet.TryCreateTable();
 
                 user = dbSet.Get(1);
                 Assert.IsNull(user);

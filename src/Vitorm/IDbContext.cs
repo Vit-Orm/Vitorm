@@ -6,8 +6,8 @@ namespace Vitorm
     public interface IDbContext
     {
         // #0 Schema :  Create Drop
-        void Create<Entity>();
-        void Drop<Entity>();
+        void TryCreateTable<Entity>();
+        void TryDropTable<Entity>();
 
 
         // #1 Create :  Add AddRange

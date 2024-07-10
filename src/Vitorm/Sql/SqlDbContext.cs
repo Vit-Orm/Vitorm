@@ -111,7 +111,7 @@ namespace Vitorm.Sql
 
         #region #0 Schema :  Create Drop
 
-        public override void Create<Entity>()
+        public override void TryCreateTable<Entity>()
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
@@ -119,7 +119,7 @@ namespace Vitorm.Sql
             string sql = sqlTranslateService.PrepareCreate(entityDescriptor);
             Execute(sql: sql);
         }
-        public override void Drop<Entity>()
+        public override void TryDropTable<Entity>()
         {
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));

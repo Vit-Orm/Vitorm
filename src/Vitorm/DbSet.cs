@@ -45,8 +45,8 @@ namespace Vitorm
 
 
 
-        public virtual void Create() => dbContext.Create<Entity>();
-        public virtual void Drop() => dbContext.Drop<Entity>();
+        public virtual void TryCreateTable() => dbContext.TryCreateTable<Entity>();
+        public virtual void TryDropTable() => dbContext.TryDropTable<Entity>();
 
 
 

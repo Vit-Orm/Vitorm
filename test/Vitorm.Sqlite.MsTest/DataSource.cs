@@ -80,8 +80,8 @@ namespace Vitorm.MsTest
         {
             #region #1 init User
             {
-                dbContext.Drop<User>();
-                dbContext.Create<User>();
+                dbContext.TryDropTable<User>();
+                dbContext.TryCreateTable<User>();
 
                 var users = new List<User> {
                     new User { id=1, name="u146", fatherId=4, motherId=6 },
@@ -103,8 +103,8 @@ namespace Vitorm.MsTest
 
             #region #2 init Class
             {
-                dbContext.Drop<UserClass>();
-                dbContext.Create<UserClass>();
+                dbContext.TryDropTable<UserClass>();
+                dbContext.TryCreateTable<UserClass>();
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion

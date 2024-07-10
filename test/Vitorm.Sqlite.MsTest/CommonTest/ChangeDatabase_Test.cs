@@ -18,8 +18,8 @@ namespace Vitorm.MsTest.CommonTest
 
                 databaseName = dbContext.databaseName;
 
-                dbContext.Drop<User>();
-                dbContext.Create<User>();
+                dbContext.TryDropTable<User>();
+                dbContext.TryCreateTable<User>();
 
                 var user = dbContext.Get<User>(1);
                 Assert.IsNull(user);
@@ -35,8 +35,8 @@ namespace Vitorm.MsTest.CommonTest
 
                 dbContext.ChangeDatabase(databaseName + "2");
 
-                dbContext.Drop<User>();
-                dbContext.Create<User>();
+                dbContext.TryDropTable<User>();
+                dbContext.TryCreateTable<User>();
 
                 var user = dbContext.Get<User>(1);
                 Assert.IsNull(user);

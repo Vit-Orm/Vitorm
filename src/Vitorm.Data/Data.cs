@@ -61,32 +61,6 @@ namespace Vitorm
         }
 
 
-
-        public class DataProviderCache
-        {
-            public readonly IDataProvider dataProvider;
-            public readonly string @namespace;
-            private readonly string classFullNamePrefix;
-            public readonly Dictionary<string, object> dataSourceConfig;
-
-            public DataProviderCache(IDataProvider dataProvider, Dictionary<string, object> dataSourceConfig)
-            {
-                this.dataProvider = dataProvider;
-                this.dataSourceConfig = dataSourceConfig;
-
-                if (dataSourceConfig.TryGetValue("namespace", out var ns))
-                {
-                    @namespace = ns as string;
-                    classFullNamePrefix = @namespace + ".";
-                }
-            }
-            internal bool Match(string classFullName)
-            {
-                return classFullName.StartsWith(classFullNamePrefix);
-            }
-        }
-
-
         static readonly ConcurrentDictionary<Type, IDataProvider> providerMap = new();
 
         static readonly List<DataProviderCache> providerCache = new();
@@ -134,9 +108,9 @@ namespace Vitorm
 
         #region CRUD
 
-        // #0 Schema :  Create
-        public static void Create<Entity>() => DataProvider<Entity>().Create<Entity>();
-        public static void Drop<Entity>() => DataProvider<Entity>().Drop<Entity>();
+        // #0 Schema :  TryCreateTable TryDropTable
+        public static void TryCreateTable<Entity>() => DataProvider<Entity>().TryCreateTable<Entity>();
+        public static void TryDropTable<Entity>() => DataProvider<Entity>().TryDropTable<Entity>();
 
 
         // #1 Create :  Add AddRange

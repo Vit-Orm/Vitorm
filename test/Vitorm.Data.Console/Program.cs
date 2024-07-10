@@ -9,8 +9,8 @@ namespace App
             // #1 No need to init Vitorm.Data
 
             // #2 Create Table
-            Data.Drop<User>();
-            Data.Create<User>();
+            Data.TryDropTable<User>();
+            Data.TryCreateTable<User>();
 
             // #3 Insert Records
             Data.Add(new User { id = 1, name = "lith" });

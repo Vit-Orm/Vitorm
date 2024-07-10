@@ -56,15 +56,23 @@ namespace Vitorm.MsTest
         public static void WaitForUpdate() { }
 
         static readonly string connectionString = Appsettings.json.GetStringByPath("Vitorm.MySql.connectionString");
-        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
+        public static SqlDbContext CreateDbContextForWriting(bool autoInit = true) => CreateDbContext(autoInit);
 
-        public static SqlDbContext CreateDbContext()
+        public static SqlDbContext CreateDbContext(bool autoInit = true)
         {
             var dbContext = new SqlDbContext();
             dbContext.UseMySql(connectionString);
 
-            dbContext.BeginTransaction();
+            //dbContext.BeginTransaction();
 
+            if (autoInit)
+                InitDbContext(dbContext);
+
+            return dbContext;
+        }
+
+        public static void InitDbContext(SqlDbContext dbContext)
+        {
             #region #1 init User
             {
                 dbContext.Drop<User>();
@@ -100,9 +108,6 @@ namespace Vitorm.MsTest
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion
-
-
-            return dbContext;
         }
 
     }

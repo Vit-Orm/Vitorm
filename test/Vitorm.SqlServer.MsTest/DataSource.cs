@@ -58,15 +58,23 @@ namespace Vitorm.MsTest
 
         static string connectionString = Appsettings.json.GetStringByPath("Vitorm.SqlServer.connectionString");
 
-        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
+        public static SqlDbContext CreateDbContextForWriting(bool autoInit = true) => CreateDbContext(autoInit);
 
-        public static SqlDbContext CreateDbContext()
+        public static SqlDbContext CreateDbContext(bool autoInit = true)
         {
             var dbContext = new SqlDbContext();
             dbContext.UseSqlServer(connectionString);
 
-            dbContext.BeginTransaction();
+            //dbContext.BeginTransaction();
 
+            if (autoInit)
+                InitDbContext(dbContext);
+
+            return dbContext;
+        }
+
+        public static void InitDbContext(SqlDbContext dbContext)
+        {
             #region #1 init User
             {
                 dbContext.Drop<User>();
@@ -100,8 +108,6 @@ namespace Vitorm.MsTest
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion
-
-            return dbContext;
         }
 
     }

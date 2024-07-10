@@ -1,6 +1,9 @@
 ﻿# Vitorm TODO
 
 
+rename Create to TryCreateTable
+rename Drop to TryDropTable
+
 
 # group then orderBy aggregate column
 > [QueryTranslator] not suported MethodCall: Sum

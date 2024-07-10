@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 
+using Vitorm.Sql;
+
 using DbConnection = Microsoft.Data.SqlClient.SqlConnection;
+using ConnectionStringBuilder = Microsoft.Data.SqlClient.SqlConnectionStringBuilder;
 
 namespace Vitorm.SqlServer
 {
@@ -36,11 +39,23 @@ namespace Vitorm.SqlServer
         public string readOnlyConnectionString { get; set; }
         public int? commandTimeout { get; set; }
 
-        internal string dbHashCode => connectionString.GetHashCode().ToString();
-        internal IDbConnection createDbConnection() => new DbConnection(connectionString);
-        private IDbConnection _createReadOnlyDbConnection() => new DbConnection(readOnlyConnectionString);
 
-        internal Func<IDbConnection> createReadOnlyDbConnection => readOnlyConnectionString == null ? null : _createReadOnlyDbConnection;
+        public static string ChangeDatabaseForConnecitonString(string connectionString, string databaseName)
+            => new ConnectionStringBuilder(connectionString) { InitialCatalog = databaseName }.ConnectionString;
+
+        public static string GetDatabaseName(string connectionString) => new ConnectionStringBuilder(connectionString).InitialCatalog;
+
+        public static IDbConnection CreateDbConnection(string connectionString) => new DbConnection(connectionString);
+
+
+        public DbConnectionProvider ToDbConnectionProvider()
+            => new DbConnectionProvider(
+                createDbConnection: CreateDbConnection,
+                changeDatabaseForConnectionString: ChangeDatabaseForConnecitonString,
+                getDatabaseName: GetDatabaseName,
+                connectionString: connectionString,
+                readOnlyConnectionString: readOnlyConnectionString
+                );
 
     }
 }

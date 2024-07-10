@@ -7,11 +7,6 @@ using Vitorm.Entity;
 
 namespace Vitorm
 {
-    public interface IDbSet
-    {
-        IEntityDescriptor entityDescriptor { get; }
-    }
-
     public class DbSetConstructor
     {
         public static IDbSet CreateDbSet(DbContext dbContext, Type entityType, IEntityDescriptor entityDescriptor)
@@ -43,6 +38,12 @@ namespace Vitorm
             this.dbContext = dbContext;
             this._entityDescriptor = entityDescriptor;
         }
+
+
+        public virtual IEntityDescriptor ChangeTable(string tableName) => _entityDescriptor = _entityDescriptor.WithTable(tableName);
+        public virtual IEntityDescriptor ChangeTableBack() => _entityDescriptor = _entityDescriptor.GetOriginEntityDescriptor();
+
+
 
         public virtual void Create() => dbContext.Create<Entity>();
         public virtual void Drop() => dbContext.Drop<Entity>();

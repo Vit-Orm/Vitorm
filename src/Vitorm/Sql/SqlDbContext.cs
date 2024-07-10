@@ -38,8 +38,6 @@ namespace Vitorm.Sql
         }
 
 
-        protected Func<IDbConnection> createDbConnection { get; set; }
-        protected Func<IDbConnection> createReadOnlyDbConnection { get; set; }
         protected IDbConnection _dbConnection;
         protected IDbConnection _readOnlyDbConnection;
         public override void Dispose()
@@ -72,43 +70,42 @@ namespace Vitorm.Sql
                 }
             }
         }
-        public virtual IDbConnection dbConnection => _dbConnection ??= createDbConnection();
+        public virtual IDbConnection dbConnection => _dbConnection ??= dbConnectionProvider.CreaeteDbConnection();
         public virtual IDbConnection readOnlyDbConnection
-        {
-            get
-            {
-                if (_readOnlyDbConnection != null) return _readOnlyDbConnection;
-                if (createReadOnlyDbConnection != null) return _readOnlyDbConnection = createReadOnlyDbConnection();
-
-                return dbConnection;
-            }
-        }
+            => _readOnlyDbConnection ??
+                (dbConnectionProvider.ableToCreateReadOnly ? (_readOnlyDbConnection = dbConnectionProvider.CreateReadOnlyDbConnection()) : dbConnection);
 
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
 
+        protected DbConnectionProvider dbConnectionProvider;
 
+        /// <summary>
+        /// to identify whether contexts are from the same database
+        /// </summary>
+        protected virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
+        public virtual string databaseName => dbConnectionProvider.databaseName;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sqlTranslateService"></param>
-        /// <param name="createDbConnection"></param>
-        /// <param name="createReadOnlyDbConnection"></param>
+        /// <param name="dbConnectionProvider"></param>
         /// <param name="sqlExecutor"></param>
-        /// <param name="dbHashCode"> to identify whether contexts are from the same database </param>
-        public virtual void Init(ISqlTranslateService sqlTranslateService, Func<IDbConnection> createDbConnection, Func<IDbConnection> createReadOnlyDbConnection = null, SqlExecutor sqlExecutor = null, string dbHashCode = null)
+        public virtual void Init(ISqlTranslateService sqlTranslateService, DbConnectionProvider dbConnectionProvider, SqlExecutor sqlExecutor = null)
         {
             this.sqlTranslateService = sqlTranslateService;
-            this.createDbConnection = createDbConnection;
-            this.createReadOnlyDbConnection = createReadOnlyDbConnection;
+            this.dbConnectionProvider = dbConnectionProvider;
             this.sqlExecutor = sqlExecutor ?? SqlExecutor.Instance;
+        }
 
-            if (string.IsNullOrEmpty(dbHashCode))
-                dbHashCode = GetHashCode().ToString();
 
-            dbGroupName = "SqlDbSet_" + dbHashCode;
+        public virtual void ChangeDatabase(string databaseName)
+        {
+            if (_dbConnection != null || _readOnlyDbConnection != null) throw new InvalidOperationException("cna not change database after connected, please try in an new DbContext.");
+
+            dbConnectionProvider = dbConnectionProvider.WithDatabase(databaseName);
         }
 
 
@@ -279,11 +276,6 @@ namespace Vitorm.Sql
 
         }
 
-
-        /// <summary>
-        /// to identify whether contexts are from the same database
-        /// </summary>
-        protected string dbGroupName { get; set; }
         protected bool QueryIsFromSameDb(object query, Type elementType)
         {
             return dbGroupName == QueryableBuilder.GetQueryConfig(query as IQueryable) as string;

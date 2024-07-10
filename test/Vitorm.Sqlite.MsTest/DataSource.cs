@@ -7,7 +7,7 @@ namespace Vitorm.MsTest
     {
         public User() { }
 
-        public User(int nid) { id = nid; }
+        public User(int id) { this.id = id; }
         public User(string name) { this.name = name; }
 
 
@@ -57,8 +57,8 @@ namespace Vitorm.MsTest
     {
         public static void WaitForUpdate() { }
 
-        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
-        public static SqlDbContext CreateDbContext()
+        public static SqlDbContext CreateDbContextForWriting(bool autoInit = true) => CreateDbContext(autoInit);
+        public static SqlDbContext CreateDbContext(bool autoInit = true)
         {
             var guid = Guid.NewGuid().ToString();
             var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{guid}.sqlite.db");
@@ -67,9 +67,17 @@ namespace Vitorm.MsTest
             var dbContext = new SqlDbContext();
             dbContext.UseSqlite(connectionString);
 
-            dbContext.BeginTransaction();
+            //dbContext.BeginTransaction();
+
+            if (autoInit)
+                InitDbContext(dbContext);
+
+            return dbContext;
+        }
 
 
+        public static void InitDbContext(SqlDbContext dbContext)
+        {
             #region #1 init User
             {
                 dbContext.Drop<User>();
@@ -100,8 +108,6 @@ namespace Vitorm.MsTest
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion
-
-            return dbContext;
         }
 
     }

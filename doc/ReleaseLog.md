@@ -12,6 +12,7 @@
 - [Vitorm.SqlServer] fix bool type was not supported in database issue (especially in select sentence)
 - [Vitorm.ClickHouse] fix String.Add null value and cast issue : ifNull(  cast( (userFatherId) as Nullable(String) ) , ''  )
 - [Vitorm.Sqlite] fix String.Add null value and cast issue
+- [Vitorm] new feature to change mapped table and change database for sharding
 
 -----------------------
 # 1.1.0

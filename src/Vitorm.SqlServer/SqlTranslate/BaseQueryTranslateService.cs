@@ -101,11 +101,11 @@ WHERE ([t].[__RowNumber__] > 1) AND ([t].[__RowNumber__] <= 13);
             }
             else
             {
-                return BuildQueryWithoutSkip(arg,stream);
+                return BuildQueryWithoutSkip(arg, stream);
             }
         }
 
-        public virtual string BuildQueryWithSkip(QueryTranslateArgument arg, CombinedStream stream) 
+        public virtual string BuildQueryWithSkip(QueryTranslateArgument arg, CombinedStream stream)
         {
             // ROW_NUMBER() OVER(ORDER BY [m].[fatherId], [m].[motherId] DESC) AS [__RowNumber__]
 

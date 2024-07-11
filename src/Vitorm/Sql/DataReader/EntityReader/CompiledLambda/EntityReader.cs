@@ -13,7 +13,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
     /// <summary>
     ///  get all sql column values, compile EntityGenerator to Lambda .  Invoke the lambda when reading rows , pass sql column values as lambda args. 
     /// </summary>
-    public class EntityReader: IEntityReader
+    public class EntityReader : IEntityReader
     {
         protected List<IArgReader> entityArgReaders = new List<IArgReader>();
         protected Delegate lambdaCreateEntity;

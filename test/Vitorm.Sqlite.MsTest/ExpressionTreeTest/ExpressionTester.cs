@@ -1,10 +1,9 @@
-﻿using System.Linq.Expressions;
-using Vit.Linq;
+﻿using System.Data;
+using System.Linq.Expressions;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+
+using Vit.Linq;
 
 namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
 {

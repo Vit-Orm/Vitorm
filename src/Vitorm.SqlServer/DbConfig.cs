@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 
 using Vitorm.Sql;
 
-using DbConnection = Microsoft.Data.SqlClient.SqlConnection;
 using ConnectionStringBuilder = Microsoft.Data.SqlClient.SqlConnectionStringBuilder;
+using DbConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Vitorm.SqlServer
 {

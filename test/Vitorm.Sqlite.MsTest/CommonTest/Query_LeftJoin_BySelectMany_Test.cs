@@ -16,7 +16,7 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
- 
+
 
             // Lambda Expression
             {

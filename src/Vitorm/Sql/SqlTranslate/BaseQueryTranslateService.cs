@@ -4,7 +4,6 @@ using System.Linq;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 
-using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate

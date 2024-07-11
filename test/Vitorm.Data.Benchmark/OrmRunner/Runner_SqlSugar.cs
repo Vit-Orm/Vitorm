@@ -101,7 +101,7 @@ namespace App.OrmRunner
                     testId = user.id + offsetId,
                     hasFather = father.name != null ? true : false
                 });
-            
+
 
             Execute(query);
         }
@@ -147,7 +147,7 @@ namespace App.OrmRunner
         }
 
 
- 
+
 
 
 

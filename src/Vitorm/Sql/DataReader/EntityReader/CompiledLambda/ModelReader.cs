@@ -17,7 +17,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
         List<(IColumnDescriptor columnDescriptor, SqlFieldReader sqlFieldReader)> properties = new();
 
 
-        public ModelReader(SqlColumns sqlColumns, ISqlTranslateService sqlTranslateService, string tableName, string argUniqueKey, string argName,  IEntityDescriptor entityDescriptor)
+        public ModelReader(SqlColumns sqlColumns, ISqlTranslateService sqlTranslateService, string tableName, string argUniqueKey, string argName, IEntityDescriptor entityDescriptor)
         {
             this.argUniqueKey = argUniqueKey;
             this.argName = argName;

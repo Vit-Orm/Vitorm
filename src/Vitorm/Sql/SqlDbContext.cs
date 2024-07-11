@@ -407,7 +407,7 @@ namespace Vitorm.Sql
                 var arg = new QueryTranslateArgument(this, resultEntityType);
 
                 string sqlToList, sqlCount;
-                IDbDataReader dataReader; Dictionary<string, object> sqlParam;
+                IDbDataReader dataReader;
                 // #1 ToList
                 {
                     combinedStream.method = nameof(Enumerable.ToList);

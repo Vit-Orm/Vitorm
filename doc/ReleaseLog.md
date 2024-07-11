@@ -13,6 +13,8 @@
 - [Vitorm.ClickHouse] fix String.Add null value and cast issue : ifNull(  cast( (userFatherId) as Nullable(String) ) , ''  )
 - [Vitorm.Sqlite] fix String.Add null value and cast issue
 - [Vitorm] new feature to change mapped table and change database for sharding
+- [Vitorm] new feature to query TotalCount(Vit.Linq.Queryable_Extensions.TotalCount) 
+           and query List and TotalCount(Vit.Linq.Queryable_Extensions.ToListAndTotalCount) at one request
 
 -----------------------
 # 1.1.0

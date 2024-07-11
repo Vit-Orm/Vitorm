@@ -46,6 +46,9 @@ supported features:
 | --- | --- | --- | --- |
 |  change table   |  ChangeTable    |  change mapping table from database   |   |
 |  change database  |  ChangeDatabase   | change database to be connected  |   |
+| --- | --- | --- | --- |
+|  collection total count   |  TotalCount    |  Collection Total Count without Take and Skip   |   |
+|  collection total count and list  |  ToListAndTotalCount   | query List and TotalCount at on request  |   |
 |     |     |   |   |
 
 

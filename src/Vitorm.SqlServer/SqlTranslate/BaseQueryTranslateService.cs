@@ -176,7 +176,7 @@ SELECT *
 FROM (
     {sql}
 ) AS [t]
-WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take > 0 ? "AND [t].[__RowNumber__] <= " + (stream.take + stream.skip) : "")} ;
+WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take.HasValue ? "AND [t].[__RowNumber__] <= " + (stream.take + stream.skip) : "")} ;
 ";
             #endregion
         }
@@ -190,7 +190,7 @@ WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take > 0 ? "AND [t].[__RowNum
             string sql = "select ";
 
             // #0  select
-            if (stream.take != null) sql += "top " + stream.take + " ";
+            if (stream.take.HasValue) sql += "top " + stream.take + " ";
             sql += ReadSelect(arg, stream, prefix: null);
 
 

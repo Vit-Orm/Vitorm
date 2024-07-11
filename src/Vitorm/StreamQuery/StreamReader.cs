@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 namespace Vitorm.StreamQuery
@@ -235,14 +236,14 @@ namespace Vitorm.StreamQuery
 
                         switch (call.methodName)
                         {
-                            case "Where":
+                            case nameof(Queryable.Where):
                                 {
                                     var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
                                     var stream = ReadStreamWithWhere(arg, source, predicateLambda);
                                     if (stream == default) break;
                                     return stream;
                                 }
-                            case "FirstOrDefault" or "First" or "LastOrDefault" or "Last" when call.arguments.Length == 2:
+                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
                                 {
                                     var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
                                     var stream = ReadStreamWithWhere(arg, source, predicateLambda);
@@ -250,14 +251,14 @@ namespace Vitorm.StreamQuery
                                     stream.method = call.methodName;
                                     return stream;
                                 }
-                            case "Distinct":
+                            case nameof(Queryable.Distinct):
                                 {
                                     var combinedStream = AsCombinedStream(source);
 
                                     combinedStream.distinct = true;
                                     return combinedStream;
                                 }
-                            case "Select":
+                            case nameof(Queryable.Select):
                                 {
                                     ExpressionNode_Lambda resultSelector = call.arguments[1];
 
@@ -322,21 +323,20 @@ namespace Vitorm.StreamQuery
                                     }
                                     break;
                                 }
-                            case "Take":
-                            case "Skip":
+                            case nameof(Queryable.Take) or nameof(Queryable.Skip):
                                 {
                                     CombinedStream combinedStream = AsCombinedStream(source);
 
                                     var value = (call.arguments[1] as ExpressionNode_Constant)?.value as int?;
 
-                                    if (call.methodName == "Skip")
+                                    if (call.methodName == nameof(Queryable.Skip))
                                         combinedStream.skip = value;
                                     else
                                         combinedStream.take = value;
                                     return combinedStream;
                                 }
 
-                            case "OrderBy" or "OrderByDescending" or "ThenBy" or "ThenByDescending":
+                            case nameof(Queryable.OrderBy) or nameof(Queryable.OrderByDescending) or nameof(Queryable.ThenBy) or nameof(Queryable.ThenByDescending):
                                 {
                                     CombinedStream combinedStream = AsCombinedStream(source);
 
@@ -357,11 +357,12 @@ namespace Vitorm.StreamQuery
 
                                     return combinedStream;
                                 }
-                            case "FirstOrDefault" or "First" or "LastOrDefault" or "Last" when call.arguments.Length == 1:
-                            case "Count":
+                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
+                            case nameof(Queryable.Count):
+                            case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
                             case nameof(Orm_Extensions.ExecuteDelete):
                             case nameof(Orm_Extensions.ToExecuteString):
-                            case "ToList":
+                            case nameof(Enumerable.ToList):
                                 {
                                     if (call.arguments?.Length != 1) break;
 

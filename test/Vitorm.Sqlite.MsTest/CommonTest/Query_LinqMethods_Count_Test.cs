@@ -26,7 +26,26 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            TestAllCase(userQuery, new Config { skip = 1, take = 100 });
+            TestAllCase(userQuery, new Config { skip = 0 });
+            TestAllCase(userQuery, new Config { skip = 1 });
+            TestAllCase(userQuery, new Config { skip = 10 });
+
+            TestAllCase(userQuery, new Config { take = 0 });
+            TestAllCase(userQuery, new Config { take = 2 });
+            TestAllCase(userQuery, new Config { take = 20 });
+
+
+            TestAllCase(userQuery, new Config { skip = 0, take = 0 });
+            TestAllCase(userQuery, new Config { skip = 0, take = 2 });
+            TestAllCase(userQuery, new Config { skip = 0, take = 20 });
+
+            TestAllCase(userQuery, new Config { skip = 1, take = 0 });
+            TestAllCase(userQuery, new Config { skip = 1, take = 2 });
+            TestAllCase(userQuery, new Config { skip = 1, take = 20 });
+
+            TestAllCase(userQuery, new Config { skip = 10, take = 0 });
+            TestAllCase(userQuery, new Config { skip = 10, take = 2 });
+            TestAllCase(userQuery, new Config { skip = 10, take = 20 });
         }
 
 

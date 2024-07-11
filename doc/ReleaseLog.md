@@ -16,6 +16,12 @@
 - [Vitorm] new feature to query TotalCount(Vit.Linq.Queryable_Extensions.TotalCount) 
            and query List and TotalCount(Vit.Linq.Queryable_Extensions.ToListAndTotalCount) at one request
 
+- [Vitorm] rename PrepareCreate to PrepareTryCreateTable
+- [Vitorm] rename PrepareDrop to PrepareTryDropTable
+- [Vitorm] move Dictionary<string, object> sqlParam to SqlTranslateArgument or QueryTranslateArgument
+
+
+
 -----------------------
 # 1.1.0
 

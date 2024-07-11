@@ -123,7 +123,7 @@ namespace Vitorm.Sql
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
 
-            string sql = sqlTranslateService.PrepareCreate(entityDescriptor);
+            string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
             Execute(sql: sql);
         }
         public override void TryDropTable<Entity>()
@@ -131,7 +131,7 @@ namespace Vitorm.Sql
             // #0 get arg
             var entityDescriptor = GetEntityDescriptor(typeof(Entity));
 
-            string sql = sqlTranslateService.PrepareDrop(entityDescriptor);
+            string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
             Execute(sql: sql);
         }
         #endregion
@@ -330,9 +330,9 @@ namespace Vitorm.Sql
                 var resultEntityType = streamToUpdate.fieldsToUpdate.New_GetType();
                 var arg = new QueryTranslateArgument(this, resultEntityType);
 
-                (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
+                var sql = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
 
-                return Execute(sql: sql, param: sqlParam);
+                return Execute(sql: sql, param: arg.sqlParam);
             }
 
 
@@ -350,7 +350,7 @@ namespace Vitorm.Sql
                         // get arg
                         var arg = new QueryTranslateArgument(this, null);
 
-                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                        var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
                         return sql;
                     }
                 case nameof(Orm_Extensions.ExecuteDelete):
@@ -361,9 +361,8 @@ namespace Vitorm.Sql
                         var entityType = (combinedStream.source as SourceStream)?.GetEntityType();
                         var arg = new QueryTranslateArgument(this, entityType);
 
-                        (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
-
-                        var count = Execute(sql: sql, param: sqlParam);
+                        var sql = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
+                        var count = Execute(sql: sql, param: arg.sqlParam);
                         return count;
                     }
                 case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last):
@@ -372,16 +371,15 @@ namespace Vitorm.Sql
                         var resultEntityType = expression.Type;
                         var arg = new QueryTranslateArgument(this, resultEntityType);
 
-                        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
-
-                        using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
-                        return dataReader.ReadData(reader);
+                        var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                        using var reader = ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
+                        return arg.dataReader.ReadData(reader);
                     }
                 case nameof(Queryable.Count) or nameof(Queryable_Extensions.TotalCount):
                     {
                         return ExecuteQuery_Count(combinedStream);
                     }
-                case nameof(Queryable_Extensions.ToListAndTotalCount): 
+                case nameof(Queryable_Extensions.ToListAndTotalCount):
                     {
                         var resultEntityType = expression.Type.GetGenericArguments()?.FirstOrDefault()?.GetGenericArguments()?.FirstOrDefault();
                         return ExecuteQuery_ToListAndTotalCount(combinedStream, resultEntityType);
@@ -413,7 +411,8 @@ namespace Vitorm.Sql
                 // #1 ToList
                 {
                     combinedStream.method = nameof(Enumerable.ToList);
-                    (sqlToList, sqlParam, dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                    sqlToList = sqlTranslateService.PrepareQuery(arg, combinedStream);
+                    dataReader = arg.dataReader;
                 }
 
                 // #2 TotalCount
@@ -421,13 +420,13 @@ namespace Vitorm.Sql
                     combinedStream.method = nameof(Enumerable.Count);
                     (combinedStream.orders, combinedStream.skip, combinedStream.take) = (null, null, null);
 
-                    (sqlCount, sqlParam) = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
+                    sqlCount = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
                 }
 
                 // #3 read data
                 {
                     var sql = sqlCount + " ;\r\n" + sqlToList;
-                    using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
+                    using var reader = ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
                     reader.Read();
                     totalCount = Convert.ToInt32(reader[0]);
                     reader.NextResult();
@@ -457,18 +456,18 @@ namespace Vitorm.Sql
         /// </summary>
         /// <param name="combinedStream"></param>
         /// <returns></returns>
-        protected virtual int ExecuteQuery_Count(CombinedStream combinedStream) 
+        protected virtual int ExecuteQuery_Count(CombinedStream combinedStream)
         {
             // deal with skip and take , no need to pass to PrepareCountQuery
-            var queryArg = (combinedStream.orders,combinedStream.skip  , combinedStream.take);
-            (combinedStream.orders, combinedStream.skip, combinedStream.take) = (null,null,null);
+            var queryArg = (combinedStream.orders, combinedStream.skip, combinedStream.take);
+            (combinedStream.orders, combinedStream.skip, combinedStream.take) = (null, null, null);
 
             // get arg
             var arg = new QueryTranslateArgument(this, null);
 
-            (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
+            var sql = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
 
-            var countValue = ExecuteScalar(sql: sql, param: sqlParam, useReadOnly: true);
+            var countValue = ExecuteScalar(sql: sql, param: arg.sqlParam, useReadOnly: true);
             var count = Convert.ToInt32(countValue);
             if (count > 0 && combinedStream.method == nameof(Queryable.Count))
             {
@@ -486,10 +485,10 @@ namespace Vitorm.Sql
         {
             var arg = new QueryTranslateArgument(this, resultEntityType);
 
-            (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) = sqlTranslateService.PrepareQuery(arg, combinedStream);
+            var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
-            using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
-            return dataReader.ReadData(reader);
+            using var reader = ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
+            return arg.dataReader.ReadData(reader);
         }
 
         #endregion
@@ -586,10 +585,10 @@ namespace Vitorm.Sql
             SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
 
             // #1 prepare sql
-            (string sql, Dictionary<string, object> sqlParam) = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
+            var sql = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
 
             // #2 execute
-            var affectedRowCount = Execute(sql: sql, param: sqlParam);
+            var affectedRowCount = Execute(sql: sql, param: arg.sqlParam);
             return affectedRowCount;
         }
 

@@ -41,8 +41,8 @@ namespace Vitorm.Sql.SqlTranslate
         string EvalExpression(QueryTranslateArgument arg, ExpressionNode data);
 
         // #0 Schema :  PrepareCreate PrepareDrop
-        string PrepareCreate(IEntityDescriptor entityDescriptor);
-        string PrepareDrop(IEntityDescriptor entityDescriptor);
+        string PrepareTryCreateTable(IEntityDescriptor entityDescriptor);
+        string PrepareTryDropTable(IEntityDescriptor entityDescriptor);
 
 
         // #1 Create :  PrepareAdd
@@ -53,22 +53,22 @@ namespace Vitorm.Sql.SqlTranslate
 
         // #2 Retrieve : PrepareGet PrepareQuery
         string PrepareGet(SqlTranslateArgument arg);
-        (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
-        (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        string PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
+        string PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 
         // #3 Update: PrepareUpdate PrepareExecuteUpdate
         (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareUpdate(SqlTranslateArgument arg);
-        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream);
+        string PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
         // #4 Delete: PrepareDelete PrepareDeleteRange PrepareExecuteDelete
         string PrepareDelete(SqlTranslateArgument arg);
 
-        (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys);
+        string PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys);
 
-        (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
+        string PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream);
 
 
 

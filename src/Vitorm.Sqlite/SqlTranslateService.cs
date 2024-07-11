@@ -152,7 +152,7 @@ namespace Vitorm.Sqlite
 
 
         #region PrepareCreate
-        public override string PrepareCreate(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryCreateTable(IEntityDescriptor entityDescriptor)
         {
             /* //sql
 CREATE TABLE user (
@@ -203,7 +203,7 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryDropTable(IEntityDescriptor entityDescriptor)
         {
             // DROP TABLE if exists "User";
             return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";

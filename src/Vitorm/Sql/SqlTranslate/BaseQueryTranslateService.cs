@@ -184,7 +184,7 @@ namespace Vitorm.Sql.SqlTranslate
 
             {
                 var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, stream.select, selectedFields);
-                arg.dataReader ??= reader;
+                arg.dataReader = reader;
                 return (stream.distinct == true ? "distinct " : "") + sqlColumns;
             }
         }

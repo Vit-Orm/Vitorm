@@ -195,7 +195,7 @@ namespace Vitorm.SqlServer
 
 
         #region PrepareCreate
-        public override string PrepareCreate(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryCreateTable(IEntityDescriptor entityDescriptor)
         {
             /* //sql
 if object_id(N'[dbo].[User]', N'U') is null
@@ -254,7 +254,7 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryDropTable(IEntityDescriptor entityDescriptor)
         {
             // IF OBJECT_ID(N'User', N'U') IS NOT NULL  DROP TABLE [User];
             var tableName = DelimitTableName(entityDescriptor);

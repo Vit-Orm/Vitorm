@@ -19,9 +19,24 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         public IDbDataReader dataReader { get; set; }
-        public Dictionary<string, object> sqlParam { get; protected set; } = new Dictionary<string, object>();
+
+        public Dictionary<string, object> sqlParam { get; protected set; }
 
         protected int paramIndex = 0;
-        public string NewParamName() => "p" + (paramIndex++);
+
+        /// <summary>
+        /// add sqlParam and get the generated sqlParam name
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string AddParamAndGetName(object value)
+        {
+            sqlParam ??= new();
+            var paramName = "p" + (paramIndex++);
+
+            sqlParam[paramName] = value;
+            return paramName;
+        }
+
     }
 }

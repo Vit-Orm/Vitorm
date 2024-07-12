@@ -13,9 +13,7 @@ namespace Vitorm
         {
             dbContext.Init(
                 sqlTranslateService: Vitorm.Sqlite.SqlTranslateService.Instance,
-                createDbConnection: config.createDbConnection,
-                createReadOnlyDbConnection: config.createReadOnlyDbConnection,
-                dbHashCode: config.dbHashCode
+                dbConnectionProvider: config.ToDbConnectionProvider()
                 );
 
             dbContext.createTransactionScope = createTransactionScope;

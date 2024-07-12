@@ -121,6 +121,7 @@ namespace Vitorm.MsTest.CommonTest
             {
                 var query =
                     userQuery
+                    .Where(user => user.id < 7)
                     .GroupBy(user => new { user.fatherId, user.motherId })
                     .OrderByDescending(group => group.Count())
                     .Select(userGroup => new

@@ -89,7 +89,7 @@ namespace App.OrmRunner
             if (executeQuery)
             {
                 var userList = query.ToList();
-                var rowCount = userList.Count();
+                var rowCount = userList.Count;
                 if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
             }
             else

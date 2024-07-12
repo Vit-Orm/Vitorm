@@ -68,8 +68,8 @@ namespace Vitorm.MsTest
             var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, fileName);
             using var dbContext = new SqlDbContext().UseSqlite(connectionString: $"data source={fileName};");
 
-            dbContext.Drop<User>();
-            dbContext.Create<User>();
+            dbContext.TryDropTable<User>();
+            dbContext.TryCreateTable<User>();
             dbContext.Add(new User { id = 1, name = fileName });
         }
 

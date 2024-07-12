@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+
+using Vit.Linq;
 
 using Vitorm.Sql.DataReader;
 using Vitorm.Sql.SqlTranslate;
@@ -27,7 +30,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         {
         }
 
-  
+
         public override string BuildCountQuery(QueryTranslateArgument arg, CombinedStream stream)
         {
             // select count(*) from (select distinct fatherid,motherId from "User" u) u;
@@ -38,14 +41,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
         {
             switch (stream.method)
             {
-                case "Count":
-                    //return prefix + " " + "count(*)";
-                case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
-                    {
-                        var reader = new EntityReader();
-                        return prefix + " " + BuildReader(arg, stream, reader);
-                    }
-                case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
+                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last):
                     {
                         stream.take = 1;
                         stream.skip = null;
@@ -54,8 +50,18 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                             ReverseOrder(arg, stream);
 
                         var nullable = stream.method.Contains("OrDefault");
-                        var reader = new FirstEntityReader { nullable = nullable };
-                        return prefix + " " + BuildReader(arg, stream, reader);
+                        var reader = new DataReader_FirstRow { nullable = nullable };
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
+                    }
+
+                case nameof(Queryable.Count) or nameof(Queryable_Extensions.TotalCount):
+                //return prefix + " " + "count(*)";
+
+                case "" or null or nameof(Enumerable.ToList):
+                case nameof(Orm_Extensions.ToExecuteString):
+                    {
+                        var reader = new DataReader();
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
                     }
             }
             throw new NotSupportedException("not supported method: " + stream.method);

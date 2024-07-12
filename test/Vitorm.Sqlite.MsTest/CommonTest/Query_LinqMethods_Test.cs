@@ -104,7 +104,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3.0, userList.First());
             }
 
-
             {
                 var query =
                     from user in userQuery
@@ -117,7 +116,10 @@ namespace Vitorm.MsTest.CommonTest
 
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
-                Assert.AreEqual("1_4_6", userList.First().uniqueId1);
+                Assert.AreEqual("1_4_6", userList[0].uniqueId1);
+                Assert.AreEqual("1_4_6", userList[0].uniqueId2);
+                Assert.AreEqual("4__", userList[3].uniqueId1);
+                Assert.AreEqual("4__", userList[3].uniqueId2);
             }
 
         }

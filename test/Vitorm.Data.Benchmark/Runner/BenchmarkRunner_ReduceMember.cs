@@ -1,32 +1,49 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 
 using Vit.Linq.ExpressionTree;
 
 using Vitorm;
+using Vitorm.Sql;
 
 namespace App.Runner
 {
+    class Config : ManualConfig
+    {
+        // https://benchmarkdotnet.org/articles/configs/configs.html
+        public Config()
+        {
+            WithOptions(ConfigOptions.DisableOptimizationsValidator);
+        }
+    }
+
+    [Config(typeof(Config))]
     //[Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.FastestToSlowest)]
     [InProcess]
     public partial class BenchmarkRunner_ReduceMember
     {
-        [Params(100)]
-        public int N = 1;
+        //[Params(100)]
+        public int N = 2;
 
-        [Params(true, false)]
+        //[Params(true, false)]
         public bool executeQuery = false;
 
-        [Params(false, true)]
+        //[Params(false, true)]
         public bool queryJoin = true;
 
-        [Params(true, false)]
-        public bool reduceMember = true;
 
+        [Params(10, 100, 1000)]
+        public int take = 100;
         //[Params(0, 10)]
         public int? skip = 10;
-        //[Params(10, 100, 1000)]
-        public int take = 100;
 
+
+
+        //[Params(true, false)]
+        public bool reduceMember = true;
+
+        [Params("EntityConstructor", "CompiledLambda")]
+        public string entityReader = "EntityConstructor";
 
 
         IQueryable<User> userQuery;
@@ -37,6 +54,12 @@ namespace App.Runner
         public void Setup()
         {
             DataConvertArgument.CalculateToConstant_ManuallyReduceMember = reduceMember;
+
+            if (entityReader == "CompiledLambda")
+                SqlDbContext.defaultEntityReaderType = typeof(global::Vitorm.Sql.DataReader.EntityReader.CompiledLambda.EntityReader);
+            else
+                SqlDbContext.defaultEntityReaderType = typeof(global::Vitorm.Sql.DataReader.EntityReader.EntityConstructor.EntityReader);
+
         }
 
         [Benchmark]

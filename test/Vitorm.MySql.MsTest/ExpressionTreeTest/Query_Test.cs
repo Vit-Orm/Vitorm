@@ -17,7 +17,7 @@ namespace Vitorm.MsTest.ExpressionTreeTest
             var dbSet = dbContext.DbSet<ExpressionTester.User>();
 
             dbContext.Execute(sql: "DROP TABLE  if exists `User2`;");
-            dbSet.Create();
+            dbSet.TryCreateTable();
             dbSet.AddRange(initUsers);
 
             var query = dbSet.Query();

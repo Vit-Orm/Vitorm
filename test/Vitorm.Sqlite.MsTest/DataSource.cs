@@ -5,6 +5,12 @@ namespace Vitorm.MsTest
     [System.ComponentModel.DataAnnotations.Schema.Table("User")]
     public class User
     {
+        public User() { }
+
+        public User(int id) { this.id = id; }
+        public User(string name) { this.name = name; }
+
+
         [System.ComponentModel.DataAnnotations.Key]
         [System.ComponentModel.DataAnnotations.Schema.Column("userId")]
         public int id { get; set; }
@@ -51,8 +57,8 @@ namespace Vitorm.MsTest
     {
         public static void WaitForUpdate() { }
 
-        public static SqlDbContext CreateDbContextForWriting() => CreateDbContext();
-        public static SqlDbContext CreateDbContext()
+        public static SqlDbContext CreateDbContextForWriting(bool autoInit = true) => CreateDbContext(autoInit);
+        public static SqlDbContext CreateDbContext(bool autoInit = true)
         {
             var guid = Guid.NewGuid().ToString();
             var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{guid}.sqlite.db");
@@ -61,13 +67,21 @@ namespace Vitorm.MsTest
             var dbContext = new SqlDbContext();
             dbContext.UseSqlite(connectionString);
 
-            dbContext.BeginTransaction();
+            //dbContext.BeginTransaction();
+
+            if (autoInit)
+                InitDbContext(dbContext);
+
+            return dbContext;
+        }
 
 
+        public static void InitDbContext(SqlDbContext dbContext)
+        {
             #region #1 init User
             {
-                dbContext.Drop<User>();
-                dbContext.Create<User>();
+                dbContext.TryDropTable<User>();
+                dbContext.TryCreateTable<User>();
 
                 var users = new List<User> {
                     new User { id=1, name="u146", fatherId=4, motherId=6 },
@@ -89,13 +103,11 @@ namespace Vitorm.MsTest
 
             #region #2 init Class
             {
-                dbContext.Drop<UserClass>();
-                dbContext.Create<UserClass>();
+                dbContext.TryDropTable<UserClass>();
+                dbContext.TryCreateTable<UserClass>();
                 dbContext.AddRange(UserClass.NewClasses(1, 6));
             }
             #endregion
-
-            return dbContext;
         }
 
     }

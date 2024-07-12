@@ -45,8 +45,8 @@ namespace Vitorm.MsTest
         {
             using var dbContext = Data.DataProvider<User>()?.CreateDbContext() as SqlDbContext;
 
-            dbContext.Drop<User>();
-            dbContext.Create<User>();
+            dbContext.TryDropTable<User>();
+            dbContext.TryCreateTable<User>();
 
             var users = new List<User> {
                     new User { id=1, name="u146", fatherId=4, motherId=6 },

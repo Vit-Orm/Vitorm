@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
 namespace Vitorm.StreamQuery
@@ -156,7 +157,7 @@ namespace Vitorm.StreamQuery
                         var parameterName = predicateLambda.parameterNames[0];
                         var groupByFields = groupedStream.groupByFields;
                         var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                        var parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                        var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
                         var newArg = arg.WithParameter(parameterName, parameterValue);
 
                         ExpressionNode having = ReadWhere(newArg, predicateLambda.body);
@@ -197,7 +198,7 @@ namespace Vitorm.StreamQuery
         {
             Type entityType = source.GetEntityType();
             var selectedFields = ExpressionNode.Member(parameterName: source.alias, memberName: null).Member_SetType(entityType);
-            var select = new SelectedFields { fields = selectedFields, isDefaultSelect = true };
+            var select = new ResultSelector { fields = selectedFields, isDefaultSelect = true };
 
             return new CombinedStream(NewAliasName()) { source = source, select = select };
         }
@@ -235,14 +236,14 @@ namespace Vitorm.StreamQuery
 
                         switch (call.methodName)
                         {
-                            case "Where":
+                            case nameof(Queryable.Where):
                                 {
                                     var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
                                     var stream = ReadStreamWithWhere(arg, source, predicateLambda);
                                     if (stream == default) break;
                                     return stream;
                                 }
-                            case "FirstOrDefault" or "First" or "LastOrDefault" or "Last" when call.arguments.Length == 2:
+                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
                                 {
                                     var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
                                     var stream = ReadStreamWithWhere(arg, source, predicateLambda);
@@ -250,14 +251,14 @@ namespace Vitorm.StreamQuery
                                     stream.method = call.methodName;
                                     return stream;
                                 }
-                            case "Distinct":
+                            case nameof(Queryable.Distinct):
                                 {
                                     var combinedStream = AsCombinedStream(source);
 
                                     combinedStream.distinct = true;
                                     return combinedStream;
                                 }
-                            case "Select":
+                            case nameof(Queryable.Select):
                                 {
                                     ExpressionNode_Lambda resultSelector = call.arguments[1];
 
@@ -268,7 +269,7 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
                                                 var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
 
                                                 return new CombinedStream(NewAliasName()) { source = sourceStream, select = select };
                                             }
@@ -277,11 +278,11 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var groupByFields = groupedStream.groupByFields;
                                                 var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                                                var parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                                                var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
                                                 var noChildParameterValue = ExpressionNode_RenameableMember.Member(stream: groupedStream.source, resultSelector.Lambda_GetParamTypes()[0]);
                                                 var newArg = arg.WithParameter(parameterName, parameterValue, noChildParameterValue: noChildParameterValue);
 
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
                                                 groupedStream.select = select;
                                                 return groupedStream;
                                             }
@@ -290,7 +291,7 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = combinedStream.select.fields;
                                                 var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadFieldSelect(newArg, resultSelector);
+                                                var select = ReadResultSelector(newArg, resultSelector);
 
                                                 combinedStream.select = select;
                                                 return combinedStream;
@@ -308,35 +309,34 @@ namespace Vitorm.StreamQuery
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
 
-                                                var select = ReadFieldSelect(arg.WithParameter(parameterName, parameterValue), resultSelector);
+                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
                                                 return new StreamToUpdate(sourceStream) { fieldsToUpdate = select.fields };
                                             }
                                         case CombinedStream combinedStream:
                                             {
                                                 var parameterName = resultSelector.parameterNames[0];
                                                 var parameterValue = combinedStream.select.fields;
-                                                var select = ReadFieldSelect(arg.WithParameter(parameterName, parameterValue), resultSelector);
+                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
 
                                                 return new StreamToUpdate(source) { fieldsToUpdate = select.fields };
                                             }
                                     }
                                     break;
                                 }
-                            case "Take":
-                            case "Skip":
+                            case nameof(Queryable.Take) or nameof(Queryable.Skip):
                                 {
                                     CombinedStream combinedStream = AsCombinedStream(source);
 
                                     var value = (call.arguments[1] as ExpressionNode_Constant)?.value as int?;
 
-                                    if (call.methodName == "Skip")
+                                    if (call.methodName == nameof(Queryable.Skip))
                                         combinedStream.skip = value;
                                     else
                                         combinedStream.take = value;
                                     return combinedStream;
                                 }
 
-                            case "OrderBy" or "OrderByDescending" or "ThenBy" or "ThenByDescending":
+                            case nameof(Queryable.OrderBy) or nameof(Queryable.OrderByDescending) or nameof(Queryable.ThenBy) or nameof(Queryable.ThenByDescending):
                                 {
                                     CombinedStream combinedStream = AsCombinedStream(source);
 
@@ -357,11 +357,12 @@ namespace Vitorm.StreamQuery
 
                                     return combinedStream;
                                 }
-                            case "FirstOrDefault" or "First" or "LastOrDefault" or "Last" when call.arguments.Length == 1:
-                            case "Count":
+                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
+                            case nameof(Queryable.Count):
+                            case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
                             case nameof(Orm_Extensions.ExecuteDelete):
                             case nameof(Orm_Extensions.ToExecuteString):
-                            case "ToList":
+                            case nameof(Enumerable.ToList):
                                 {
                                     if (call.arguments?.Length != 1) break;
 
@@ -425,11 +426,11 @@ namespace Vitorm.StreamQuery
             var fields = arg.DeepClone(node);
             return fields;
         }
-        SelectedFields ReadFieldSelect(Argument arg, ExpressionNode_Lambda resultSelector)
+        ResultSelector ReadResultSelector(Argument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
-            if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)
-                throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {node.nodeType}");
+            //if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)  // could be calculated result like  query.Select(u=>u.id+10)
+            //    throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {node.nodeType}");
 
             bool isDefaultSelect = false;
             var fields = arg.DeepClone(node);
@@ -452,7 +453,7 @@ namespace Vitorm.StreamQuery
                 isDefaultSelect = !(existCalculatedField ?? false);
             }
 
-            return new() { fields = fields, isDefaultSelect = isDefaultSelect };
+            return new() { fields = fields, isDefaultSelect = isDefaultSelect, resultSelector = resultSelector };
         }
 
         ExpressionNode ReadSortField(ExpressionNode_Lambda resultSelector, CombinedStream stream)
@@ -462,7 +463,7 @@ namespace Vitorm.StreamQuery
             {
                 var groupByFields = stream.groupByFields;
                 var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                parameterValue = ExpressionNode.New(constructorArgs: new() { memberBind });
+                parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
             }
             else
             {

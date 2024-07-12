@@ -11,8 +11,8 @@ namespace App
             dbContext.UseSqlite("data source=sqlite.db");
 
             // #2 Create Table
-            dbContext.Drop<User>();
-            dbContext.Create<User>();
+            dbContext.TryDropTable<User>();
+            dbContext.TryCreateTable<User>();
 
             // #3 Insert Records
             dbContext.Add(new User { id = 1, name = "lith" });

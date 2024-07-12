@@ -16,8 +16,8 @@
 
         <PackageReference Include="Vit.Core" Version="2.2.0" />
 
-        <PackageReference Include="Vitorm.ClickHouse" Version="1.2.0-preview" />
-        <PackageReference Include="Vitorm.ElasticSearch"  Version="1.2.0-preview"/>
+        <PackageReference Include="Vitorm.ClickHouse" Version="2.0.0-preview" />
+        <PackageReference Include="Vitorm.ElasticSearch"  Version="2.0.0-preview"/>
     </ItemGroup>
 
     <ItemGroup>

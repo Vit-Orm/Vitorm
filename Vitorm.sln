@@ -5,7 +5,10 @@ VisualStudioVersion = 17.0.31606.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{75C25D0B-8529-4E3F-AF43-6EC1E9E40828}"
 	ProjectSection(SolutionItems) = preProject
+		doc\Count.md = doc\Count.md
 		README.md = README.md
+		doc\ReleaseLog.md = doc\ReleaseLog.md
+		doc\TODO.md = doc\TODO.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7904FE51-04FF-4477-8E3A-CC340389EE32}"

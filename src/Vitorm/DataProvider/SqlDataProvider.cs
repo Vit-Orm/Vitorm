@@ -29,8 +29,8 @@ namespace Vitorm.DataProvider
 
 
         // #0 Schema :  Create
-        public virtual void Create<Entity>() => InvokeInDb(db => db.Create<Entity>());
-        public virtual void Drop<Entity>() => InvokeInDb(db => db.Drop<Entity>());
+        public virtual void TryCreateTable<Entity>() => InvokeInDb(db => db.TryCreateTable<Entity>());
+        public virtual void TryDropTable<Entity>() => InvokeInDb(db => db.TryDropTable<Entity>());
 
 
         // #1 Create :  Add AddRange

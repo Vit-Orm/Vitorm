@@ -32,6 +32,26 @@ This means you get the best of both worlds: the performance and simplicity of Da
 # Vitorm Documentation
 This guide will walk you through the steps to set up and use Vitorm with SQLite.
 
+supported features:
+
+| feature    |  method   |  remarks   |     |
+| --- | --- | --- | --- |
+|  create table   |  Create   |     |     |
+|  drop table   |  Drop   |     |     |
+| --- | --- | --- | --- |
+|  create records   |  Add AddRange   |     |     |
+|  retrieve  records |  Query Get   |     |     |
+|  update records   |  Update UpdateRange ExecuteUpdate  |     |     |
+|  delete records   |  Delete DeleteRange DeleteByKey DeleteByKeys ExecuteDelete   |     |     |
+| --- | --- | --- | --- |
+|  change table   |  ChangeTable    |  change mapping table from database   |   |
+|  change database  |  ChangeDatabase   | change database to be connected  |   |
+| --- | --- | --- | --- |
+|  collection total count   |  TotalCount    |  Collection Total Count without Take and Skip   |   |
+|  collection total count and list  |  ToListAndTotalCount   | query List and TotalCount at on request  |   |
+|     |     |   |   |
+
+
 ## Installation
 Before using Vitorm, install the necessary package:
 

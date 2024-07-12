@@ -53,7 +53,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                     string sqlRowNumber;
                     if (stream.orders?.Any() == true)
                     {
-                        var sqlColumns = ((EntityReader)arg.dataReader).sqlColumns;
+                        var sqlColumns = ((DataReader)arg.dataReader).sqlColumns;
                         var orderBy = ReadOrderBy(arg, stream);
                         sqlRowNumber = $" ROW_NUMBER() OVER(ORDER BY {orderBy}) AS [__RowNumber__]";
 
@@ -101,11 +101,11 @@ WHERE ([t].[__RowNumber__] > 1) AND ([t].[__RowNumber__] <= 13);
             }
             else
             {
-                return BuildQueryWithoutSkip(arg,stream);
+                return BuildQueryWithoutSkip(arg, stream);
             }
         }
 
-        public virtual string BuildQueryWithSkip(QueryTranslateArgument arg, CombinedStream stream) 
+        public virtual string BuildQueryWithSkip(QueryTranslateArgument arg, CombinedStream stream)
         {
             // ROW_NUMBER() OVER(ORDER BY [m].[fatherId], [m].[motherId] DESC) AS [__RowNumber__]
 
@@ -176,7 +176,7 @@ SELECT *
 FROM (
     {sql}
 ) AS [t]
-WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take > 0 ? "AND [t].[__RowNumber__] <= " + (stream.take + stream.skip) : "")} ;
+WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take.HasValue ? "AND [t].[__RowNumber__] <= " + (stream.take + stream.skip) : "")} ;
 ";
             #endregion
         }
@@ -190,7 +190,7 @@ WHERE [t].[__RowNumber__] > {stream.skip} {(stream.take > 0 ? "AND [t].[__RowNum
             string sql = "select ";
 
             // #0  select
-            if (stream.take != null) sql += "top " + stream.take + " ";
+            if (stream.take.HasValue) sql += "top " + stream.take + " ";
             sql += ReadSelect(arg, stream, prefix: null);
 
 

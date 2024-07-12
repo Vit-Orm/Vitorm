@@ -15,7 +15,7 @@ namespace Vitorm.MsTest.ExpressionTreeTest
             using var dbContext = DataSource.CreateDbContextForWriting();
             var dbSet = dbContext.DbSet<ExpressionTester.User>();
 
-            dbSet.Create();
+            dbSet.TryCreateTable();
             dbSet.AddRange(initUsers);
 
             var query = dbSet.Query();

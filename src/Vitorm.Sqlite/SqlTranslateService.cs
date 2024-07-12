@@ -110,7 +110,21 @@ namespace Vitorm.Sqlite
                         // ##1 String Add
                         if (data.valueType?.ToType() == typeof(string))
                         {
-                            return $"{EvalExpression(arg, binary.left)} || {EvalExpression(arg, binary.right)}";
+                            // select ifNull( cast( (userFatherId) as text ) , '' )  from `User`
+
+                            return $"{BuildSqlSentence(binary.left)} || {BuildSqlSentence(binary.right)}";
+
+                            string BuildSqlSentence(ExpressionNode node)
+                            {
+                                if (node.nodeType == NodeType.Constant)
+                                {
+                                    ExpressionNode_Constant constant = node;
+                                    if (constant.value == null) return "''";
+                                    else return $"cast( ({EvalExpression(arg, node)}) as text )";
+                                }
+                                else
+                                    return $"ifNull( cast( ({EvalExpression(arg, node)}) as text ) , '')";
+                            }
                         }
 
                         // ##2 Numberic Add
@@ -123,7 +137,7 @@ namespace Vitorm.Sqlite
                     }
                 case nameof(ExpressionType.Conditional):
                     {
-                        // IIF(`t0`.`fatherId` is not null,true, false)
+                        // IIF(`t0`.`fatherId` is not null, true, false)
                         ExpressionNode_Conditional conditional = data;
                         return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }
@@ -138,7 +152,7 @@ namespace Vitorm.Sqlite
 
 
         #region PrepareCreate
-        public override string PrepareCreate(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryCreateTable(IEntityDescriptor entityDescriptor)
         {
             /* //sql
 CREATE TABLE user (
@@ -189,7 +203,7 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
         }
         #endregion
 
-        public override string PrepareDrop(IEntityDescriptor entityDescriptor)
+        public override string PrepareTryDropTable(IEntityDescriptor entityDescriptor)
         {
             // DROP TABLE if exists "User";
             return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";

@@ -4,7 +4,6 @@ using System.Linq;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 
-using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql.SqlTranslate
@@ -158,7 +157,7 @@ namespace Vitorm.Sql.SqlTranslate
             }
             throw new NotSupportedException();
         }
-        protected virtual string BuildReader(QueryTranslateArgument arg, CombinedStream stream, EntityReader reader)
+        protected virtual string BuildDataReader(QueryTranslateArgument arg, CombinedStream stream, DataReader.DataReader reader)
         {
             var resultEntityType = arg.resultEntityType;
             ExpressionNode selectedFields = stream.select?.fields;
@@ -181,16 +180,10 @@ namespace Vitorm.Sql.SqlTranslate
             //if (resultEntityType == null)
             //    throw new NotSupportedException("resultEntityType could not be null");
 
-            if (stream.method == "Count")
-            {
-                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-                arg.dataReader ??= reader;
-                return (stream.distinct == true ? "distinct " : "") + sqlColumns;
-            }
 
             {
-                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, selectedFields);
-                arg.dataReader ??= reader;
+                var sqlColumns = reader.BuildSelect(arg, resultEntityType, sqlTranslator, arg.dbContext.convertService, stream.select, selectedFields);
+                arg.dataReader = reader;
                 return (stream.distinct == true ? "distinct " : "") + sqlColumns;
             }
         }

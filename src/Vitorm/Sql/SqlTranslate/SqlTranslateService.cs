@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Vit.Linq.ExpressionTree.ComponentModel;
 
@@ -93,6 +94,18 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         #region EvalExpression
+
+        /// <summary>
+        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="data"></param>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
+        public virtual string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null)
+        {
+            return EvalExpression(arg, data);
+        }
 
         /// <summary>
         /// read where or value or on
@@ -233,7 +246,51 @@ namespace Vitorm.Sql.SqlTranslate
 
                                     return $"{funcName}({EvalExpression(arg, body)})";
                                 }
-                                #endregion
+                            #endregion
+
+
+                            // ##4 String.Format(format: "{0}_{1}_{2}", "0", "1", "2")
+                            case nameof(String.Format):
+                                {
+                                    // convert to ExpressionNode.Add
+
+                                    // "{0}_{1}_{2}"
+                                    var format = methodCall.arguments[0].value as string;
+                                    var args = methodCall.arguments.AsQueryable().Skip(1).ToArray();
+
+                                    var nodeParts = SplitToNodeParts(format, args);
+
+                                    ExpressionNode nodeForAdd = null;
+                                    foreach (var node in nodeParts)
+                                    {
+                                        if (nodeForAdd == null) nodeForAdd = node;
+                                        else nodeForAdd = ExpressionNode.Add(left: nodeForAdd, right: node, typeof(string));
+                                    }
+
+                                    return $"({EvalExpression(arg, nodeForAdd)})";
+
+
+                                    static IEnumerable<ExpressionNode> SplitToNodeParts(string format, ExpressionNode[] args)
+                                    {
+                                        string pattern = @"(\{\d+\})|([^{}]+)";
+                                        var matches = Regex.Matches(format, pattern);
+
+                                        foreach (Match match in matches)
+                                        {
+                                            var str = match.Value;
+                                            if (str.StartsWith("{") && str.EndsWith("}"))
+                                            {
+                                                var argIndex = int.Parse(str.Substring(1, str.Length - 2));
+                                                yield return args[argIndex];
+                                            }
+                                            else
+                                            {
+                                                yield return ExpressionNode.Constant(str, typeof(string));
+                                            }
+                                        }
+                                    }
+                                }
+
                         }
                         throw new NotSupportedException("[QueryTranslator] not suported MethodCall: " + methodCall.methodName);
                     }
@@ -258,17 +315,15 @@ namespace Vitorm.Sql.SqlTranslate
                             foreach (var item in enumerable)
                             {
                                 if (item == null) continue;
+
+                                var paramName = arg.AddParamAndGetName(value: item);
                                 if (sql == null)
                                 {
                                     sql = new StringBuilder("(");
-                                    var paramName = arg.NewParamName();
-                                    arg.sqlParam[paramName] = item;
                                     sql.Append(GenerateParameterName(paramName));
                                 }
                                 else
                                 {
-                                    var paramName = arg.NewParamName();
-                                    arg.sqlParam[paramName] = item;
                                     sql.Append(",").Append(GenerateParameterName(paramName));
                                 }
                             }
@@ -277,8 +332,7 @@ namespace Vitorm.Sql.SqlTranslate
                         }
                         else
                         {
-                            var paramName = arg.NewParamName();
-                            arg.sqlParam[paramName] = value;
+                            var paramName = arg.AddParamAndGetName(value: value);
                             return GenerateParameterName(paramName);
                         }
 
@@ -307,9 +361,9 @@ namespace Vitorm.Sql.SqlTranslate
         #endregion
 
 
-        // #0 Schema :  PrepareCreate PrepareDrop
-        public abstract string PrepareCreate(IEntityDescriptor entityDescriptor);
-        public abstract string PrepareDrop(IEntityDescriptor entityDescriptor);
+        // #0 Schema :  PrepareTryCreateTable PrepareTryDropTable
+        public abstract string PrepareTryCreateTable(IEntityDescriptor entityDescriptor);
+        public abstract string PrepareTryDropTable(IEntityDescriptor entityDescriptor);
 
 
         #region #1 Create :  PrepareAdd
@@ -384,16 +438,14 @@ namespace Vitorm.Sql.SqlTranslate
         }
 
         protected abstract BaseQueryTranslateService queryTranslateService { get; }
-        public virtual (string sql, Dictionary<string, object> sqlParam, IDbDataReader dataReader) PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        public virtual string PrepareQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
         {
-            string sql = queryTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam, arg.dataReader);
+            return queryTranslateService.BuildQuery(arg, combinedStream);
         }
 
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
+        public virtual string PrepareCountQuery(QueryTranslateArgument arg, CombinedStream combinedStream)
         {
-            string sql = queryTranslateService.BuildCountQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
+            return queryTranslateService.BuildCountQuery(arg, combinedStream);
         }
 
         #endregion
@@ -442,10 +494,9 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         protected abstract BaseQueryTranslateService executeUpdateTranslateService { get; }
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
+        public virtual string PrepareExecuteUpdate(QueryTranslateArgument arg, CombinedStream combinedStream)
         {
-            string sql = executeUpdateTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
+            return executeUpdateTranslateService.BuildQuery(arg, combinedStream);
         }
 
         #endregion
@@ -466,7 +517,7 @@ namespace Vitorm.Sql.SqlTranslate
             return sql;
         }
 
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys)
+        public virtual string PrepareDeleteByKeys<Key>(SqlTranslateArgument arg, IEnumerable<Key> keys)
         {
             //  delete from user where id in ( 7 ) ;
 
@@ -477,28 +528,27 @@ namespace Vitorm.Sql.SqlTranslate
 
             sql.Append("delete from ").Append(DelimitTableName(entityDescriptor)).Append(" where ").Append(DelimitIdentifier(entityDescriptor.keyName)).Append(" in (");
 
-            int keyIndex = 0;
-            foreach (var key in keys)
+            if (keys.Any())
             {
-                var paramName = "p" + (keyIndex++);
-                sql.Append(GenerateParameterName(paramName)).Append(",");
-                sqlParam[paramName] = key;
-            }
-            if (keyIndex == 0) sql.Append("null);");
-            else
-            {
+                foreach (var key in keys)
+                {
+                    sql.Append(GenerateParameterName(arg.AddParamAndGetName(value: key))).Append(",");
+                }
                 sql.Length--;
                 sql.Append(");");
             }
-            return (sql.ToString(), sqlParam);
+            else
+            {
+                sql.Append("null);");
+            }
+            return sql.ToString();
         }
 
 
         protected abstract BaseQueryTranslateService executeDeleteTranslateService { get; }
-        public virtual (string sql, Dictionary<string, object> sqlParam) PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
+        public virtual string PrepareExecuteDelete(QueryTranslateArgument arg, CombinedStream combinedStream)
         {
-            string sql = executeDeleteTranslateService.BuildQuery(arg, combinedStream);
-            return (sql, arg.sqlParam);
+            return executeDeleteTranslateService.BuildQuery(arg, combinedStream);
         }
         #endregion
 

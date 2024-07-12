@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+
+using Vit.Linq;
 
 using Vitorm.Sql.DataReader;
 using Vitorm.StreamQuery;
@@ -27,20 +30,21 @@ namespace Vitorm.Sql.SqlTranslate
         public override string BuildCountQuery(QueryTranslateArgument arg, CombinedStream stream)
         {
             // select count(*) from (select distinct fatherid,motherId from "User" u) u;
-            return $"select count(*) from ({BuildQuery(arg, stream)}) u;";
+            return $"select count(*) from ({BuildQuery(arg, stream)}) u";
         }
 
         protected override string ReadSelect(QueryTranslateArgument arg, CombinedStream stream, string prefix = "select")
         {
             switch (stream.method)
             {
-                case "Count":
-                case "" or null or "ToList" or nameof(Orm_Extensions.ToExecuteString):
+                case nameof(Queryable.Count):
+                case "" or null or nameof(Enumerable.ToList) or nameof(Orm_Extensions.ToExecuteString):
+                case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
                     {
-                        var reader = new EntityReader();
-                        return prefix + " " + BuildReader(arg, stream, reader);
+                        var reader = new DataReader.DataReader();
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
                     }
-                case "FirstOrDefault" or "First" or "LastOrDefault" or "Last":
+                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last):
                     {
                         stream.take = 1;
                         stream.skip = null;
@@ -49,8 +53,8 @@ namespace Vitorm.Sql.SqlTranslate
                             ReverseOrder(arg, stream);
 
                         var nullable = stream.method.Contains("OrDefault");
-                        var reader = new FirstEntityReader { nullable = nullable };
-                        return prefix + " " + BuildReader(arg, stream, reader);
+                        var reader = new DataReader_FirstRow { nullable = nullable };
+                        return prefix + " " + BuildDataReader(arg, stream, reader);
                     }
             }
             throw new NotSupportedException("not supported method: " + stream.method);

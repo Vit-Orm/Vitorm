@@ -15,7 +15,7 @@ namespace Vitorm.MsTest.CustomTest
             var userQuery = dbContext.Query<User>();
 
 
-            // select * from `User` as t0  where IIF(`t0`.`fatherId` is not null,true, false)
+            // select * from `User` as t0  where IIF(`t0`.`fatherId` is not null, true, false )
             {
                 var query = userQuery.Where(u => DbFunction.Call<bool>("IIF", u.fatherId != null, true, false));
                 var sql = query.ToExecuteString();

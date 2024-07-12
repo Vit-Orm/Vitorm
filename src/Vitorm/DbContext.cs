@@ -38,9 +38,38 @@ namespace Vitorm
         public static DefaultEntityLoader defaultEntityLoader = new();
 
         public IEntityLoader entityLoader = defaultEntityLoader;
-        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType) => entityLoader.LoadDescriptor(entityType);
+        public virtual IEntityDescriptor GetEntityDescriptor(Type entityType, bool tryFromCache = true)
+        {
+            if (tryFromCache && dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;
+            return entityLoader.LoadDescriptor(entityType);
+        }
+        public virtual IEntityDescriptor GetEntityDescriptor<Entity>(bool tryFromCache = true)
+            => GetEntityDescriptor(typeof(Entity), tryFromCache);
         #endregion
 
+
+        #region ChangeTable ChangeTableBack
+
+        public virtual IDbSet ChangeTable(Type entityType, string tableName)
+        {
+            var dbSet = DbSet(entityType);
+            dbSet?.ChangeTable(tableName);
+            return dbSet;
+        }
+        public virtual DbSet<Entity> ChangeTable<Entity>(string tableName)
+            => ChangeTable(typeof(Entity), tableName) as DbSet<Entity>;
+
+
+        public virtual IDbSet ChangeTableBack(Type entityType)
+        {
+            var dbSet = DbSet(entityType);
+            dbSet?.ChangeTableBack();
+            return dbSet;
+        }
+        public virtual DbSet<Entity> ChangeTableBack<Entity>()
+            => ChangeTableBack(typeof(Entity)) as DbSet<Entity>;
+
+        #endregion
 
 
 
@@ -77,8 +106,8 @@ namespace Vitorm
 
 
         // #0 Schema :  Create Drop
-        public virtual void Create<Entity>() => throw new NotImplementedException();
-        public virtual void Drop<Entity>() => throw new NotImplementedException();
+        public virtual void TryCreateTable<Entity>() => throw new NotImplementedException();
+        public virtual void TryDropTable<Entity>() => throw new NotImplementedException();
 
 
         // #1 Create :  Add AddRange

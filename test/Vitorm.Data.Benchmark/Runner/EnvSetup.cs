@@ -6,8 +6,8 @@ namespace App.Runner
     {
         public static void InitDb()
         {
-            Data.Drop<User>();
-            Data.Create<User>();
+            Data.TryDropTable<User>();
+            Data.TryCreateTable<User>();
 
             var users = new List<User> {
                     new User { id=1, name="u146", fatherId=4, motherId=6 },

@@ -33,7 +33,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-        <PackageReference Include="Vit.Linq" Version="2.2.24-preview" />
+        <PackageReference Include="Vit.Linq" Version="2.2.25-preview" />
     </ItemGroup>
 
 

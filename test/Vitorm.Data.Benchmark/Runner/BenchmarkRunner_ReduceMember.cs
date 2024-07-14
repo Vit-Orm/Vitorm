@@ -53,7 +53,7 @@ namespace App.Runner
         [GlobalSetup]
         public void Setup()
         {
-            DataConvertArgument.CalculateToConstant_ManuallyReduceMember = reduceMember;
+            ToDataArgument.CalculateToConstant_ManuallyReduceMember = reduceMember;
 
             if (entityReader == "CompiledLambda")
                 SqlDbContext.defaultEntityReaderType = typeof(global::Vitorm.Sql.DataReader.EntityReader.CompiledLambda.EntityReader);

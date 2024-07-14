@@ -1,88 +1,84 @@
-﻿using Vitorm;
+﻿using App.OrmRunner.VitormRunner;
+
+using Vitorm;
 
 namespace App.OrmRunner
 {
     public partial class Runner_Vitorm : IRunner
     {
-
-        RunConfig config;
-
-        int? skip => config.skip;
-        int take => config.take;
-        bool executeQuery => config.executeQuery;
-
-
-        IQueryable<User> userQuery;
-        public IQueryable<User> GetQueryable() => userQuery;
-
         public void Run(RunConfig config)
         {
-            this.config = config;
-
             for (int i = 0; i < config.repeatCount; i++)
             {
-                userQuery = Data.Query<User>();
-                if (config.queryJoin) QueryJoin();
-                else Query();
+                var userQuery = Data.Query<User>();
+                if (config.queryJoin) QueryExecute.QueryJoin(userQuery, config);
+                else QueryExecute.Query(userQuery, config);
             }
         }
+    }
+}
 
-        #region Executor
-        int exceptUserId = 1;
-        public void QueryJoin()
+
+namespace App.OrmRunner.VitormRunner
+{
+    // Entity Definition
+    [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+    public class User
+    {
+        [System.ComponentModel.DataAnnotations.Key]
+        public int id { get; set; }
+        public string name { get; set; }
+        public DateTime? birth { get; set; }
+        public int? fatherId { get; set; }
+        public int? motherId { get; set; }
+
+    }
+
+
+    public class QueryExecute
+    {
+        public static void QueryJoin(IQueryable<User> userSet, RunConfig config)
         {
-            var userSet = GetQueryable();
-
-            var minId = 1;
-            var config = new { maxId = 10000 };
-            var offsetId = 100;
-
             var query =
                     from user in userSet
                     from father in userSet.Where(father => user.fatherId == father.id).DefaultIfEmpty()
                     from mother in userSet.Where(mother => user.motherId == mother.id).DefaultIfEmpty()
-                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
+                    where user.id > 1 && user.id < 10000
                     orderby user.id
                     select new
                     {
                         user,
                         father,
                         mother,
-                        testId = user.id + offsetId,
+                        testId = user.id + 100,
                         hasFather = father.name != null ? true : false
                     }
                     ;
 
-            Execute(query);
+            Execute(query, config);
         }
 
-        public void Query()
+        public static void Query(IQueryable<User> userSet, RunConfig config)
         {
-            var userSet = GetQueryable();
-
-            var minId = 1;
-            var config = new { maxId = 10000 };
-
             var query =
                     from user in userSet
-                    where user.id > minId && user.id < config.maxId && user.id != exceptUserId
+                    where user.id > 1 && user.id < 10000
                     orderby user.id
                     select user;
 
-            Execute(query);
+            Execute(query, config);
         }
-        #endregion
 
-        public void Execute<Result>(IQueryable<Result> query)
+        public static void Execute<Result>(IQueryable<Result> query, RunConfig config)
         {
-            if (skip > 0) query = query.Skip(skip.Value);
-            query = query.Take(take);
+            if (config.skip > 0) query = query.Skip(config.skip.Value);
+            query = query.Take(config.take);
 
-            if (executeQuery)
+            if (config.executeQuery)
             {
                 var userList = query.ToList();
                 var rowCount = userList.Count();
-                if (rowCount != take) throw new Exception($"query failed, expected row count : {take} , actual count: {rowCount} ");
+                if (rowCount != config.take) throw new Exception($"query failed, expected row count : {config.take} , actual count: {rowCount} ");
             }
             else
             {
@@ -91,18 +87,6 @@ namespace App.OrmRunner
             }
         }
 
-
-        // Entity Definition
-        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
-        public class User
-        {
-            [System.ComponentModel.DataAnnotations.Key]
-            public int id { get; set; }
-            public string name { get; set; }
-            public DateTime? birth { get; set; }
-            public int? fatherId { get; set; }
-            public int? motherId { get; set; }
-        }
-
     }
 }
+

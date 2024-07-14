@@ -143,7 +143,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
             var lambdaNode = ExpressionNode.Lambda(entityArgReaders.Select(m => m.argName).ToArray(), newExp);
             // var strNode = Json.Serialize(lambdaNode);
 
-            var lambdaExp = convertService.ToLambdaExpression(lambdaNode, entityArgReaders.Select(m => m.entityType).ToArray());
+            var lambdaExp = convertService.ConvertToCode_LambdaExpression(lambdaNode, entityArgReaders.Select(m => m.entityType).ToArray());
 
             return lambdaExp.Compile();
         }

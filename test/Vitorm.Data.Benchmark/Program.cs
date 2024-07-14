@@ -9,7 +9,7 @@ namespace App
         static void Main(string[] args)
         {
             // #1 init
-            //App.Runner.EnvSetup.InitDb();
+            App.Runner.EnvSetup.InitDb();
 
 
 

@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm\Vitorm.csproj" />
+        <ProjectReference Include="..\Vitorm\Vitorm.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -4,7 +4,6 @@ Vitorm is a lightweight yet comprehensive ORM that strikes the perfect balance b
 Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.     
 However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.     
 This means you get the best of both worlds: the performance and simplicity of Dapper with the robust features and flexibility of Entity Framework, making Vitorm an ideal choice for developers seeking a powerful yet streamlined ORM solution.
-> written by ChatGPT :  "Help me write a description for Vitorm. It is a lightweight ORM, similar to Dapper, but it is feature-rich, akin to EF. Please emphasize its lightweight nature and comprehensive functionality."    
 > source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.Data")        
 
 ![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
@@ -46,6 +45,7 @@ dotnet add package Vitorm.Sqlite
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
+> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -74,11 +74,8 @@ namespace App
 
 ```
 
-
-## Using Vitorm.Data
-
-``` csharp
-
+## Full Example    
+> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 

@@ -39,7 +39,7 @@ namespace Vitorm.MsTest
 
         public override User NewUser(int id, bool forAdd = false) => new User { id = id, name = "testUser" + id };
 
-        public override void WaitForUpdate() => Thread.Sleep(1000);
+        public override void WaitForUpdate() => Thread.Sleep(2000);
 
         public void Init()
         {

@@ -28,6 +28,58 @@ This means you get the best of both worlds: the performance and simplicity of Da
 
 
 
+# Comparison of performance with other ORMs
+> Through benchmarks, there may be slight variations depending on the database source, for reference only.
+
+## SqlServer 
+| Method | queryJoin | take | runner                 | Mean         | Error     | StdDev    |
+|------- |---------- |----- |----------------------- |-------------:|----------:|----------:|
+| Run    | False     | 1    | Runner_EntityFramework |     5.380 ms | 0.0449 ms | 0.0398 ms |
+| Run    | False     | 1    | Runner_SqlSuger        |     4.929 ms | 0.0588 ms | 0.0550 ms |
+| Run    | False     | 1    | Runner_Vitorm          |     4.925 ms | 0.0506 ms | 0.0474 ms |
+| Run    | False     | 1000 | Runner_EntityFramework |     6.009 ms | 0.0963 ms | 0.0853 ms |
+| Run    | False     | 1000 | Runner_SqlSuger        |     5.616 ms | 0.1114 ms | 0.1488 ms |
+| Run    | False     | 1000 | Runner_Vitorm          |     5.539 ms | 0.1060 ms | 0.1262 ms |
+| Run    | True      | 1    | Runner_EntityFramework |     5.453 ms | 0.0571 ms | 0.0534 ms |
+| Run    | True      | 1    | Runner_SqlSuger        |     5.601 ms | 0.0477 ms | 0.0423 ms |
+| Run    | True      | 1    | Runner_Vitorm          |     5.337 ms | 0.0596 ms | 0.0528 ms |
+| Run    | True      | 1000 | Runner_EntityFramework | 1,706.222 ms | 4.4435 ms | 3.9391 ms |
+| Run    | True      | 1000 | Runner_SqlSuger        |   125.150 ms | 2.3678 ms | 2.3255 ms |
+| Run    | True      | 1000 | Runner_Vitorm          |    21.027 ms | 0.3564 ms | 0.3334 ms |
+
+## MySql 
+| Method | queryJoin | take | runner                 | Mean         | Error       | StdDev      |
+|------- |---------- |----- |----------------------- |-------------:|------------:|------------:|
+| Run    | False     | 1    | Runner_EntityFramework |   1,231.1 μs |    47.43 μs |   139.84 μs |
+| Run    | False     | 1    | Runner_SqlSuger        |     873.7 μs |    22.33 μs |    65.49 μs |
+| Run    | False     | 1    | Runner_Vitorm          |     636.7 μs |    21.15 μs |    62.37 μs |
+| Run    | False     | 1000 | Runner_EntityFramework |   4,764.8 μs |    56.52 μs |    52.87 μs |
+| Run    | False     | 1000 | Runner_SqlSuger        |   1,906.4 μs |    33.21 μs |    42.00 μs |
+| Run    | False     | 1000 | Runner_Vitorm          |   2,159.5 μs |    43.16 μs |    56.12 μs |
+| Run    | True      | 1    | Runner_EntityFramework |   1,775.0 μs |    35.01 μs |    80.45 μs |
+| Run    | True      | 1    | Runner_SqlSuger        |   1,747.5 μs |    34.05 μs |    44.27 μs |
+| Run    | True      | 1    | Runner_Vitorm          |   1,292.5 μs |    25.72 μs |    41.54 μs |
+| Run    | True      | 1000 | Runner_EntityFramework |   6,784.4 μs |   102.05 μs |    95.45 μs |
+| Run    | True      | 1000 | Runner_SqlSuger        | 113,634.4 μs | 1,128.58 μs | 1,055.67 μs |
+| Run    | True      | 1000 | Runner_Vitorm          |   3,175.2 μs |    62.02 μs |    88.95 μs |
+
+## Sqlite
+| Method | queryJoin | take | runner                 | Mean          | Error      | StdDev     |
+|------- |---------- |----- |----------------------- |--------------:|-----------:|-----------:|
+| Run    | False     | 1    | Runner_EntityFramework |     115.32 μs |   0.831 μs |   0.778 μs |
+| Run    | False     | 1    | Runner_SqlSuger        |      81.66 μs |   0.747 μs |   0.699 μs |
+| Run    | False     | 1    | Runner_Vitorm          |      45.64 μs |   0.350 μs |   0.328 μs |
+| Run    | False     | 1000 | Runner_EntityFramework |   1,386.81 μs |  13.684 μs |  12.800 μs |
+| Run    | False     | 1000 | Runner_SqlSuger        |     674.82 μs |   4.938 μs |   4.619 μs |
+| Run    | False     | 1000 | Runner_Vitorm          |     769.88 μs |   6.020 μs |   5.631 μs |
+| Run    | True      | 1    | Runner_EntityFramework |     220.27 μs |   1.916 μs |   1.793 μs |
+| Run    | True      | 1    | Runner_SqlSuger        |     484.52 μs |   6.746 μs |   5.980 μs |
+| Run    | True      | 1    | Runner_Vitorm          |     167.89 μs |   1.352 μs |   1.264 μs |
+| Run    | True      | 1000 | Runner_EntityFramework |   1,962.25 μs |  10.031 μs |   8.377 μs |
+| Run    | True      | 1000 | Runner_SqlSuger        | 103,179.50 μs | 534.265 μs | 446.135 μs |
+| Run    | True      | 1000 | Runner_Vitorm          |   1,684.39 μs |  21.895 μs |  18.283 μs |
+
+
 
 # Vitorm Documentation
 This guide will walk you through the steps to set up and use Vitorm with SQLite.
@@ -36,8 +88,8 @@ supported features:
 
 | feature    |  method   |  remarks   |     |
 | --- | --- | --- | --- |
-|  create table   |  Create   |     |     |
-|  drop table   |  Drop   |     |     |
+|  create table   |  TryCreateTable   |     |     |
+|  drop table   |  TryDropTable   |     |     |
 | --- | --- | --- | --- |
 |  create records   |  Add AddRange   |     |     |
 |  retrieve  records |  Query Get   |     |     |
@@ -53,32 +105,62 @@ supported features:
 
 
 ## Installation
-Before using Vitorm, install the necessary package:
-
+Before using Vitorm, install the necessary package:    
 ``` bash
 dotnet add package Vitorm.Sqlite
 ```
 
-## Using Vitorm
-> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
-
+## Minimum viable demo
 ``` csharp
-using Vit.Extensions.Vitorm_Extensions;
+using Vitorm;
+namespace App
+{
+    public class Program_Min
+    {
+        static void Main2(string[] args)
+        {
+            // #1 Init
+            using var dbContext = new Vitorm.Sql.SqlDbContext();
+            dbContext.UseSqlite("data source=sqlite.db");
+
+            // #2 Query
+            var user = dbContext.Get<User>(1);
+            var users = dbContext.Query<User>().Where(u => u.name.Contains("li")).ToList();
+        }
+
+        // Entity Definition
+        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+        public class User
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime? birth { get; set; }
+            public int? fatherId { get; set; }
+        }
+    }
+}
+```
+
+
+## Full Example
+> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
+``` csharp
 using Vitorm;
 
 namespace App
 {
-    public class Program
+    public class Program_Min
     {
         static void Main(string[] args)
         {
-            // #1 Configure Vitorm
+            // #1 Configures Vitorm
             using var dbContext = new Vitorm.Sql.SqlDbContext();
             dbContext.UseSqlite("data source=sqlite.db");
 
             // #2 Create Table
-            dbContext.Drop<User>();
-            dbContext.Create<User>();
+            dbContext.TryDropTable<User>();
+            dbContext.TryCreateTable<User>();
 
             // #3 Insert Records
             dbContext.Add(new User { id = 1, name = "lith" });
@@ -176,9 +258,8 @@ namespace App
 }
 ```
 
-## Explanation
-
-1. **Setup**: Initializes the SQLite database and configures Vitorm.
+## Explanation   
+1. **Setup**: Initializes the database and configures Vitorm.
 2. **Create Table**: Drops and recreates the `User` table.
 3. **Insert Records**: Adds single and multiple user records.
 4. **Query Records**: Retrieves user records using various querying methods.
@@ -190,12 +271,11 @@ namespace App
 
 
 
-# Vitorm.Data Documentation
-Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.
+# Vitorm.Data Documentation    
+Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.    
  
-## Installation
-
-Before using Vitorm.Data, install the necessary package:
+## Installation    
+Before using Vitorm.Data, install the necessary package:    
 ``` bash
 dotnet add package Vitorm.Data
 dotnet add package Vitorm.Sqlite
@@ -217,11 +297,38 @@ dotnet add package Vitorm.Sqlite
 }
 ```
 
-
-## Using Vitorm.Data
-
+## Minimum viable demo
+> After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
 ``` csharp
-using Vit.Extensions.Vitorm_Extensions;
+using Vitorm;
+namespace App
+{
+    public class Program_Min
+    {
+        static void Main2(string[] args)
+        {
+            //  Query Records
+            var user = Data.Get<User>(1);
+            var users = Data.Query<User>().Where(u => u.name.Contains("li")).ToList();
+        }
+
+        // Entity Definition
+        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+        public class User
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime? birth { get; set; }
+            public int? fatherId { get; set; }
+        }
+    }
+}
+
+```
+
+## Full Example    
+``` csharp
 using Vitorm;
 
 namespace App
@@ -233,8 +340,8 @@ namespace App
             // #1 No need to init Vitorm.Data
 
             // #2 Create Table
-            Data.Drop<User>();
-            Data.Create<User>();
+            Data.TryDropTable<User>();
+            Data.TryCreateTable<User>();
 
             // #3 Insert Records
             Data.Add(new User { id = 1, name = "lith" });

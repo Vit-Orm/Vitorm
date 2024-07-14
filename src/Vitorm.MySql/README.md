@@ -20,32 +20,83 @@ This means you get the best of both worlds: the performance and simplicity of Da
 # Vitorm.MySql Documentation
 This guide will walk you through the steps to set up and use Vitorm.MySql.
 
-## Installation
-Before using Vitorm.MySql, install the necessary package:
+supported features:
 
+| feature    |  method   |  remarks   |     |
+| --- | --- | --- | --- |
+|  create table   |  TryCreateTable   |     |     |
+|  drop table   |  TryDropTable   |     |     |
+| --- | --- | --- | --- |
+|  create records   |  Add AddRange   |     |     |
+|  retrieve  records |  Query Get   |     |     |
+|  update records   |  Update UpdateRange ExecuteUpdate  |     |     |
+|  delete records   |  Delete DeleteRange DeleteByKey DeleteByKeys ExecuteDelete   |     |     |
+| --- | --- | --- | --- |
+|  change table   |  ChangeTable    |  change mapping table from database   |   |
+|  change database  |  ChangeDatabase   | change database to be connected  |   |
+| --- | --- | --- | --- |
+|  collection total count   |  TotalCount    |  Collection Total Count without Take and Skip   |   |
+|  collection total count and list  |  ToListAndTotalCount   | query List and TotalCount at on request  |   |
+|     |     |   |   |
+
+
+## Installation
+Before using Vitorm, install the necessary package:    
 ``` bash
 dotnet add package Vitorm.MySql
 ```
 
-## Using Vitorm.MySql
-> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
+## Minimum viable demo
+``` csharp
+using Vitorm;
+namespace App
+{
+    public class Program_Min
+    {
+        static void Main2(string[] args)
+        {
+            // #1 Init
+            using var dbContext = new Vitorm.Sql.SqlDbContext();
+            dbContext.UseMySql("Data Source=localhost;Port=3306;Database=dev-orm;SslMode=none;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;");
 
+            // #2 Query
+            var user = dbContext.Get<User>(1);
+            var users = dbContext.Query<User>().Where(u => u.name.Contains("li")).ToList();
+        }
+
+        // Entity Definition
+        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+        public class User
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime? birth { get; set; }
+            public int? fatherId { get; set; }
+        }
+    }
+}
+```
+
+
+## Full Example
+> This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
 ``` csharp
 using Vitorm;
 
 namespace App
 {
-    public class Program
+    public class Program_Min
     {
         static void Main(string[] args)
         {
-            // #1 Create an empty SQLite database file and configures Vitorm
+            // #1 Configures Vitorm
             using var dbContext = new Vitorm.Sql.SqlDbContext();
             dbContext.UseMySql("Data Source=localhost;Port=3306;Database=dev-orm;SslMode=none;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;");
 
             // #2 Create Table
-            dbContext.Drop<User>();
-            dbContext.Create<User>();
+            dbContext.TryDropTable<User>();
+            dbContext.TryCreateTable<User>();
 
             // #3 Insert Records
             dbContext.Add(new User { id = 1, name = "lith" });
@@ -119,14 +170,6 @@ namespace App
 
                 tran1.Commit();
             }
-
-            // #9 Database Functions
-            {
-                // select * from User where IIF(t0.fatherId is not null, true, false);
-                var query = dbContext.Query<User>().Where(u => DbFunction.Call<bool>("IIF", u.fatherId != null, true, false));
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
-            }
         }
 
         // Entity Definition
@@ -143,9 +186,8 @@ namespace App
 }
 ```
 
-## Explanation
-
-1. **Setup**: Initializes the SQLite database and configures Vitorm.
+## Explanation   
+1. **Setup**: Initializes the database and configures Vitorm.
 2. **Create Table**: Drops and recreates the `User` table.
 3. **Insert Records**: Adds single and multiple user records.
 4. **Query Records**: Retrieves user records using various querying methods.
@@ -157,12 +199,11 @@ namespace App
 
 
 
-# Vitorm.Data Documentation
-Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.
+# Vitorm.Data Documentation    
+Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.    
  
-## Installation
-
-Before using Vitorm.Data, install the necessary package:
+## Installation    
+Before using Vitorm.Data, install the necessary package:    
 ``` bash
 dotnet add package Vitorm.Data
 dotnet add package Vitorm.MySql
@@ -184,9 +225,37 @@ dotnet add package Vitorm.MySql
 }
 ```
 
+## Minimum viable demo
+> After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
+``` csharp
+using Vitorm;
+namespace App
+{
+    public class Program_Min
+    {
+        static void Main2(string[] args)
+        {
+            //  Query Records
+            var user = Data.Get<User>(1);
+            var users = Data.Query<User>().Where(u => u.name.Contains("li")).ToList();
+        }
 
-## Using Vitorm.Data
+        // Entity Definition
+        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+        public class User
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime? birth { get; set; }
+            public int? fatherId { get; set; }
+        }
+    }
+}
 
+```
+
+## Full Example    
 ``` csharp
 using Vitorm;
 
@@ -196,11 +265,11 @@ namespace App
     {
         static void Main(string[] args)
         {
-            // #1
+            // #1 No need to init Vitorm.Data
 
             // #2 Create Table
-            Data.Drop<User>();
-            Data.Create<User>();
+            Data.TryDropTable<User>();
+            Data.TryCreateTable<User>();
 
             // #3 Insert Records
             Data.Add(new User { id = 1, name = "lith" });
@@ -275,14 +344,6 @@ namespace App
                 }
 
                 tran1.Commit();
-            }
-
-            // #9 Database Functions
-            {
-                // select * from User where IIF(t0.fatherId is not null, true, false);
-                var query = Data.Query<User>().Where(u => DbFunction.Call<bool>("IIF", u.fatherId != null, true, false));
-                var sql = query.ToExecuteString();
-                var userList = query.ToList();
             }
         }
 

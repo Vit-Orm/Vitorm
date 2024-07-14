@@ -18,11 +18,10 @@ This means you get the best of both worlds: the performance and simplicity of Da
 
 
 
-# Vitorm.Data Documentation
-Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.
+# Vitorm.Data Documentation    
+Vitorm.Data is a static class that allows you to use Vitorm without explicitly creating or disposing of a DbContext.    
  
-## Installation
-
+## Installation    
 Before using Vitorm.Data, install the necessary package:
 ``` bash
 dotnet add package Vitorm.Data
@@ -45,11 +44,42 @@ dotnet add package Vitorm.Sqlite
 }
 ```
 
+## Minimum viable demo
+> After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
+``` csharp
+using Vitorm;
+namespace App
+{
+    public class Program_Min
+    {
+        static void Main2(string[] args)
+        {
+            //  Query Records
+            var user = Data.Get<User>(1);
+            var users = Data.Query<User>().Where(u => u.name.Contains("li")).ToList();
+        }
+
+        // Entity Definition
+        [System.ComponentModel.DataAnnotations.Schema.Table("User")]
+        public class User
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public int id { get; set; }
+            public string name { get; set; }
+            public DateTime? birth { get; set; }
+            public int? fatherId { get; set; }
+        }
+    }
+}
+
+```
+
 
 ## Using Vitorm.Data
 
 ``` csharp
-using Vit.Extensions.Vitorm_Extensions;
+
+``` csharp
 using Vitorm;
 
 namespace App
@@ -61,8 +91,8 @@ namespace App
             // #1 No need to init Vitorm.Data
 
             // #2 Create Table
-            Data.Drop<User>();
-            Data.Create<User>();
+            Data.TryDropTable<User>();
+            Data.TryCreateTable<User>();
 
             // #3 Insert Records
             Data.Add(new User { id = 1, name = "lith" });

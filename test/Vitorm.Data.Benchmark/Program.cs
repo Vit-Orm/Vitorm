@@ -14,7 +14,7 @@ namespace App
 
 
             // #2 
-            //new App.OrmRunner.Runner_Vitorm().Run(new() { take = 100, queryJoin = true, executeQuery = true });
+            //new App.OrmRunner.Runner_Vitorm().Run(new() { take = 1, queryJoin = true, executeQuery = true });
             //new App.OrmRunner.Runner_EntityFramework().Run(new() { take = 100, queryJoin = true, executeQuery = true });
             //new App.OrmRunner.Runner_SqlSuger().Run(new() { repeatCount = 100, take = 1000, queryJoin = true, executeQuery = true });
             //new App.OrmRunner.Runner_SqlSuger().Run(new() { repeatCount = 100, take = 1000, queryJoin = false, executeQuery = true });

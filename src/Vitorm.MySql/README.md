@@ -47,6 +47,7 @@ dotnet add package Vitorm.MySql
 ```
 
 ## Minimum viable demo
+> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -81,12 +82,13 @@ namespace App
 
 ## Full Example
 > This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
+> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
 namespace App
 {
-    public class Program_Min
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -227,6 +229,7 @@ dotnet add package Vitorm.MySql
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
+> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -256,6 +259,7 @@ namespace App
 ```
 
 ## Full Example    
+> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 

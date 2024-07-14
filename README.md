@@ -1,11 +1,10 @@
 ﻿
 # Vitorm
-Vitorm is a lightweight yet comprehensive ORM that strikes the perfect balance between simplicity and functionality.     
-Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.     
-However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.     
+Vitorm is a lightweight yet comprehensive ORM that strikes the perfect balance between simplicity and functionality.    
+Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.    
+However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.    
 This means you get the best of both worlds: the performance and simplicity of Dapper with the robust features and flexibility of Entity Framework, making Vitorm an ideal choice for developers seeking a powerful yet streamlined ORM solution.
-> written by ChatGPT :  "Help me write a description for Vitorm. It is a lightweight ORM, similar to Dapper, but it is feature-rich, akin to EF. Please emphasize its lightweight nature and comprehensive functionality."    
-> source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm")        
+> source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm")    
 
 ![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
 ![](https://img.shields.io/github/repo-size/VitormLib/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/VitormLib/Vitorm.svg)  
@@ -25,59 +24,6 @@ This means you get the best of both worlds: the performance and simplicity of Da
 | ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
 | ClickHouse    |   √   | [ClickHouse](https://github.com/VitormLib/Vitorm.ClickHouse)     |  [![](https://img.shields.io/nuget/v/Vitorm.ClickHouse.svg)](https://www.nuget.org/packages/Vitorm.ClickHouse) ![](https://img.shields.io/nuget/dt/Vitorm.ClickHouse.svg)   |
 | Oracle        |   ×   |      |      |
-
-
-
-# Comparison of performance with other ORMs
-> Through benchmarks, there may be slight variations depending on the database source, for reference only.
-
-## SqlServer 
-| Method | queryJoin | take | runner                 | Mean         | Error     | StdDev    |
-|------- |---------- |----- |----------------------- |-------------:|----------:|----------:|
-| Run    | False     | 1    | Runner_EntityFramework |     5.380 ms | 0.0449 ms | 0.0398 ms |
-| Run    | False     | 1    | Runner_SqlSuger        |     4.929 ms | 0.0588 ms | 0.0550 ms |
-| Run    | False     | 1    | Runner_Vitorm          |     4.925 ms | 0.0506 ms | 0.0474 ms |
-| Run    | False     | 1000 | Runner_EntityFramework |     6.009 ms | 0.0963 ms | 0.0853 ms |
-| Run    | False     | 1000 | Runner_SqlSuger        |     5.616 ms | 0.1114 ms | 0.1488 ms |
-| Run    | False     | 1000 | Runner_Vitorm          |     5.539 ms | 0.1060 ms | 0.1262 ms |
-| Run    | True      | 1    | Runner_EntityFramework |     5.453 ms | 0.0571 ms | 0.0534 ms |
-| Run    | True      | 1    | Runner_SqlSuger        |     5.601 ms | 0.0477 ms | 0.0423 ms |
-| Run    | True      | 1    | Runner_Vitorm          |     5.337 ms | 0.0596 ms | 0.0528 ms |
-| Run    | True      | 1000 | Runner_EntityFramework | 1,706.222 ms | 4.4435 ms | 3.9391 ms |
-| Run    | True      | 1000 | Runner_SqlSuger        |   125.150 ms | 2.3678 ms | 2.3255 ms |
-| Run    | True      | 1000 | Runner_Vitorm          |    21.027 ms | 0.3564 ms | 0.3334 ms |
-
-## MySql 
-| Method | queryJoin | take | runner                 | Mean         | Error       | StdDev      |
-|------- |---------- |----- |----------------------- |-------------:|------------:|------------:|
-| Run    | False     | 1    | Runner_EntityFramework |   1,231.1 μs |    47.43 μs |   139.84 μs |
-| Run    | False     | 1    | Runner_SqlSuger        |     873.7 μs |    22.33 μs |    65.49 μs |
-| Run    | False     | 1    | Runner_Vitorm          |     636.7 μs |    21.15 μs |    62.37 μs |
-| Run    | False     | 1000 | Runner_EntityFramework |   4,764.8 μs |    56.52 μs |    52.87 μs |
-| Run    | False     | 1000 | Runner_SqlSuger        |   1,906.4 μs |    33.21 μs |    42.00 μs |
-| Run    | False     | 1000 | Runner_Vitorm          |   2,159.5 μs |    43.16 μs |    56.12 μs |
-| Run    | True      | 1    | Runner_EntityFramework |   1,775.0 μs |    35.01 μs |    80.45 μs |
-| Run    | True      | 1    | Runner_SqlSuger        |   1,747.5 μs |    34.05 μs |    44.27 μs |
-| Run    | True      | 1    | Runner_Vitorm          |   1,292.5 μs |    25.72 μs |    41.54 μs |
-| Run    | True      | 1000 | Runner_EntityFramework |   6,784.4 μs |   102.05 μs |    95.45 μs |
-| Run    | True      | 1000 | Runner_SqlSuger        | 113,634.4 μs | 1,128.58 μs | 1,055.67 μs |
-| Run    | True      | 1000 | Runner_Vitorm          |   3,175.2 μs |    62.02 μs |    88.95 μs |
-
-## Sqlite
-| Method | queryJoin | take | runner                 | Mean          | Error      | StdDev     |
-|------- |---------- |----- |----------------------- |--------------:|-----------:|-----------:|
-| Run    | False     | 1    | Runner_EntityFramework |     115.32 μs |   0.831 μs |   0.778 μs |
-| Run    | False     | 1    | Runner_SqlSuger        |      81.66 μs |   0.747 μs |   0.699 μs |
-| Run    | False     | 1    | Runner_Vitorm          |      45.64 μs |   0.350 μs |   0.328 μs |
-| Run    | False     | 1000 | Runner_EntityFramework |   1,386.81 μs |  13.684 μs |  12.800 μs |
-| Run    | False     | 1000 | Runner_SqlSuger        |     674.82 μs |   4.938 μs |   4.619 μs |
-| Run    | False     | 1000 | Runner_Vitorm          |     769.88 μs |   6.020 μs |   5.631 μs |
-| Run    | True      | 1    | Runner_EntityFramework |     220.27 μs |   1.916 μs |   1.793 μs |
-| Run    | True      | 1    | Runner_SqlSuger        |     484.52 μs |   6.746 μs |   5.980 μs |
-| Run    | True      | 1    | Runner_Vitorm          |     167.89 μs |   1.352 μs |   1.264 μs |
-| Run    | True      | 1000 | Runner_EntityFramework |   1,962.25 μs |  10.031 μs |   8.377 μs |
-| Run    | True      | 1000 | Runner_SqlSuger        | 103,179.50 μs | 534.265 μs | 446.135 μs |
-| Run    | True      | 1000 | Runner_Vitorm          |   1,684.39 μs |  21.895 μs |  18.283 μs |
 
 
 
@@ -111,6 +57,7 @@ dotnet add package Vitorm.Sqlite
 ```
 
 ## Minimum viable demo
+> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -145,12 +92,13 @@ namespace App
 
 ## Full Example
 > This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
+> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
 namespace App
 {
-    public class Program_Min
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -299,6 +247,7 @@ dotnet add package Vitorm.Sqlite
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
+> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -328,6 +277,7 @@ namespace App
 ```
 
 ## Full Example    
+> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -440,6 +390,61 @@ namespace App
     }
 }
 ```
+
+
+# Comparison of performance with other ORMs
+> Through benchmarks, there may be slight variations depending on the database source, for reference only.
+
+## SqlServer 
+| Method | queryJoin | take | runner                 | Mean         | Error     | StdDev    |
+|------- |---------- |----- |----------------------- |-------------:|----------:|----------:|
+| Run    | False     | 1    | Runner_EntityFramework |     5.380 ms | 0.0449 ms | 0.0398 ms |
+| Run    | False     | 1    | Runner_SqlSuger        |     4.929 ms | 0.0588 ms | 0.0550 ms |
+| Run    | False     | 1    | Runner_Vitorm          |     4.925 ms | 0.0506 ms | 0.0474 ms |
+| Run    | False     | 1000 | Runner_EntityFramework |     6.009 ms | 0.0963 ms | 0.0853 ms |
+| Run    | False     | 1000 | Runner_SqlSuger        |     5.616 ms | 0.1114 ms | 0.1488 ms |
+| Run    | False     | 1000 | Runner_Vitorm          |     5.539 ms | 0.1060 ms | 0.1262 ms |
+| Run    | True      | 1    | Runner_EntityFramework |     5.453 ms | 0.0571 ms | 0.0534 ms |
+| Run    | True      | 1    | Runner_SqlSuger        |     5.601 ms | 0.0477 ms | 0.0423 ms |
+| Run    | True      | 1    | Runner_Vitorm          |     5.337 ms | 0.0596 ms | 0.0528 ms |
+| Run    | True      | 1000 | Runner_EntityFramework | 1,706.222 ms | 4.4435 ms | 3.9391 ms |
+| Run    | True      | 1000 | Runner_SqlSuger        |   125.150 ms | 2.3678 ms | 2.3255 ms |
+| Run    | True      | 1000 | Runner_Vitorm          |    21.027 ms | 0.3564 ms | 0.3334 ms |
+
+## MySql 
+| Method | queryJoin | take | runner                 | Mean         | Error       | StdDev      |
+|------- |---------- |----- |----------------------- |-------------:|------------:|------------:|
+| Run    | False     | 1    | Runner_EntityFramework |   1,231.1 μs |    47.43 μs |   139.84 μs |
+| Run    | False     | 1    | Runner_SqlSuger        |     873.7 μs |    22.33 μs |    65.49 μs |
+| Run    | False     | 1    | Runner_Vitorm          |     636.7 μs |    21.15 μs |    62.37 μs |
+| Run    | False     | 1000 | Runner_EntityFramework |   4,764.8 μs |    56.52 μs |    52.87 μs |
+| Run    | False     | 1000 | Runner_SqlSuger        |   1,906.4 μs |    33.21 μs |    42.00 μs |
+| Run    | False     | 1000 | Runner_Vitorm          |   2,159.5 μs |    43.16 μs |    56.12 μs |
+| Run    | True      | 1    | Runner_EntityFramework |   1,775.0 μs |    35.01 μs |    80.45 μs |
+| Run    | True      | 1    | Runner_SqlSuger        |   1,747.5 μs |    34.05 μs |    44.27 μs |
+| Run    | True      | 1    | Runner_Vitorm          |   1,292.5 μs |    25.72 μs |    41.54 μs |
+| Run    | True      | 1000 | Runner_EntityFramework |   6,784.4 μs |   102.05 μs |    95.45 μs |
+| Run    | True      | 1000 | Runner_SqlSuger        | 113,634.4 μs | 1,128.58 μs | 1,055.67 μs |
+| Run    | True      | 1000 | Runner_Vitorm          |   3,175.2 μs |    62.02 μs |    88.95 μs |
+
+## Sqlite
+| Method | queryJoin | take | runner                 | Mean          | Error      | StdDev     |
+|------- |---------- |----- |----------------------- |--------------:|-----------:|-----------:|
+| Run    | False     | 1    | Runner_EntityFramework |     115.32 μs |   0.831 μs |   0.778 μs |
+| Run    | False     | 1    | Runner_SqlSuger        |      81.66 μs |   0.747 μs |   0.699 μs |
+| Run    | False     | 1    | Runner_Vitorm          |      45.64 μs |   0.350 μs |   0.328 μs |
+| Run    | False     | 1000 | Runner_EntityFramework |   1,386.81 μs |  13.684 μs |  12.800 μs |
+| Run    | False     | 1000 | Runner_SqlSuger        |     674.82 μs |   4.938 μs |   4.619 μs |
+| Run    | False     | 1000 | Runner_Vitorm          |     769.88 μs |   6.020 μs |   5.631 μs |
+| Run    | True      | 1    | Runner_EntityFramework |     220.27 μs |   1.916 μs |   1.793 μs |
+| Run    | True      | 1    | Runner_SqlSuger        |     484.52 μs |   6.746 μs |   5.980 μs |
+| Run    | True      | 1    | Runner_Vitorm          |     167.89 μs |   1.352 μs |   1.264 μs |
+| Run    | True      | 1000 | Runner_EntityFramework |   1,962.25 μs |  10.031 μs |   8.377 μs |
+| Run    | True      | 1000 | Runner_SqlSuger        | 103,179.50 μs | 534.265 μs | 446.135 μs |
+| Run    | True      | 1000 | Runner_Vitorm          |   1,684.39 μs |  21.895 μs |  18.283 μs |
+
+
+
 
 # Examples  
 - [CRUD](test/Vitorm.Sqlite.MsTest/CommonTest/CRUD_Test.cs)    

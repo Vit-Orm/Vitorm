@@ -54,11 +54,14 @@ namespace Vitorm.Entity.DataAnnotations
 
         public void SetValue(object entity, object value)
         {
-            propertyInfo?.SetValue(entity, value);
+            if (propertyInfo?.CanWrite == true)
+                propertyInfo.SetValue(entity, value);
         }
         public object GetValue(object entity)
         {
-            return propertyInfo?.GetValue(entity, null);
+            if (propertyInfo?.CanRead == true)
+                return propertyInfo.GetValue(entity, default);
+            return default;
         }
     }
 

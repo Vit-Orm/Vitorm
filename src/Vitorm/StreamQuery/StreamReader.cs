@@ -360,6 +360,7 @@ namespace Vitorm.StreamQuery
                             case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
                             case nameof(Queryable.Count):
                             case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
+                            case nameof(Queryable_Extensions.ToListAsync):
                             case nameof(Orm_Extensions.ExecuteDelete):
                             case nameof(Orm_Extensions.ToExecuteString):
                             case nameof(Enumerable.ToList):
@@ -441,7 +442,7 @@ namespace Vitorm.StreamQuery
                 if (member.parameterName == resultSelector.parameterNames[0] && member.memberName == null)
                     isDefaultSelect = true;
             }
-            else if (fields?.nodeType == NodeType.New)
+            else if (fields?.nodeType == NodeType.New)  // Select sentence in SelectMany or GroupBy method
             {
                 bool? existCalculatedField = null;
                 if (existCalculatedField != true)

@@ -16,7 +16,7 @@ namespace Vitorm.MsTest.ExpressionTreeTest
             using var dbContext = DataSource.CreateDbContextForWriting();
             var dbSet = dbContext.DbSet<ExpressionTester.User>();
 
-            dbContext.Execute(sql: "IF OBJECT_ID(N'User2', N'U') IS  NOT  NULL \r\nDROP TABLE [User2];");
+            dbSet.TryDropTable();
             dbSet.TryCreateTable();
             dbSet.AddRange(initUsers);
 

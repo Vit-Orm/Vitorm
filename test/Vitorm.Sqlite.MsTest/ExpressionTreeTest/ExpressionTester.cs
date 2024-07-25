@@ -1,4 +1,7 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -93,6 +96,10 @@ namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
                 predicate = u => u.id == 2;
                 var rows = Test(query, predicate);
             }
+            {
+                predicate = u => u.fatherId == null;
+                var rows = Test(query, predicate);
+            }
             #endregion
 
             #region #15 GreaterThan, A "greater than" comparison, such as (a > b).
@@ -161,6 +168,10 @@ namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
             #region #35 NotEqual,  An inequality comparison, such as (a != b)
             {
                 predicate = u => u.id != 2;
+                var rows = Test(query, predicate);
+            }
+            {
+                predicate = u => u.fatherId != null;
                 var rows = Test(query, predicate);
             }
             #endregion

@@ -1,10 +1,29 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 
 namespace Vitorm
 {
     public static class TypeUtil
     {
+
+        public static Type GetElementType(Type type)
+        {
+            if (type.IsArray)
+            {
+                return type.GetElementType();
+            }
+
+            if (type.IsGenericType && typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                //  IEnumerable<T>  or  IQueryable<T>
+                return type.GetGenericArguments()[0];
+            }
+            return null;
+        }
+
+
+
         public static Type GetUnderlyingType(Type type)
         {
             if (type?.IsGenericType == true && typeof(Nullable<>) == type.GetGenericTypeDefinition())

@@ -17,14 +17,14 @@ namespace Vitorm
         static Data()
         {
             var dataSourceConfigs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
-            var dataProviders = dataSourceConfigs?.Select(GetDataProvider).NotNull().ToList();
+            var dataProviders = dataSourceConfigs?.Select(CreateDataProvider).NotNull().ToList();
 
             if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
         }
 
         public static bool AddDataSource(Dictionary<string, object> dataSourceConfig)
         {
-            var provider = GetDataProvider(dataSourceConfig);
+            var provider = CreateDataProvider(dataSourceConfig);
             if (provider == null) return false;
 
             providerCache.Insert(0, provider);
@@ -66,7 +66,7 @@ namespace Vitorm
         static readonly List<DataProviderCache> providerCache = new();
 
 
-        static DataProviderCache GetDataProvider(Dictionary<string, object> dataSourceConfig)
+        static DataProviderCache CreateDataProvider(Dictionary<string, object> dataSourceConfig)
         {
             /*
             "provider": "Vitorm.Sqlite.DataProvider",

@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vitorm.Sql;
-
 using User = Vitorm.MsTest.ClickHouse.User;
 
 namespace Vitorm.MsTest.ClickHouse
@@ -43,7 +41,7 @@ namespace Vitorm.MsTest
 
         public void Init()
         {
-            using var dbContext = Data.DataProvider<User>()?.CreateDbContext() as SqlDbContext;
+            using var dbContext = Data.DataProvider<User>()?.CreateDbContext();
 
             dbContext.TryDropTable<User>();
             dbContext.TryCreateTable<User>();

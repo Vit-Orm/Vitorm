@@ -200,7 +200,7 @@ namespace Vitorm.SqlServer
             /* //sql
 if object_id(N'[dbo].[User]', N'U') is null
     CREATE TABLE [dbo].[User] (
-      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      id int NOT NULL PRIMARY KEY IDENTITY(1,1),
       name varchar(100) DEFAULT NULL,
       birth date DEFAULT NULL,
       fatherId int DEFAULT NULL,

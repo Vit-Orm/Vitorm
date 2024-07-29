@@ -3,6 +3,7 @@
 # 2.0.1
 
 - support ToListAsync
+- Extensions for IDbSet
 
 
 -----------------------

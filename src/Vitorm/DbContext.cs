@@ -32,6 +32,36 @@ namespace Vitorm
         #endregion
 
 
+        #region DbSet
+        protected IDbSet DefaultDbSetCreator(IEntityDescriptor entityDescriptor)
+        {
+            return DbSetConstructor.CreateDbSet(this, entityDescriptor);
+        }
+
+        protected virtual Func<IEntityDescriptor, IDbSet> dbSetCreator { set; get; }
+
+        protected Dictionary<Type, IDbSet> dbSetMap = null;
+
+        public virtual IDbSet DbSet(Type entityType)
+        {
+            if (dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet;
+
+            var entityDescriptor = GetEntityDescriptor(entityType);
+
+            dbSet = dbSetCreator(entityDescriptor);
+            if (dbSet == null) return null;
+
+            dbSetMap ??= new();
+            dbSetMap[entityType] = dbSet;
+            return dbSet;
+        }
+        public virtual IDbSet CreateDbSet(IEntityDescriptor entityDescriptor) => dbSetCreator(entityDescriptor);
+        public virtual IDbSet<Entity> DbSet<Entity>()
+        {
+            return DbSet(typeof(Entity)) as IDbSet<Entity>;
+        }
+        #endregion
+
 
         #region EntityLoader
 
@@ -46,6 +76,7 @@ namespace Vitorm
         public virtual IEntityDescriptor GetEntityDescriptor<Entity>(bool tryFromCache = true)
             => GetEntityDescriptor(typeof(Entity), tryFromCache);
         #endregion
+
 
 
         #region ChangeTable ChangeTableBack
@@ -73,34 +104,7 @@ namespace Vitorm
 
 
 
-        #region DbSet
 
-        protected IDbSet DefaultDbSetCreator(Type entityType)
-        {
-            var entityDescriptor = GetEntityDescriptor(entityType);
-            return DbSetConstructor.CreateDbSet(this, entityType, entityDescriptor);
-        }
-
-        protected virtual Func<Type, IDbSet> dbSetCreator { set; get; }
-
-        protected Dictionary<Type, IDbSet> dbSetMap = null;
-
-        public virtual IDbSet DbSet(Type entityType)
-        {
-            if (dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet;
-
-            dbSet = dbSetCreator(entityType);
-            if (dbSet == null) return null;
-
-            dbSetMap ??= new();
-            dbSetMap[entityType] = dbSet;
-            return dbSet;
-        }
-        public virtual DbSet<Entity> DbSet<Entity>()
-        {
-            return DbSet(typeof(Entity)) as DbSet<Entity>;
-        }
-        #endregion
 
 
 

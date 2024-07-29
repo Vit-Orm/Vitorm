@@ -17,7 +17,7 @@ namespace Vitorm.MsTest.ExpressionTreeTest
 
             dbSet.TryDropTable();
             dbSet.TryCreateTable();
-            dbSet.AddRange(initUsers); 
+            dbSet.AddRange(initUsers);
             DataSource.WaitForUpdate();
 
             var query = dbSet.Query();

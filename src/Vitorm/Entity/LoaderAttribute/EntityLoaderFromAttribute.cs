@@ -11,7 +11,9 @@ namespace Vitorm.Entity.LoaderAttribute
         {
         }
 
-        public IEntityDescriptor LoadDescriptor(Type entityType)
+        public IEntityDescriptor LoadDescriptor(Type entityType) => LoadDescriptorWithoutCache(entityType);
+
+        public IEntityDescriptor LoadDescriptorWithoutCache(Type entityType)
         {
             var loaderType = entityType.GetCustomAttribute<EntityLoaderAttribute>()?.Loader;
             if (loaderType == null || !typeof(IEntityLoader).IsAssignableFrom(loaderType)) return null;

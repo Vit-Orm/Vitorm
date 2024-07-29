@@ -13,10 +13,10 @@ namespace Vitorm.Entity.DataAnnotations
         {
         }
 
-        public IEntityDescriptor LoadDescriptor(Type entityType)
-        {
-            return LoadFromType(entityType);
-        }
+        public IEntityDescriptor LoadDescriptor(Type entityType) => LoadFromType(entityType);
+
+        public IEntityDescriptor LoadDescriptorWithoutCache(Type entityType) => LoadFromType(entityType);
+
 
         public static bool GetTableName(Type entityType, out string tableName, out string schema)
         {

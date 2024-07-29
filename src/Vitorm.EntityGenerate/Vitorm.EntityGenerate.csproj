@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <pack>nuget</pack>
@@ -12,11 +12,11 @@
 
     <PropertyGroup>
         <Authors>Lith</Authors>
-        <Description>Data access for Database</Description>
+        <Description>Generage Entity Type from Database</Description>
         <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>orm vitorm database mysql sqlserver sqlite clickhouse elasticsearch</PackageTags>
+        <PackageTags>orm vitorm database mysql sqlserver sqlite Entity DbFirst</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,11 +31,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
         <PackageReference Include="Vit.Core" Version="2.2.0" />
+        <PackageReference Include="Vit.Db" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Vitorm\Vitorm.csproj" />
+        <ProjectReference Include="..\Vitorm.Data\Vitorm.Data.csproj" />
     </ItemGroup>
 
 </Project>

@@ -18,19 +18,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.EntityGenerate\Vitorm.EntityGenerate.csproj" />
     </ItemGroup>
+
 
     <ItemGroup>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="..\Vitorm.Sqlite.MsTest\CommonTest\*.cs" Link="CommonTest\%(RecursiveDir)%(FileName)%(Extension)" />
-        <Compile Include="..\Vitorm.Sqlite.MsTest\ExpressionTreeTest\ExpressionTester.cs" Link="ExpressionTreeTest\ExpressionTester.cs" />
-        <Compile Include="..\Vitorm.Sqlite.MsTest\ExpressionTreeTest\ExpressionTester.Model.cs" Link="ExpressionTreeTest\ExpressionTester.Model.cs" />
     </ItemGroup>
 
 </Project>

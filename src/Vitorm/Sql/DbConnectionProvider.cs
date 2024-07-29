@@ -42,7 +42,7 @@ namespace Vitorm.Sql
         public virtual string dbHashCode => connectionString.GetHashCode().ToString();
 
 
-        public IDbConnection CreaeteDbConnection() => createDbConnection(connectionString);
+        public IDbConnection CreateDbConnection() => createDbConnection(connectionString);
         public IDbConnection CreateReadOnlyDbConnection() => ableToCreateReadOnly ? createDbConnection(readOnlyConnectionString) : null;
 
         public virtual string databaseName => getDatabaseName(connectionString ?? readOnlyConnectionString);

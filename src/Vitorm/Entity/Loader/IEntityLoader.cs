@@ -6,5 +6,6 @@ namespace Vitorm.Entity.Loader
     {
         void CleanCache();
         IEntityDescriptor LoadDescriptor(Type entityType);
+        IEntityDescriptor LoadDescriptorWithoutCache(Type entityType);
     }
 }

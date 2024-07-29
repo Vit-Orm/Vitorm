@@ -27,12 +27,19 @@ namespace Vitorm.Entity.Loader
         public IEntityDescriptor LoadDescriptor(Type entityType)
         {
             if (descriptorCache.TryGetValue(entityType, out var entityDescriptor)) return entityDescriptor;
+            entityDescriptor = LoadDescriptorWithoutCache(entityType);
+            if (entityDescriptor != null)
+                descriptorCache[entityType] = entityDescriptor;
+            return entityDescriptor;
+        }
+
+        public IEntityDescriptor LoadDescriptorWithoutCache(Type entityType)
+        {
             foreach (var loader in loaders)
             {
-                entityDescriptor = loader.LoadDescriptor(entityType);
+                var entityDescriptor = loader.LoadDescriptor(entityType);
                 if (entityDescriptor != null)
                 {
-                    descriptorCache[entityType] = entityDescriptor;
                     return entityDescriptor;
                 }
             }

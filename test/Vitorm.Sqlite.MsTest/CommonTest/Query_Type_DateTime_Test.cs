@@ -39,7 +39,7 @@ namespace Vitorm.MsTest.CommonTest
 
 
         [TestMethod]
-        public void Test_Caculate()
+        public void Test_Calculate()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();

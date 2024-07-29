@@ -11,8 +11,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.5.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.5.0" />
 
         <PackageReference Include="Vit.Core" Version="2.2.0" />
     </ItemGroup>
@@ -26,6 +26,7 @@
     <ItemGroup>
         <Compile Include="..\Vitorm.Sqlite.MsTest\CommonTest\*.cs" Link="CommonTest\%(RecursiveDir)%(FileName)%(Extension)" />
         <Compile Include="..\Vitorm.Sqlite.MsTest\ExpressionTreeTest\ExpressionTester.cs" Link="ExpressionTreeTest\ExpressionTester.cs" />
+        <Compile Include="..\Vitorm.Sqlite.MsTest\ExpressionTreeTest\ExpressionTester.Model.cs" Link="ExpressionTreeTest\ExpressionTester.Model.cs" />
     </ItemGroup>
 
     <ItemGroup>

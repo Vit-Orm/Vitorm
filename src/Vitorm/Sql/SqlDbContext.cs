@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
 
+using Vitorm.Entity;
 using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.Sql.Transaction;
@@ -16,6 +17,23 @@ namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {
+        public SqlDbContext()
+        {
+            dbSetCreator = DefaultDbSetCreator;
+        }
+
+        #region DbSet
+        protected IDbSet DefaultDbSetCreator(IEntityDescriptor entityDescriptor)
+        {
+            return DbSetConstructor.CreateDbSet(this, entityDescriptor);
+        }
+
+        #endregion
+
+
+
+        #region EntityReader
+
 
         /// <summary>
         /// Vitorm.Sql.DataReader.EntityReader.IEntityReader
@@ -36,8 +54,11 @@ namespace Vitorm.Sql
         {
             entityReaderType = typeof(EntityReader);
         }
+        #endregion
 
 
+        #region dbConnection
+        protected DbConnectionProvider dbConnectionProvider;
         protected IDbConnection _dbConnection;
         protected IDbConnection _readOnlyDbConnection;
         public override void Dispose()
@@ -70,16 +91,10 @@ namespace Vitorm.Sql
                 }
             }
         }
-        public virtual IDbConnection dbConnection => _dbConnection ??= dbConnectionProvider.CreaeteDbConnection();
+        public virtual IDbConnection dbConnection => _dbConnection ??= dbConnectionProvider.CreateDbConnection();
         public virtual IDbConnection readOnlyDbConnection
             => _readOnlyDbConnection ??
                 (dbConnectionProvider.ableToCreateReadOnly ? (_readOnlyDbConnection = dbConnectionProvider.CreateReadOnlyDbConnection()) : dbConnection);
-
-
-        public virtual ISqlTranslateService sqlTranslateService { get; private set; }
-
-
-        protected DbConnectionProvider dbConnectionProvider;
 
         /// <summary>
         /// to identify whether contexts are from the same database
@@ -87,6 +102,16 @@ namespace Vitorm.Sql
         protected virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
         public virtual string databaseName => dbConnectionProvider.databaseName;
 
+        public virtual void ChangeDatabase(string databaseName)
+        {
+            if (_dbConnection != null || _readOnlyDbConnection != null) throw new InvalidOperationException("can not change database after connected, please try in an new DbContext.");
+
+            dbConnectionProvider = dbConnectionProvider.WithDatabase(databaseName);
+        }
+
+        #endregion
+
+        public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
         public virtual void Init(ISqlTranslateService sqlTranslateService, DbConnectionProvider dbConnectionProvider, SqlExecutor sqlExecutor = null, Dictionary<string, object> extraConfig = null)
         {
@@ -108,180 +133,24 @@ namespace Vitorm.Sql
         }
 
 
-        public virtual void ChangeDatabase(string databaseName)
-        {
-            if (_dbConnection != null || _readOnlyDbConnection != null) throw new InvalidOperationException("cna not change database after connected, please try in an new DbContext.");
-
-            dbConnectionProvider = dbConnectionProvider.WithDatabase(databaseName);
-        }
 
 
-        #region #0 Schema :  Create Drop
-
-        public override void TryCreateTable<Entity>()
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-
-            string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
-            Execute(sql: sql);
-        }
-        public override void TryDropTable<Entity>()
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-
-            string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
-            Execute(sql: sql);
-        }
-        #endregion
+        // #0 Schema :  Create Drop
+        public override void TryCreateTable<Entity>() => DbSet<Entity>().TryCreateTable();
+        public override void TryDropTable<Entity>() => DbSet<Entity>().TryDropTable();
 
 
-        #region #1 Create :  Add AddRange
+        // #1 Create :  Add AddRange
+        public override Entity Add<Entity>(Entity entity) => DbSet<Entity>().Add(entity);
+        public override void AddRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().AddRange(entities);
 
-        public override Entity Add<Entity>(Entity entity)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-
-            var addType = sqlTranslateService.Entity_GetAddType(arg, entity);
-            //if (addType == EAddType.unexpectedEmptyKey) throw new ArgumentException("Key could not be empty.");
-
-
-
-
-            if (addType == EAddType.identityKey)
-            {
-                // #1 prepare sql
-                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
-
-                // #2 get sql params
-                var sqlParam = GetSqlParams(entity);
-
-                // #3 add
-                var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
-
-                // #4 set key value to entity
-                var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-                newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                if (newKeyValue != null)
-                {
-                    entityDescriptor.key.SetValue(entity, newKeyValue);
-                }
-            }
-            else
-            {
-                // #1 prepare sql
-                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
-
-                // #2 get sql params
-                var sqlParam = GetSqlParams(entity);
-
-                // #3 add
-                Execute(sql: sql, param: sqlParam);
-            }
-
-            return entity;
-        }
-        public override void AddRange<Entity>(IEnumerable<Entity> entities)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-            List<(Entity entity, EAddType addType)> entityAndTypes = entities.Select(entity => (entity, sqlTranslateService.Entity_GetAddType(arg, entity))).ToList();
-            //if (entityAndTypes.Any(row => row.addType == EAddType.unexpectedEmptyKey)) throw new ArgumentException("Key could not be empty.");
-
-
-            var affectedRowCount = 0;
-
-            // #2 keyWithValue
-            {
-                var rows = entityAndTypes.Where(row => row.addType == EAddType.keyWithValue);
-                if (rows.Any())
-                {
-                    // ##1 prepare sql
-                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
-
-                    foreach ((var entity, _) in rows)
-                    {
-                        // #2 get sql params
-                        var sqlParam = GetSqlParams(entity);
-
-                        // #3 add
-                        Execute(sql: sql, param: sqlParam);
-                        affectedRowCount++;
-                    }
-                }
-            }
-
-            // #3 identityKey
-            {
-                var rows = entityAndTypes.Where(row => row.addType == EAddType.identityKey);
-                if (rows.Any())
-                {
-                    var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-
-                    // ##1 prepare sql
-                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
-
-                    foreach ((var entity, _) in rows)
-                    {
-                        // ##2 get sql params
-                        var sqlParam = GetSqlParams(entity);
-
-                        // ##3 add
-                        var newKeyValue = ExecuteScalar(sql: sql, param: sqlParam);
-
-                        // ##4 set key value to entity
-                        newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                        if (newKeyValue != null)
-                        {
-                            entityDescriptor.key.SetValue(entity, newKeyValue);
-                        }
-
-                        affectedRowCount++;
-                    }
-                }
-            }
-        }
-
-        #endregion
 
 
 
         #region #2 Retrieve : Get Query
 
-        public override Entity Get<Entity>(object keyValue)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
+        public override Entity Get<Entity>(object keyValue) => DbSet<Entity>().Get(keyValue);
 
-
-            // #1 prepare sql
-            string sql = sqlTranslateService.PrepareGet(arg);
-
-            // #2 get sql params
-            var sqlParam = new Dictionary<string, object>();
-            sqlParam[entityDescriptor.keyName] = keyValue;
-
-            // #3 execute
-            using var reader = ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
-            if (reader.Read())
-            {
-                var entity = (Entity)Activator.CreateInstance(typeof(Entity));
-                foreach (var column in entityDescriptor.allColumns)
-                {
-                    var value = TypeUtil.ConvertToType(reader[column.columnName], column.type);
-                    if (value != null)
-                        column.SetValue(entity, value);
-                }
-                return entity;
-            }
-            return default;
-
-        }
 
         public override IQueryable<Entity> Query<Entity>()
         {
@@ -495,104 +364,21 @@ namespace Vitorm.Sql
 
 
 
-        #region #3 Update: Update UpdateRange
+        // #3 Update: Update UpdateRange
+        public override int Update<Entity>(Entity entity) => DbSet<Entity>().Update(entity);
 
-        public override int Update<Entity>(Entity entity)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-
-            // #1 prepare sql
-            (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareUpdate(arg);
-
-            // #2 get sql params
-            var sqlParam = GetSqlParams(entity);
-
-            // #3 execute
-            var affectedRowCount = Execute(sql: sql, param: sqlParam);
-
-            return affectedRowCount;
-
-        }
-
-        public override int UpdateRange<Entity>(IEnumerable<Entity> entities)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-
-            // #1 prepare sql
-            (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareUpdate(arg);
-
-            // #2 execute
-            var affectedRowCount = 0;
-
-            foreach (var entity in entities)
-            {
-                var sqlParam = GetSqlParams(entity);
-                affectedRowCount += Execute(sql: sql, param: sqlParam);
-            }
-            return affectedRowCount;
-        }
-
-        #endregion
+        public override int UpdateRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().UpdateRange(entities);
 
 
-        #region #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public override int Delete<Entity>(Entity entity)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
 
-            var key = entityDescriptor.key.GetValue(entity);
-            return DeleteByKey<Entity>(key);
-        }
+        // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
+        public override int Delete<Entity>(Entity entity) => DbSet<Entity>().Delete(entity);
+        public override int DeleteRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().DeleteRange(entities);
 
-        public override int DeleteRange<Entity>(IEnumerable<Entity> entities)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-
-            var keys = entities.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
-            return DeleteByKeys<Entity, object>(keys);
-        }
+        public override int DeleteByKey<Entity>(object keyValue) => DbSet<Entity>().DeleteByKey(keyValue);
+        public override int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => DbSet<Entity>().DeleteByKeys<Key>(keys);
 
 
-        public override int DeleteByKey<Entity>(object keyValue)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-
-            // #1 prepare sql
-            string sql = sqlTranslateService.PrepareDelete(arg);
-
-            // #2 get sql params
-            var sqlParam = new Dictionary<string, object>();
-            sqlParam[entityDescriptor.keyName] = keyValue;
-
-            // #3 execute
-            var affectedRowCount = Execute(sql: sql, param: sqlParam);
-
-            return affectedRowCount;
-
-        }
-        public override int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys)
-        {
-            // #0 get arg
-            var entityDescriptor = GetEntityDescriptor(typeof(Entity));
-            SqlTranslateArgument arg = new SqlTranslateArgument(this, entityDescriptor);
-
-            // #1 prepare sql
-            var sql = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
-
-            // #2 execute
-            var affectedRowCount = Execute(sql: sql, param: arg.sqlParam);
-            return affectedRowCount;
-        }
-
-        #endregion
 
 
         #region Transaction

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 
 using Vit.Core.Module.Serialization;
+using Vit.Linq;
 
 using EntityType = System.Object;
 namespace Vitorm
@@ -154,7 +155,7 @@ namespace Vitorm
             if (keys == null) return default;
 
             var entityType = data.entityDescriptor.entityType;
-            var keyType = TypeUtil.GetElementType(keys.GetType());
+            var keyType = LinqHelp.GetElementType(keys.GetType());
 
             var methodInfo = new Func<IDbSet, IEnumerable<int>, int>(DeleteByKeys<EntityType, int>)
                     .GetMethodInfo().GetGenericMethodDefinition()

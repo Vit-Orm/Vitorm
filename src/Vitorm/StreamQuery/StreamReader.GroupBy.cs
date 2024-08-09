@@ -18,7 +18,7 @@ namespace Vitorm.StreamQuery
                         var newArg = arg.WithParameter(parameterName, parameterValue);
                         var groupByFields = ReadFields(newArg, resultSelector);
 
-                        return new CombinedStream(NewAliasName()) { source = source, groupByFields = groupByFields };
+                        return new CombinedStream(arg.NewAliasName()) { source = source, groupByFields = groupByFields };
                     }
                 case CombinedStream combinedStream:
                     {
@@ -47,7 +47,7 @@ namespace Vitorm.StreamQuery
                             var newArg = arg.WithParameter(parameterName, parameterValue);
                             var groupByFields = ReadFields(newArg, resultSelector);
 
-                            return new CombinedStream(NewAliasName()) { source = source, groupByFields = groupByFields };
+                            return new CombinedStream(arg.NewAliasName()) { source = source, groupByFields = groupByFields };
                         }
                     }
             }

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Linq;
 using Vit.Linq.ExpressionTree.ComponentModel;
+
+using Vitorm.StreamQuery.MethodCall;
 
 namespace Vitorm.StreamQuery
 {
@@ -32,6 +33,27 @@ namespace Vitorm.StreamQuery
 
     public class Argument
     {
+        public Argument(Argument arg) : this(arg.aliasConfig)
+        {
+        }
+        public Argument(AliasConfig aliasConfig)
+        {
+            this.aliasConfig = aliasConfig;
+        }
+
+        public class AliasConfig
+        {
+            int aliasNameCount = 0;
+            public string NewAliasName()
+            {
+                return "t" + (aliasNameCount++);
+            }
+        }
+
+        protected AliasConfig aliasConfig;
+
+        public string NewAliasName() => aliasConfig.NewAliasName();
+
         Dictionary<string, ExpressionNode> parameterMap { get; set; }
 
         public virtual ExpressionNode GetParameter(ExpressionNode_Member member)
@@ -64,7 +86,7 @@ namespace Vitorm.StreamQuery
 
         public Argument WithParameter(string parameterName, ExpressionNode parameterValue)
         {
-            var arg = new Argument();
+            var arg = new Argument(aliasConfig);
 
             arg.parameterMap = parameterMap?.ToDictionary(kv => kv.Key, kv => kv.Value) ?? new();
             arg.parameterMap[parameterName] = parameterValue;
@@ -74,7 +96,7 @@ namespace Vitorm.StreamQuery
         #region SupportNoChildParameter
         public Argument WithParameter(string parameterName, ExpressionNode parameterValue, ExpressionNode noChildParameterValue)
         {
-            var arg = new Argument_SupportNoChildParameter { noChildParameterName = parameterName, noChildParameterValue = noChildParameterValue };
+            var arg = new Argument_SupportNoChildParameter(this) { noChildParameterName = parameterName, noChildParameterValue = noChildParameterValue };
 
             arg.parameterMap = parameterMap?.ToDictionary(kv => kv.Key, kv => kv.Value) ?? new();
             arg.parameterMap[parameterName] = parameterValue;
@@ -83,6 +105,10 @@ namespace Vitorm.StreamQuery
 
         class Argument_SupportNoChildParameter : Argument
         {
+            public Argument_SupportNoChildParameter(Argument arg) : base(arg)
+            {
+            }
+
             public string noChildParameterName;
             public ExpressionNode noChildParameterValue;
             public override ExpressionNode GetParameter(ExpressionNode_Member member)
@@ -109,6 +135,7 @@ namespace Vitorm.StreamQuery
 
     public partial class StreamReader
     {
+        public static StreamReader Instance = new StreamReader();
 
         /// <summary>
         /// lambda:
@@ -118,7 +145,7 @@ namespace Vitorm.StreamQuery
         /// <returns> </returns>
         public static IStream ReadNode(ExpressionNode_Lambda lambda)
         {
-            return new StreamReader().ReadFromNode(lambda);
+            return Instance.ReadFromNode(lambda);
         }
 
 
@@ -130,14 +157,10 @@ namespace Vitorm.StreamQuery
         /// <returns> </returns>
         public IStream ReadFromNode(ExpressionNode_Lambda lambda)
         {
-            var arg = new Argument();
+            var arg = new Argument(new Argument.AliasConfig());
             return ReadStream(arg, lambda.body);
         }
-        int aliasNameCount = 0;
-        string NewAliasName()
-        {
-            return "t" + (aliasNameCount++);
-        }
+
 
         CombinedStream ReadStreamWithWhere(Argument arg, IStream source, ExpressionNode_Lambda predicateLambda)
         {
@@ -147,7 +170,7 @@ namespace Vitorm.StreamQuery
                     {
                         ExpressionNode where = ReadWhere(arg, source, predicateLambda);
 
-                        var combinedStream = ToCombinedStream(sourceStream);
+                        var combinedStream = ToCombinedStream(arg, sourceStream);
                         combinedStream.where = where;
 
                         return combinedStream;
@@ -194,24 +217,24 @@ namespace Vitorm.StreamQuery
             }
             return default;
         }
-        CombinedStream ToCombinedStream(SourceStream source)
+        CombinedStream ToCombinedStream(Argument arg, SourceStream source)
         {
             Type entityType = source.GetEntityType();
             var selectedFields = ExpressionNode.Member(parameterName: source.alias, memberName: null).Member_SetType(entityType);
             var select = new ResultSelector { fields = selectedFields, isDefaultSelect = true };
 
-            return new CombinedStream(NewAliasName()) { source = source, select = select };
+            return new CombinedStream(arg.NewAliasName()) { source = source, select = select };
         }
-        CombinedStream AsCombinedStream(IStream source)
+        public CombinedStream AsCombinedStream(Argument arg, IStream source)
         {
             if (source is CombinedStream combinedStream) return combinedStream;
-            if (source is SourceStream sourceStream) return ToCombinedStream(sourceStream);
+            if (source is SourceStream sourceStream) return ToCombinedStream(arg, sourceStream);
             return null;
         }
 
 
         // query.SelectMany(query2).Where().Where().OrderBy().Skip().Take().Select()
-        IStream ReadStream(Argument arg, ExpressionNode node)
+        public IStream ReadStream(Argument arg, ExpressionNode node)
         {
             switch (node.nodeType)
             {
@@ -220,180 +243,176 @@ namespace Vitorm.StreamQuery
                         ExpressionNode_Member member = node;
                         var oriValue = member.Member_GetOriValue();
                         if (oriValue != null)
-                            return new SourceStream(oriValue, NewAliasName());
+                            return new SourceStream(oriValue, arg.NewAliasName());
                         break;
                     }
                 case NodeType.Constant:
                     {
                         ExpressionNode_Constant constant = node;
                         var oriValue = constant.value;
-                        return new SourceStream(oriValue, NewAliasName());
+                        return new SourceStream(oriValue, arg.NewAliasName());
                     }
                 case NodeType.MethodCall:
                     {
-                        ExpressionNode_MethodCall call = node;
-                        var source = ReadStream(arg, call.arguments[0]);
-
-                        switch (call.methodName)
+                        #region #1 System method
                         {
-                            case nameof(Queryable.Where):
-                                {
-                                    var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
-                                    var stream = ReadStreamWithWhere(arg, source, predicateLambda);
-                                    if (stream == default) break;
-                                    return stream;
-                                }
-                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
-                                {
-                                    var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
-                                    var stream = ReadStreamWithWhere(arg, source, predicateLambda);
-                                    if (stream == default) break;
-                                    stream.method = call.methodName;
-                                    return stream;
-                                }
-                            case nameof(Queryable.Distinct):
-                                {
-                                    var combinedStream = AsCombinedStream(source);
-
-                                    combinedStream.distinct = true;
-                                    return combinedStream;
-                                }
-                            case nameof(Queryable.Select):
-                                {
-                                    ExpressionNode_Lambda resultSelector = call.arguments[1];
-
-                                    switch (source)
+                            ExpressionNode_MethodCall call = node;
+                            switch (call.methodName)
+                            {
+                                case nameof(Queryable.Where):
                                     {
-                                        case SourceStream sourceStream:
-                                            {
-                                                var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
-                                                var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadResultSelector(newArg, resultSelector);
-
-                                                return new CombinedStream(NewAliasName()) { source = sourceStream, select = select };
-                                            }
-                                        case CombinedStream groupedStream when groupedStream.isGroupedStream:
-                                            {
-                                                var parameterName = resultSelector.parameterNames[0];
-                                                var groupByFields = groupedStream.groupByFields;
-                                                var memberBind = new MemberBind { name = "Key", value = groupByFields };
-                                                var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
-                                                var noChildParameterValue = ExpressionNode_RenameableMember.Member(stream: groupedStream.source, resultSelector.Lambda_GetParamTypes()[0]);
-                                                var newArg = arg.WithParameter(parameterName, parameterValue, noChildParameterValue: noChildParameterValue);
-
-                                                var select = ReadResultSelector(newArg, resultSelector);
-                                                groupedStream.select = select;
-                                                return groupedStream;
-                                            }
-                                        case CombinedStream combinedStream:
-                                            {
-                                                var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = combinedStream.select.fields;
-                                                var newArg = arg.WithParameter(parameterName, parameterValue);
-                                                var select = ReadResultSelector(newArg, resultSelector);
-
-                                                combinedStream.select = select;
-                                                return combinedStream;
-                                            }
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
+                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
+                                        if (stream == default) break;
+                                        return stream;
                                     }
-                                    break;
-                                }
-                            case nameof(Orm_Extensions.ExecuteUpdate):
-                                {
-                                    ExpressionNode_Lambda resultSelector = call.arguments[1];
-                                    switch (source)
+                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
                                     {
-                                        case SourceStream sourceStream:
-                                            {
-                                                var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
-
-                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
-                                                return new StreamToUpdate(sourceStream) { fieldsToUpdate = select.fields };
-                                            }
-                                        case CombinedStream combinedStream:
-                                            {
-                                                var parameterName = resultSelector.parameterNames[0];
-                                                var parameterValue = combinedStream.select.fields;
-                                                var select = ReadResultSelector(arg.WithParameter(parameterName, parameterValue), resultSelector);
-
-                                                return new StreamToUpdate(source) { fieldsToUpdate = select.fields };
-                                            }
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
+                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
+                                        if (stream == default) break;
+                                        stream.method = call.methodName;
+                                        return stream;
                                     }
-                                    break;
-                                }
-                            case nameof(Queryable.Take) or nameof(Queryable.Skip):
-                                {
-                                    CombinedStream combinedStream = AsCombinedStream(source);
-
-                                    var value = (call.arguments[1] as ExpressionNode_Constant)?.value as int?;
-
-                                    if (call.methodName == nameof(Queryable.Skip))
-                                        combinedStream.skip = value;
-                                    else
-                                        combinedStream.take = value;
-                                    return combinedStream;
-                                }
-
-                            case nameof(Queryable.OrderBy) or nameof(Queryable.OrderByDescending) or nameof(Queryable.ThenBy) or nameof(Queryable.ThenByDescending):
-                                {
-                                    CombinedStream combinedStream = AsCombinedStream(source);
-
-                                    var methodName = call.methodName;
-
-                                    var sortField = ReadSortField(call.arguments[1], combinedStream);
-
-                                    var orderParam = new ExpressionNodeOrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
-
-                                    if (methodName.StartsWith("OrderBy"))
+                                case nameof(Queryable.Distinct):
                                     {
-                                        combinedStream.orders = new List<ExpressionNodeOrderField>();
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var combinedStream = AsCombinedStream(arg, source);
+
+                                        combinedStream.distinct = true;
+                                        return combinedStream;
+                                    }
+                                case nameof(Queryable.Select):
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        ExpressionNode_Lambda resultSelector = call.arguments[1];
+
+                                        switch (source)
+                                        {
+                                            case SourceStream sourceStream:
+                                                {
+                                                    var parameterName = resultSelector.parameterNames[0];
+                                                    var parameterValue = ExpressionNode_RenameableMember.Member(stream: sourceStream, resultSelector.Lambda_GetParamTypes()[0]);
+                                                    var newArg = arg.WithParameter(parameterName, parameterValue);
+                                                    var select = ReadResultSelector(newArg, resultSelector);
+
+                                                    return new CombinedStream(arg.NewAliasName()) { source = sourceStream, select = select };
+                                                }
+                                            case CombinedStream groupedStream when groupedStream.isGroupedStream:
+                                                {
+                                                    var parameterName = resultSelector.parameterNames[0];
+                                                    var groupByFields = groupedStream.groupByFields;
+                                                    var memberBind = new MemberBind { name = "Key", value = groupByFields };
+                                                    var parameterValue = ExpressionNode.New(type: null, constructorArgs: new() { memberBind });
+                                                    var noChildParameterValue = ExpressionNode_RenameableMember.Member(stream: groupedStream.source, resultSelector.Lambda_GetParamTypes()[0]);
+                                                    var newArg = arg.WithParameter(parameterName, parameterValue, noChildParameterValue: noChildParameterValue);
+
+                                                    var select = ReadResultSelector(newArg, resultSelector);
+                                                    groupedStream.select = select;
+                                                    return groupedStream;
+                                                }
+                                            case CombinedStream combinedStream:
+                                                {
+                                                    var parameterName = resultSelector.parameterNames[0];
+                                                    var parameterValue = combinedStream.select.fields;
+                                                    var newArg = arg.WithParameter(parameterName, parameterValue);
+                                                    var select = ReadResultSelector(newArg, resultSelector);
+
+                                                    combinedStream.select = select;
+                                                    return combinedStream;
+                                                }
+                                        }
+                                        break;
+                                    }
+                                case nameof(Queryable.Take) or nameof(Queryable.Skip):
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        CombinedStream combinedStream = AsCombinedStream(arg, source);
+
+                                        var value = (call.arguments[1] as ExpressionNode_Constant)?.value as int?;
+
+                                        if (call.methodName == nameof(Queryable.Skip))
+                                            combinedStream.skip = value;
+                                        else
+                                            combinedStream.take = value;
+                                        return combinedStream;
                                     }
 
-                                    combinedStream.orders ??= new List<ExpressionNodeOrderField>();
+                                case nameof(Queryable.OrderBy) or nameof(Queryable.OrderByDescending) or nameof(Queryable.ThenBy) or nameof(Queryable.ThenByDescending):
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        CombinedStream combinedStream = AsCombinedStream(arg, source);
 
-                                    combinedStream.orders.Add(orderParam);
+                                        var methodName = call.methodName;
 
-                                    return combinedStream;
-                                }
-                            case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
-                            case nameof(Queryable.Count):
-                            case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
-                            case nameof(Queryable_Extensions.ToListAsync):
-                            case nameof(Orm_Extensions.ExecuteDelete):
-                            case nameof(Orm_Extensions.ToExecuteString):
-                            case nameof(Enumerable.ToList):
-                                {
-                                    if (call.arguments?.Length != 1) break;
+                                        var sortField = ReadSortField(arg, call.arguments[1], combinedStream);
 
-                                    CombinedStream combinedStream = AsCombinedStream(source);
+                                        var orderParam = new ExpressionNodeOrderField { member = sortField, asc = !methodName.EndsWith("Descending") };
 
-                                    combinedStream.method = call.methodName;
-                                    return combinedStream;
-                                }
-                            case nameof(Queryable.GroupBy):
-                                {
-                                    ExpressionNode_Lambda resultSelector = call.arguments[1];
-                                    return GroupBy(arg, source, resultSelector);
-                                }
-                            case nameof(Queryable.SelectMany):  // LeftJoin InnerJoin
-                                {
-                                    ExpressionNode_Lambda rightSelector = call.arguments[1];
-                                    ExpressionNode_Lambda resultSelector = call.arguments[2];
-                                    return SelectMany(arg, source, rightSelector, resultSelector);
-                                }
-                            case nameof(Queryable.Join):  // InnerJoin (Queryable.Join)
-                            case nameof(Queryable.GroupJoin):  // LeftJoin (Queryable.GroupJoin)
-                                {
-                                    var rightStream = ReadStream(arg, call.arguments[1]);
-                                    ExpressionNode_Lambda leftKeySelector = call.arguments[2];
-                                    ExpressionNode_Lambda rightKeySelector = call.arguments[3];
-                                    ExpressionNode_Lambda resultSelector = call.arguments[4];
-                                    return Join(arg, source, rightStream, leftKeySelector, rightKeySelector, resultSelector);
-                                }
+                                        if (methodName.StartsWith("OrderBy"))
+                                        {
+                                            combinedStream.orders = new List<ExpressionNodeOrderField>();
+                                        }
+
+                                        combinedStream.orders ??= new List<ExpressionNodeOrderField>();
+
+                                        combinedStream.orders.Add(orderParam);
+
+                                        return combinedStream;
+                                    }
+                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
+                                case nameof(Queryable.Count) or nameof(Enumerable.ToList) when call.arguments.Length == 1:
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+
+                                        CombinedStream combinedStream = AsCombinedStream(arg, source);
+
+                                        combinedStream.method = call.methodName;
+                                        return combinedStream;
+                                    }
+                                case nameof(Queryable.GroupBy):
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        ExpressionNode_Lambda resultSelector = call.arguments[1];
+                                        return GroupBy(arg, source, resultSelector);
+                                    }
+                                case nameof(Queryable.SelectMany):  // LeftJoin InnerJoin
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        ExpressionNode_Lambda rightSelector = call.arguments[1];
+                                        ExpressionNode_Lambda resultSelector = call.arguments[2];
+                                        return SelectMany(arg, source, rightSelector, resultSelector);
+                                    }
+                                case nameof(Queryable.Join):  // InnerJoin (Queryable.Join)
+                                case nameof(Queryable.GroupJoin):  // LeftJoin (Queryable.GroupJoin)
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var rightStream = ReadStream(arg, call.arguments[1]);
+                                        ExpressionNode_Lambda leftKeySelector = call.arguments[2];
+                                        ExpressionNode_Lambda rightKeySelector = call.arguments[3];
+                                        ExpressionNode_Lambda resultSelector = call.arguments[4];
+                                        return Join(arg, source, rightStream, leftKeySelector, rightKeySelector, resultSelector);
+                                    }
+                            }
+
                         }
-                        throw new NotSupportedException("[StreamReader] unexpected method call : " + call.methodName);
+                        #endregion
+
+                        #region #2 MethodCall convertor
+                        {
+                            var methodConvertArg = new MethodCallConvertArgrument { reader = this, arg = arg, node = node };
+                            foreach (var convertor in methodCallConvertors)
+                            {
+                                var stream = convertor(methodConvertArg);
+                                if (stream != null) return stream;
+                            }
+                        }
+                        #endregion
+
+
+                        throw new NotSupportedException("[StreamReader] unexpected method call : " + node.methodName);
                     }
             }
             throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {node.nodeType}");
@@ -427,7 +446,7 @@ namespace Vitorm.StreamQuery
             var fields = arg.DeepClone(node);
             return fields;
         }
-        ResultSelector ReadResultSelector(Argument arg, ExpressionNode_Lambda resultSelector)
+        public ResultSelector ReadResultSelector(Argument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
             //if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)  // could be calculated result like  query.Select(u=>u.id+10)
@@ -457,7 +476,7 @@ namespace Vitorm.StreamQuery
             return new() { fields = fields, isDefaultSelect = isDefaultSelect, resultSelector = resultSelector };
         }
 
-        ExpressionNode ReadSortField(ExpressionNode_Lambda resultSelector, CombinedStream stream)
+        ExpressionNode ReadSortField(Argument arg, ExpressionNode_Lambda resultSelector, CombinedStream stream)
         {
             ExpressionNode parameterValue;
             if (stream.isGroupedStream)
@@ -473,13 +492,13 @@ namespace Vitorm.StreamQuery
             }
 
             var parameterName = resultSelector.parameterNames[0];
-            var arg = new Argument().SetParameter(parameterName, parameterValue);
+            var argForClone = new Argument(arg).SetParameter(parameterName, parameterValue);
 
             ExpressionNode sortField = resultSelector.body;
 
             //if (sortField?.nodeType != NodeType.Member) throw new NotSupportedException($"[StreamReader] unexpected expression nodeType : {sortField.nodeType}");
 
-            var member = arg.DeepClone(sortField);
+            var member = argForClone.DeepClone(sortField);
             return member;
         }
 

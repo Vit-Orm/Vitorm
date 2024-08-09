@@ -1,4 +1,4 @@
 
 
-start "" "BenchmarkDotNet.Artifacts\results\App.VitormBenchmark-report.html"
+start "" "BenchmarkDotNet.Artifacts\results\App.OrmRunner.BenchmarkRunner-report.html"
 

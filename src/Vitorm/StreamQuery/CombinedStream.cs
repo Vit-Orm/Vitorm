@@ -93,5 +93,9 @@ value(Vit.Linq.Converter.OrderedQueryable`1[Vit.Linq.MsTest.Converter.Join_Test+
 
         public bool isJoinedStream => joins?.Any() == true;
         public bool isGroupedStream => groupByFields != null;
+
+
+        public object[] methodArguments { get; set; }
+        public object extra { get; set; }
     }
 }

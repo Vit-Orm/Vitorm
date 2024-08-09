@@ -24,7 +24,7 @@ namespace Vitorm.StreamQuery
             {
                 case SourceStream sourceStream:
                     {
-                        finalStream = new CombinedStream(NewAliasName()) { source = source };
+                        finalStream = new CombinedStream(arg.NewAliasName()) { source = source };
                         parameterValueForLeftStream = ExpressionNode_RenameableMember.Member(stream: sourceStream, rightSelector.Lambda_GetParamTypes()[0]);
                         break;
                     }

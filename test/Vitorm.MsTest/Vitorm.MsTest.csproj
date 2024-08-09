@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm\Vitorm.csproj" />
     </ItemGroup>
 
 </Project>

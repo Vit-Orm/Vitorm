@@ -180,6 +180,12 @@ namespace Vitorm.Sql
             return this;
         }
 
+
+        #region StreamReader
+        public static StreamReader defaultStreamReader = new StreamReader();
+        public StreamReader streamReader = defaultStreamReader;
+        #endregion
+
         protected virtual object ExecuteQuery(Expression expression, Type expressionResultType)
         {
             // #1 convert to ExpressionNode 
@@ -188,7 +194,7 @@ namespace Vitorm.Sql
 
 
             // #2 convert to Stream
-            var stream = StreamReader.ReadNode(node);
+            var stream = streamReader.ReadFromNode(node);
             //var strStream = Json.Serialize(stream);
 
 

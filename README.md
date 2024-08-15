@@ -36,6 +36,7 @@ supported features:
 | --- | --- | --- | --- |
 |  create table   |  TryCreateTable   |     |     |
 |  drop table   |  TryDropTable   |     |     |
+|  truncate table   |  Truncate   |     |     |
 | --- | --- | --- | --- |
 |  create records   |  Add AddRange   |     |     |
 |  retrieve  records |  Query Get   |     |     |
@@ -143,6 +144,7 @@ namespace App
             dbContext.DeleteByKeys<User, int>(new[] { 1, 2 });
             dbContext.Query<User>().Where(u => u.name.Contains("li"))
                 .ExecuteDelete();
+            dbContext.Truncate<User>();
 
             // #7 Join Queries
             {
@@ -326,6 +328,7 @@ namespace App
             Data.DeleteByKeys<User, int>(new[] { 1, 2 });
             Data.Query<User>().Where(u => u.name.Contains("li"))
                 .ExecuteDelete();
+            Data.Truncate<User>();
 
             // #7 Join Queries
             {

@@ -112,6 +112,7 @@ namespace Vitorm
         // #0 Schema :  Create Drop
         public virtual void TryCreateTable<Entity>() => throw new NotImplementedException();
         public virtual void TryDropTable<Entity>() => throw new NotImplementedException();
+        public virtual void Truncate<Entity>() => throw new NotImplementedException();
 
 
         // #1 Create :  Add AddRange

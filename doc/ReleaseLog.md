@@ -1,6 +1,12 @@
 ﻿# Vitorm ReleaseLog
 
 
+
+-----------------------
+# 2.0.4
+- [Vitorm] support Truncate
+
+
 -----------------------
 # 2.0.3
 - [Vitorm] StreamReader support custom methodCallConvertor and add test case

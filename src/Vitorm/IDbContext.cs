@@ -8,6 +8,7 @@ namespace Vitorm
         // #0 Schema :  Create Drop
         void TryCreateTable<Entity>();
         void TryDropTable<Entity>();
+        void Truncate<Entity>();
 
 
         // #1 Create :  Add AddRange

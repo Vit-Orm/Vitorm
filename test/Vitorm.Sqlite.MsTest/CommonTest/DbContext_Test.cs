@@ -104,7 +104,7 @@ namespace Vitorm.MsTest.CommonTest
         }
         #endregion
 
-        #region #region Custom EntityLoader
+        #region Custom EntityLoader
         public class CustomEntityLoader : IEntityLoader
         {
             public void CleanCache() { }

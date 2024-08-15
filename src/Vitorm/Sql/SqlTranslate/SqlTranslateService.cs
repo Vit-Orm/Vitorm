@@ -365,6 +365,12 @@ namespace Vitorm.Sql.SqlTranslate
         public abstract string PrepareTryCreateTable(IEntityDescriptor entityDescriptor);
         public abstract string PrepareTryDropTable(IEntityDescriptor entityDescriptor);
 
+        public virtual string PrepareTruncate(IEntityDescriptor entityDescriptor)
+        {
+            // truncate table User;
+            return $@"truncate table {DelimitTableName(entityDescriptor)};";
+        }
+
 
         #region #1 Create :  PrepareAdd
         public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)

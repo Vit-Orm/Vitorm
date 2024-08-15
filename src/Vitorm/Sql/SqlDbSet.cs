@@ -48,6 +48,11 @@ namespace Vitorm.Sql
             string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
             sqlDbContext.Execute(sql: sql);
         }
+        public override void Truncate()
+        {
+            string sql = sqlTranslateService.PrepareTruncate(entityDescriptor);
+            sqlDbContext.Execute(sql: sql);
+        }
         #endregion
 
 

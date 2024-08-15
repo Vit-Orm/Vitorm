@@ -124,6 +124,7 @@ namespace App
             Data.DeleteByKeys<User, int>(new[] { 1, 2 });
             Data.Query<User>().Where(u => u.name.Contains("li"))
                 .ExecuteDelete();
+            Data.Truncate<User>();
 
             // #7 Join Queries
             {

@@ -47,6 +47,7 @@ namespace Vitorm
         // #0 Schema :  Create Drop
         public virtual void TryCreateTable() => dbContext.TryCreateTable<Entity>();
         public virtual void TryDropTable() => dbContext.TryDropTable<Entity>();
+        public virtual void Truncate() => dbContext.Truncate<Entity>();
 
 
         // #1 Create :  Add AddRange

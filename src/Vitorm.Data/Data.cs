@@ -111,6 +111,7 @@ namespace Vitorm
         // #0 Schema :  TryCreateTable TryDropTable
         public static void TryCreateTable<Entity>() => DataProvider<Entity>().TryCreateTable<Entity>();
         public static void TryDropTable<Entity>() => DataProvider<Entity>().TryDropTable<Entity>();
+        public static void Truncate<Entity>() => DataProvider<Entity>().Truncate<Entity>();
 
 
         // #1 Create :  Add AddRange

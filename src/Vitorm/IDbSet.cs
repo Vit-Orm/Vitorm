@@ -17,6 +17,7 @@ namespace Vitorm
         // #0 Schema :  Create Drop
         void TryCreateTable();
         void TryDropTable();
+        void Truncate();
     }
 
     public interface IDbSet<Entity> : IDbSet

@@ -47,6 +47,7 @@ namespace App
             dbContext.DeleteByKeys<User, int>(new[] { 1, 2 });
             dbContext.Query<User>().Where(u => u.name.Contains("li"))
                 .ExecuteDelete();
+            dbContext.Truncate<User>();
 
             // #7 Join Queries
             {

@@ -43,6 +43,7 @@ namespace Vitorm.Sql.SqlTranslate
         // #0 Schema :  PrepareCreate PrepareDrop
         string PrepareTryCreateTable(IEntityDescriptor entityDescriptor);
         string PrepareTryDropTable(IEntityDescriptor entityDescriptor);
+        string PrepareTruncate(IEntityDescriptor entityDescriptor);
 
 
         // #1 Create :  PrepareAdd

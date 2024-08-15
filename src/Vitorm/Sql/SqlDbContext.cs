@@ -138,6 +138,7 @@ namespace Vitorm.Sql
         // #0 Schema :  Create Drop
         public override void TryCreateTable<Entity>() => DbSet<Entity>().TryCreateTable();
         public override void TryDropTable<Entity>() => DbSet<Entity>().TryDropTable();
+        public override void Truncate<Entity>() => DbSet<Entity>().Truncate();
 
 
         // #1 Create :  Add AddRange

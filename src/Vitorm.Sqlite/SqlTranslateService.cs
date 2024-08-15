@@ -155,7 +155,7 @@ namespace Vitorm.Sqlite
         public override string PrepareTryCreateTable(IEntityDescriptor entityDescriptor)
         {
             /* //sql
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS "User" (
   id int NOT NULL PRIMARY KEY,
   name varchar(100) DEFAULT NULL,
   birth date DEFAULT NULL,
@@ -172,7 +172,7 @@ CREATE TABLE user (
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
-CREATE TABLE {DelimitTableName(entityDescriptor)} (
+CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
@@ -205,8 +205,13 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
 
         public override string PrepareTryDropTable(IEntityDescriptor entityDescriptor)
         {
-            // DROP TABLE if exists "User";
-            return $@" DROP TABLE if exists {DelimitTableName(entityDescriptor)};";
+            // drop table if exists "User";
+            return $@"drop table if exists {DelimitTableName(entityDescriptor)};";
+        }
+        public override string PrepareTruncate(IEntityDescriptor entityDescriptor)
+        {
+            // delete from 'User';
+            return $@"delete from {DelimitTableName(entityDescriptor)};";
         }
 
     }

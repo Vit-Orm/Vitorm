@@ -24,6 +24,7 @@ namespace Vitorm.StreamQuery
             {
                 base.source = source;
             }
+            method = nameof(Orm_Extensions.ExecuteUpdate);
         }
 
         // ExpressionNode_New   new { name = name + "_" }

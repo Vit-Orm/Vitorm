@@ -1,63 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 
-using Vitorm.Entity;
 using Vitorm.Sql.SqlTranslate;
 
 namespace Vitorm.Sql
 {
-    public class DbSetConstructor
-    {
-        public static IDbSet CreateDbSet(SqlDbContext dbContext, IEntityDescriptor entityDescriptor)
-        {
-            return _CreateDbSet.MakeGenericMethod(entityDescriptor.entityType)
-                     .Invoke(null, new object[] { dbContext, entityDescriptor }) as IDbSet;
-        }
-
-        static readonly MethodInfo _CreateDbSet = new Func<SqlDbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
-                   .Method.GetGenericMethodDefinition();
-        public static IDbSet<Entity> CreateDbSet<Entity>(SqlDbContext dbContext, IEntityDescriptor entityDescriptor)
-        {
-            return new SqlDbSet<Entity>(dbContext, entityDescriptor);
-        }
-
-    }
-
-
     public partial class SqlDbSet<Entity> : DbSet<Entity>
     {
-
-        public virtual SqlDbContext sqlDbContext => (SqlDbContext)dbContext;
-
-        public SqlDbSet(SqlDbContext dbContext, IEntityDescriptor entityDescriptor) : base(dbContext, entityDescriptor)
-        {
-        }
-
-        protected virtual ISqlTranslateService sqlTranslateService => sqlDbContext.sqlTranslateService;
-
         #region #0 Schema :  Create Drop Truncate
-        public override void TryCreateTable()
+        public override async Task TryCreateTableAsync()
         {
             string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
-            sqlDbContext.Execute(sql: sql);
+            await sqlDbContext.ExecuteAsync(sql: sql);
         }
-        public override void TryDropTable()
+
+        public override async Task TryDropTableAsync()
         {
             string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
-            sqlDbContext.Execute(sql: sql);
+            await sqlDbContext.ExecuteAsync(sql: sql);
         }
-        public override void Truncate()
+        public override async Task TruncateAsync()
         {
             string sql = sqlTranslateService.PrepareTruncate(entityDescriptor);
-            sqlDbContext.Execute(sql: sql);
+            await sqlDbContext.ExecuteAsync(sql: sql);
         }
         #endregion
 
 
         #region #1 Create :  Add AddRange
-        public override Entity Add(Entity entity)
+        public override async Task<Entity> AddAsync(Entity entity)
         {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
 
@@ -73,7 +47,7 @@ namespace Vitorm.Sql
                 var sqlParam = GetSqlParams(entity);
 
                 // #3 add
-                var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql, param: sqlParam);
+                var newKeyValue = await sqlDbContext.ExecuteScalarAsync(sql: sql, param: sqlParam);
 
                 // #4 set key value to entity
                 var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
@@ -92,14 +66,14 @@ namespace Vitorm.Sql
                 var sqlParam = GetSqlParams(entity);
 
                 // #3 add
-                sqlDbContext.Execute(sql: sql, param: sqlParam);
+                await sqlDbContext.ExecuteAsync(sql: sql, param: sqlParam);
             }
 
             return entity;
         }
-        public override void AddRange(IEnumerable<Entity> entities)
-        {
 
+        public override async Task AddRangeAsync(IEnumerable<Entity> entities)
+        {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
             (string sql, Func<object, Dictionary<string, object>> GetSqlParams) sql_IdentityKey = default;
             (string sql, Func<object, Dictionary<string, object>> GetSqlParams) sql_Others = default;
@@ -120,7 +94,7 @@ namespace Vitorm.Sql
                     var sqlParam = sql_IdentityKey.GetSqlParams(entity);
 
                     // #3 add
-                    var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql_IdentityKey.sql, param: sqlParam);
+                    var newKeyValue = await sqlDbContext.ExecuteScalarAsync(sql: sql_IdentityKey.sql, param: sqlParam);
 
                     // #4 set key value to entity
                     var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
@@ -142,18 +116,17 @@ namespace Vitorm.Sql
                     var sqlParam = sql_Others.GetSqlParams(entity);
 
                     // #3 add
-                    sqlDbContext.Execute(sql: sql_Others.sql, param: sqlParam);
+                    await sqlDbContext.ExecuteAsync(sql: sql_Others.sql, param: sqlParam);
 
                     affectedRowCount++;
                 }
             }
-
         }
         #endregion
 
 
         #region #2 Retrieve : Get Query
-        public override Entity Get(object keyValue)
+        public override async Task<Entity> GetAsync(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -167,8 +140,9 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            using var reader = sqlDbContext.ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
-            if (reader.Read())
+            using var reader = await sqlDbContext.ExecuteReaderAsync(sql: sql, param: sqlParam, useReadOnly: true);
+
+            if (reader is DbDataReader dataReader ? await dataReader.ReadAsync() : reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(entityDescriptor.entityType);
                 foreach (var column in entityDescriptor.allColumns)
@@ -179,14 +153,15 @@ namespace Vitorm.Sql
                 }
                 return entity;
             }
+
             return default;
 
         }
-        public override IQueryable<Entity> Query() => dbContext.Query<Entity>();
+        //public override IQueryable<Entity> Query() => dbContext.Query<Entity>();
         #endregion
 
         #region #3 Update: Update UpdateRange
-        public override int Update(Entity entity)
+        public override async Task<int> UpdateAsync(Entity entity)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -198,11 +173,11 @@ namespace Vitorm.Sql
             var sqlParam = GetSqlParams(entity);
 
             // #3 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: sqlParam);
+            var affectedRowCount = await sqlDbContext.ExecuteAsync(sql: sql, param: sqlParam);
 
             return affectedRowCount;
         }
-        public override int UpdateRange(IEnumerable<Entity> entities)
+        public override async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -216,26 +191,26 @@ namespace Vitorm.Sql
             foreach (var entity in entities)
             {
                 var sqlParam = GetSqlParams(entity);
-                affectedRowCount += sqlDbContext.Execute(sql: sql, param: sqlParam);
+                affectedRowCount += await sqlDbContext.ExecuteAsync(sql: sql, param: sqlParam);
             }
             return affectedRowCount;
         }
         #endregion
 
         #region #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public override int Delete(Entity entity)
+        public override async Task<int> DeleteAsync(Entity entity)
         {
             var key = entityDescriptor.key.GetValue(entity);
-            return DeleteByKey(key);
+            return await DeleteByKeyAsync(key);
         }
 
-        public override int DeleteRange(IEnumerable<Entity> entities)
+        public override async Task<int> DeleteRangeAsync(IEnumerable<Entity> entities)
         {
             var keys = entities.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
-            return DeleteByKeys(keys);
+            return await DeleteByKeysAsync(keys);
         }
 
-        public override int DeleteByKey(object keyValue)
+        public override async Task<int> DeleteByKeyAsync(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -248,12 +223,12 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: sqlParam);
+            var affectedRowCount = await sqlDbContext.ExecuteAsync(sql: sql, param: sqlParam);
 
             return affectedRowCount;
         }
 
-        public override int DeleteByKeys<Key>(IEnumerable<Key> keys)
+        public override async Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -262,10 +237,9 @@ namespace Vitorm.Sql
             var sql = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
 
             // #2 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: arg.sqlParam);
+            var affectedRowCount = await sqlDbContext.ExecuteAsync(sql: sql, param: arg.sqlParam);
             return affectedRowCount;
         }
         #endregion
-
     }
 }

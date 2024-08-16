@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Vitorm
 {
-    public interface IDbContext
+    public partial interface IDbContext
     {
         // #0 Schema :  Create Drop
         void TryCreateTable<Entity>();

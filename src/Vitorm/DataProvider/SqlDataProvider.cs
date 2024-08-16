@@ -6,7 +6,7 @@ using Vitorm.Sql;
 
 namespace Vitorm.DataProvider
 {
-    public abstract class SqlDataProvider : IDataProvider
+    public abstract partial class SqlDataProvider : IDataProvider
     {
         DbContext IDataProvider.CreateDbContext() => this.CreateDbContext();
 

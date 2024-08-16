@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Vitorm.Sql
 {
-    public class SqlExecutor
+    public partial class SqlExecutor
     {
         public readonly static SqlExecutor Instance = new SqlExecutor();
 
@@ -59,7 +59,6 @@ namespace Vitorm.Sql
 
         public virtual IDataReader ExecuteReader(IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-
             IDbCommand cmd = null;
 
             bool wasClosed = conn.State == ConnectionState.Closed, disposeCommand = true;
@@ -91,7 +90,6 @@ namespace Vitorm.Sql
                     cmd.Dispose();
                 }
             }
-
         }
 
 

@@ -2,33 +2,36 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using Vit.Linq;
+
 namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public partial class CRUD_Test
+    public partial class CRUDAsync_Test
     {
         static DbContext CreateDbContext() => DataSource.CreateDbContextForWriting();
 
         #region #0 Schema
         [TestMethod]
-        public void Test_Schema()
+        public async Task Test_Schema()
         {
             using var dbContext = CreateDbContext();
 
-            dbContext.TryDropTable<User>();
-            dbContext.TryDropTable<User>();
+            await dbContext.TryDropTableAsync<User>();
+            await dbContext.TryDropTableAsync<User>();
 
-            dbContext.TryCreateTable<User>();
-            dbContext.TryCreateTable<User>();
+            await dbContext.TryCreateTableAsync<User>();
+            await dbContext.TryCreateTableAsync<User>();
 
-            dbContext.Truncate<User>();
+            await dbContext.TruncateAsync<User>();
         }
         #endregion
 
+
         #region #1 Create
         [TestMethod]
-        public void Test_Create()
+        public async Task Test_Create()
         {
             using var dbContext = CreateDbContext();
 
@@ -36,10 +39,10 @@ namespace Vitorm.MsTest.CommonTest
 
 
             // #1 Add
-            dbContext.Add(newUserList[0]);
+            await dbContext.AddAsync(newUserList[0]);
 
             // #2 AddRange
-            dbContext.AddRange(newUserList.Skip(1));
+            await dbContext.AddRangeAsync(newUserList.Skip(1));
 
 
             DataSource.WaitForUpdate();
@@ -54,32 +57,31 @@ namespace Vitorm.MsTest.CommonTest
 
             try
             {
-                dbContext.Add(newUserList[0]);
+                await dbContext.AddAsync(newUserList[0]);
                 Assert.Fail("should not be able to add same key twice");
             }
             catch (Exception ex) when (ex is not AssertFailedException)
             {
             }
 
-
         }
         #endregion
 
         #region #2 Retrieve : Get Query
         [TestMethod]
-        public void Test_Retrieve()
+        public async Task Test_Retrieve()
         {
             using var dbContext = CreateDbContext();
 
             // #1 Get
             {
-                var user = dbContext.Get<User>(1);
+                var user = await dbContext.GetAsync<User>(1);
                 Assert.AreEqual(1, user.id);
             }
 
             // #2 Query
             {
-                var userList = dbContext.Query<User>().ToList();
+                var userList = await dbContext.Query<User>().ToListAsync();
                 Assert.AreEqual(6, userList.Count());
             }
         }
@@ -88,19 +90,19 @@ namespace Vitorm.MsTest.CommonTest
 
         #region #3 Update
         [TestMethod]
-        public void Test_Update()
+        public async Task Test_Update()
         {
             using var dbContext = CreateDbContext();
 
             // Update
             {
-                var rowCount = dbContext.Update(User.NewUser(4));
+                var rowCount = await dbContext.UpdateAsync(User.NewUser(4));
                 Assert.AreEqual(1, rowCount);
             }
 
             // UpdateRange
             {
-                var rowCount = dbContext.UpdateRange(User.NewUsers(5, 3));
+                var rowCount = await dbContext.UpdateRangeAsync(User.NewUsers(5, 3));
                 Assert.AreEqual(2, rowCount);
             }
 
@@ -121,19 +123,19 @@ namespace Vitorm.MsTest.CommonTest
 
         #region #4 Delete
         [TestMethod]
-        public void Test_Delete()
+        public async Task Test_Delete()
         {
             using var dbContext = CreateDbContext();
 
             // #1 Delete
             {
-                var rowCount = dbContext.Delete(User.NewUser(1));
+                var rowCount = await dbContext.DeleteAsync(User.NewUser(1));
                 Assert.AreEqual(1, rowCount);
             }
 
             // #2 DeleteRange
             {
-                var rowCount = dbContext.DeleteRange(User.NewUsers(2, 2));
+                var rowCount = await dbContext.DeleteRangeAsync(User.NewUsers(2, 2));
                 Assert.AreEqual(2, rowCount);
             }
 
@@ -142,7 +144,7 @@ namespace Vitorm.MsTest.CommonTest
                 var user = User.NewUser(4);
                 var key = dbContext.GetEntityDescriptor(typeof(User)).key;
                 var keyValue = key.GetValue(user);
-                var rowCount = dbContext.DeleteByKey<User>(keyValue);
+                var rowCount = await dbContext.DeleteByKeyAsync<User>(keyValue);
                 Assert.AreEqual(1, rowCount);
             }
 
@@ -151,7 +153,7 @@ namespace Vitorm.MsTest.CommonTest
                 var users = User.NewUsers(5, 2);
                 var key = dbContext.GetEntityDescriptor(typeof(User)).key;
                 var keyValues = users.Select(user => key.GetValue(user));
-                var rowCount = dbContext.DeleteByKeys<User, object>(keyValues);
+                var rowCount = await dbContext.DeleteByKeysAsync<User, object>(keyValues);
                 Assert.AreEqual(2, rowCount);
             }
 

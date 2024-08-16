@@ -59,6 +59,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
 
                 case "" or null or nameof(Enumerable.ToList):
                 case nameof(Orm_Extensions.ToExecuteString):
+                case nameof(Queryable_Extensions.ToListAsync):
                     {
                         var reader = new DataReader();
                         return prefix + " " + BuildDataReader(arg, stream, reader);

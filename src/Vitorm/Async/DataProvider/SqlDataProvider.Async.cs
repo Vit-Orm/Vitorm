@@ -33,7 +33,6 @@ namespace Vitorm.DataProvider
 
         // #2 Retrieve : Get Query
         public virtual async Task<Entity> GetAsync<Entity>(object keyValue) => await InvokeInDbAsync(db => db.GetAsync<Entity>(keyValue));
-        //public virtual IQueryable<Entity> Query<Entity>() => CreateDbContext().AutoDisposeAfterQuery().Query<Entity>();
 
 
         // #3 Update: Update UpdateRange

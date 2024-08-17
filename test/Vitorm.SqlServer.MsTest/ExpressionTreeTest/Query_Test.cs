@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vit.Linq.ExpressionTree.ExpressionTreeTest;
+using Vit.Linq.ExpressionNodes.ExpressionTreeTest;
 
 namespace Vitorm.MsTest.ExpressionTreeTest
 {

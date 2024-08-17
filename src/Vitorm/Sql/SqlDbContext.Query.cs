@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.StreamQuery;
 

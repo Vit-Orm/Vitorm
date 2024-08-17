@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-using Vit.Linq.ExpressionTree;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Sql.SqlTranslate;
 

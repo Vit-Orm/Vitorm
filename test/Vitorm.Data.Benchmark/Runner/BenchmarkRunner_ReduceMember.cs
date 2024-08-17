@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 
-using Vit.Linq.ExpressionTree;
+using Vit.Linq.ExpressionNodes;
 
 using Vitorm;
 using Vitorm.Sql;

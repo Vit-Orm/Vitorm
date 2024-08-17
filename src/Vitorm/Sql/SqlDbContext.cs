@@ -18,7 +18,7 @@ namespace Vitorm.Sql
         }
 
         #region DbSet
-        protected IDbSet DefaultDbSetCreator(IEntityDescriptor entityDescriptor)
+        protected new IDbSet DefaultDbSetCreator(IEntityDescriptor entityDescriptor)
         {
             return DbSetConstructor.CreateDbSet(this, entityDescriptor);
         }

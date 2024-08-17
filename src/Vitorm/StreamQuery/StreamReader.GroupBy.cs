@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 namespace Vitorm.StreamQuery
 {

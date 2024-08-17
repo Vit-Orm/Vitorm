@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Vit.Linq.ExpressionTree;
+using Vit.Linq.ExpressionNodes;
 
 namespace Vitorm
 {

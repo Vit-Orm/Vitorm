@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Vit.Linq;
 
-namespace Vit.Linq.ExpressionTree.ExpressionTreeTest
+namespace Vit.Linq.ExpressionNodes.ExpressionTreeTest
 {
 
     public abstract partial class ExpressionTester

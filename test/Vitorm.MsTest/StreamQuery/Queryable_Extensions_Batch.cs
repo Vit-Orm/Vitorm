@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Linq.ExpressionTree.ExpressionConvertor.MethodCalls;
+using Vit.Linq.ExpressionNodes.ComponentModel;
+using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
 
 using Vitorm.StreamQuery;
 using Vitorm.StreamQuery.MethodCall;

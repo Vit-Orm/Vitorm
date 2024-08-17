@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 namespace Vitorm.StreamQuery.MethodCall
 {

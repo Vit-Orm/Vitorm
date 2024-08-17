@@ -2,7 +2,7 @@
 
 using Vit.Core.Module.Serialization;
 using Vit.Linq;
-using Vit.Linq.Filter.ComponentModel;
+using Vit.Linq.FilterRules.ComponentModel;
 
 namespace Vitorm.MsTest
 {

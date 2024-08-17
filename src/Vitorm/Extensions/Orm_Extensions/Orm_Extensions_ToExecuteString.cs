@@ -8,7 +8,7 @@ namespace Vitorm
     public static partial class Orm_Extensions
     {
         /// <summary>
-        /// if mysql or sqlserver or sqlite , will get sql string
+        /// if MySql or SqlServer or Sqlite , will get sql string
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>

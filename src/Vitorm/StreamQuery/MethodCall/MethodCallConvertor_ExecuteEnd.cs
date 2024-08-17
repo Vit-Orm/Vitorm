@@ -14,9 +14,6 @@ namespace Vitorm.StreamQuery.MethodCall
                     nameof(Vit.Linq.Queryable_Extensions.ToListAndTotalCount),
                     nameof(Vit.Linq.Queryable_Extensions.TotalCount),
                     nameof(Vit.Linq.Queryable_Extensions.ToListAsync),
-
-                    nameof(Orm_Extensions.ExecuteDelete),
-                    nameof(Orm_Extensions.ToExecuteString),
                 }
             );
 

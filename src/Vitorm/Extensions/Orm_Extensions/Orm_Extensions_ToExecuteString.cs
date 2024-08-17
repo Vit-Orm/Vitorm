@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
+using Vit.Linq.ExpressionNodes;
+
 using Vitorm.StreamQuery;
 
 namespace Vitorm

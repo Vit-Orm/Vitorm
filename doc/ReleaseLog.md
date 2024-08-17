@@ -1,11 +1,24 @@
 ﻿# Vitorm ReleaseLog
 
+-----------------------
+# 2.0.5
+- support Async Methods
+  - AddAsync AddRangeAsync
+  - GetAsync
+  - UpdateAsync UpdateRangeAsync
+  - DeleteAsync DeleteRangeAsync DeleteByKeyAsync DeleteByKeysAsync
 
+- support Async IQueryable Methods
+  - ToListAsync
+  - CountAsync TotalCountAsync
+  - ToListAndTotalCountAsync
+  - ExecuteDeleteAsync
+  - ExecuteUpdateAsync
+  - FirstOrDefaultAsync FirstAsync LastOrDefaultAsync LastAsync
 
 -----------------------
 # 2.0.4
 - [Vitorm] support Truncate
-
 
 -----------------------
 # 2.0.3

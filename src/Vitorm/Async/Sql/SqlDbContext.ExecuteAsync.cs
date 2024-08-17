@@ -7,7 +7,6 @@ namespace Vitorm.Sql
     public partial class SqlDbContext : DbContext
     {
 
-        #region ExecuteAsync 
         public virtual async Task<int> ExecuteWithTransactionAsync(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
         {
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
@@ -59,7 +58,6 @@ namespace Vitorm.Sql
                 return await sqlExecutor.ExecuteScalarAsync(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
             }
         }
-        #endregion
 
 
 

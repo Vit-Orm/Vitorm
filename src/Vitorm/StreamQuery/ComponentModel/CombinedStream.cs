@@ -97,5 +97,18 @@ value(Vit.Linq.Converter.OrderedQueryable`1[Vit.Linq.MsTest.Converter.Join_Test+
 
         public object[] methodArguments { get; set; }
         public object extra { get; set; }
+
+
+        #region ExtraArg
+        public Dictionary<string, object> extraArg;
+        public object GetExtraArg(string key) => extraArg?.TryGetValue(key, out var value) == true ? value : null;
+
+        public CombinedStream SetExtraArg(string key, object arg)
+        {
+            extraArg ??= new();
+            extraArg[key] = arg;
+            return this;
+        }
+        #endregion
     }
 }

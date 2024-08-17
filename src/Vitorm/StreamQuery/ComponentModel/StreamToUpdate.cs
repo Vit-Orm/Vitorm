@@ -5,7 +5,7 @@ namespace Vitorm.StreamQuery
 {
     public partial class StreamToUpdate : CombinedStream
     {
-        public StreamToUpdate(IStream source) : base(source.alias)
+        public StreamToUpdate(IStream source, string method) : base(source.alias)
         {
             if (source is CombinedStream combinedStream)
             {
@@ -24,7 +24,7 @@ namespace Vitorm.StreamQuery
             {
                 base.source = source;
             }
-            method = nameof(Orm_Extensions.ExecuteUpdate);
+            this.method = method;
         }
 
         // ExpressionNode_New   new { name = name + "_" }

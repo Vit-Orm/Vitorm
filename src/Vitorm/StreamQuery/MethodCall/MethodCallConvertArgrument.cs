@@ -5,8 +5,8 @@ namespace Vitorm.StreamQuery.MethodCall
     public class MethodCallConvertArgrument
     {
         public StreamReader reader { get; set; }
-        public Argument arg { get; set; }
+        public StreamReaderArgument arg { get; set; }
 
-        public ExpressionNode node { get; set; }
+        public ExpressionNode_MethodCall node { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace Vitorm.StreamQuery
 {
     public partial class StreamReader
     {
-        CombinedStream GroupBy(Argument arg, IStream source, ExpressionNode_Lambda resultSelector)
+        CombinedStream GroupBy(StreamReaderArgument arg, IStream source, ExpressionNode_Lambda resultSelector)
         {
             switch (source)
             {

@@ -6,9 +6,9 @@ using System.Linq.Expressions;
 using Vit.Linq;
 using Vit.Linq.ExpressionNodes.ComponentModel;
 
+using Vitorm.Sql.QueryExecutor;
 using Vitorm.StreamQuery;
 
-using QueryExecutor = System.Func<Vitorm.Sql.SqlDbContext.QueryExecutorArgument, object>;
 using StreamReader = Vitorm.StreamQuery.StreamReader;
 
 namespace Vitorm.Sql
@@ -21,7 +21,6 @@ namespace Vitorm.Sql
             AfterQuery += (_, _, _, _) => Dispose();
             return this;
         }
-
 
 
         public override IQueryable<Entity> Query<Entity>()
@@ -42,50 +41,70 @@ namespace Vitorm.Sql
             }
         }
 
-
-
         #region QueryExecutor
 
-        public class QueryExecutorArgument
+        public static Dictionary<string, IQueryExecutor> defaultQueryExecutors = CreateDefaultQueryExecutors();
+        public static Dictionary<string, IQueryExecutor> CreateDefaultQueryExecutors()
         {
-            public CombinedStream combinedStream;
-            public SqlDbContext dbContext;
+            Dictionary<string, IQueryExecutor> defaultQueryExecutors = new();
 
-            public Expression expression;
-            public Type expressionResultType;
-        }
+            #region AddDefaultQueryExecutor
+            void AddDefaultQueryExecutor(IQueryExecutor queryExecutor, string methodName = null)
+            {
+                defaultQueryExecutors[methodName ?? queryExecutor.methodName] = queryExecutor;
+            }
+            #endregion
 
 
-        public static Dictionary<string, QueryExecutor> defaultQueryExecutors = new Dictionary<string, QueryExecutor>()
-        {
             #region Sync
-            [nameof(Orm_Extensions.ExecuteUpdate)] = Query_ExecuteUpdate,
-            [nameof(Orm_Extensions.ExecuteDelete)] = Query_ExecuteDelete,
-            [nameof(Orm_Extensions.ToExecuteString)] = Query_ToExecuteString,
+            // Orm_Extensions
+            AddDefaultQueryExecutor(ExecuteUpdate.Instance);
+            AddDefaultQueryExecutor(ExecuteDelete.Instance);
+            AddDefaultQueryExecutor(ToExecuteString.Instance);
 
-            [nameof(Queryable.Count)] = Query_Count,
-            [nameof(Queryable_Extensions.TotalCount)] = Query_Count,
+            // ToList
+            AddDefaultQueryExecutor(ToList.Instance);
+            // Count TotalCount
+            AddDefaultQueryExecutor(Count.Instance);
+            AddDefaultQueryExecutor(Count.Instance, methodName: nameof(Queryable_Extensions.TotalCount));
 
-            [nameof(Enumerable.ToList)] = Query_ToList,
+            // ToListAndTotalCount
+            AddDefaultQueryExecutor(ToListAndTotalCount.Instance);
 
-            [nameof(Queryable_Extensions.ToListAndTotalCount)] = Query_ToListAndTotalCount,
-
-            [nameof(Queryable.FirstOrDefault)] = Query_First,
-            [nameof(Queryable.First)] = Query_First,
-            [nameof(Queryable.LastOrDefault)] = Query_First,
-            [nameof(Queryable.Last)] = Query_First,
+            // FirstOrDefault First LastOrDefault Last
+            AddDefaultQueryExecutor(FirstOrDefault.Instance);
+            AddDefaultQueryExecutor(FirstOrDefault.Instance, methodName: nameof(Queryable.First));
+            AddDefaultQueryExecutor(FirstOrDefault.Instance, methodName: nameof(Queryable.LastOrDefault));
+            AddDefaultQueryExecutor(FirstOrDefault.Instance, methodName: nameof(Queryable.Last));
             #endregion
 
 
             #region Async
-            [nameof(Queryable_Extensions.ToListAsync)] = Query_ToListAsync,
+            // Orm_Extensions
+            AddDefaultQueryExecutor(ExecuteUpdateAsync.Instance);
+            AddDefaultQueryExecutor(ExecuteDeleteAsync.Instance);
+
+            // ToList
+            AddDefaultQueryExecutor(ToListAsync.Instance);
+            // Count TotalCount
+            AddDefaultQueryExecutor(CountAsync.Instance);
+            AddDefaultQueryExecutor(CountAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.TotalCountAsync));
+
+            // ToListAndTotalCount
+            AddDefaultQueryExecutor(ToListAndTotalCountAsync.Instance);
+
+            // FirstOrDefault First LastOrDefault Last
+            AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance);
+            AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.FirstAsync));
+            AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.LastOrDefaultAsync));
+            AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.LastAsync));
 
             #endregion
 
-        };
+            return defaultQueryExecutors;
+        }
 
-
-        public Dictionary<string, QueryExecutor> queryExecutors = defaultQueryExecutors;
+        public Dictionary<string, IQueryExecutor> queryExecutors = defaultQueryExecutors;
 
         #endregion
 
@@ -96,6 +115,7 @@ namespace Vitorm.Sql
         #endregion
 
 
+        public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
 
         protected bool QueryIsFromSameDb(object query, Type elementType)
         {
@@ -112,22 +132,35 @@ namespace Vitorm.Sql
             var stream = streamReader.ReadFromNode(node);
             //var strStream = Json.Serialize(stream);
 
-
-            // #3 Execute
             if (stream is not CombinedStream combinedStream) combinedStream = new CombinedStream("tmp") { source = stream };
 
-            var method = combinedStream.method;
-            if (string.IsNullOrWhiteSpace(method)) method = nameof(Enumerable.ToList);
-            queryExecutors.TryGetValue(method, out var executor);
+            var executorArg = new QueryExecutorArgument
+            {
+                combinedStream = combinedStream,
+                dbContext = this,
+                expression = expression,
+                expressionResultType = expressionResultType
+            };
 
-            if (executor != null)
-                return executor(new QueryExecutorArgument
+
+            #region #3 Execute by executor from CombinedStream
+            {
+                var queryExecutor = combinedStream.GetQueryExecutor();
+                if (queryExecutor != null)
+                    return queryExecutor.ExecuteQuery(executorArg);
+            }
+            #endregion
+
+            #region #4 Execute by registered executor
+            {
+                var method = combinedStream.method;
+                if (string.IsNullOrWhiteSpace(method)) method = nameof(Enumerable.ToList);
+                if (queryExecutors.TryGetValue(method, out var queryExecutor))
                 {
-                    combinedStream = combinedStream,
-                    dbContext = this,
-                    expression = expression,
-                    expressionResultType = expressionResultType
-                });
+                    return queryExecutor.ExecuteQuery(executorArg);
+                }
+            }
+            #endregion
 
             throw new NotSupportedException("not supported query method: " + combinedStream.method);
         }

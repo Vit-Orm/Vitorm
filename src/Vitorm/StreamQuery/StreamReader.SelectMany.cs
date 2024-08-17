@@ -14,7 +14,7 @@ namespace Vitorm.StreamQuery
         //      (user, father) => new <>f__AnonymousType4`2(user = user, father = father)
         //  )
 
-        CombinedStream SelectMany(Argument arg, IStream source, ExpressionNode_Lambda rightSelector, ExpressionNode_Lambda resultSelector)
+        CombinedStream SelectMany(StreamReaderArgument arg, IStream source, ExpressionNode_Lambda rightSelector, ExpressionNode_Lambda resultSelector)
         {
             CombinedStream finalStream;
             ExpressionNode parameterValueForLeftStream;
@@ -63,7 +63,7 @@ namespace Vitorm.StreamQuery
 
                 ReadNode(argForRightStream, rightSelector.body);
 
-                void ReadNode(Argument argForRightStream, ExpressionNode node)
+                void ReadNode(StreamReaderArgument argForRightStream, ExpressionNode node)
                 {
                     switch (node.nodeType)
                     {

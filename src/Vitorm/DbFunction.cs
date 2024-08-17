@@ -5,7 +5,7 @@ using Vit.Linq.ExpressionNodes;
 namespace Vitorm
 {
 
-    [DataValueType(EDataValueType.other)]
+    [ExpressionNode_DataValueType(EDataValueType.other)]
     public static partial class DbFunction
     {
         public static Return Call<Return>(string functionName) => throw new NotImplementedException();

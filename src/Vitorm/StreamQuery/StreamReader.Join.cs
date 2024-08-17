@@ -16,7 +16,7 @@ namespace Vitorm.StreamQuery
         //       , (user, father) => new { user, father }
         //   );
 
-        CombinedStream Join(Argument arg, IStream source, IStream rightStream, ExpressionNode_Lambda leftKeySelector, ExpressionNode_Lambda rightKeySelector, ExpressionNode_Lambda resultSelector)
+        CombinedStream Join(StreamReaderArgument arg, IStream source, IStream rightStream, ExpressionNode_Lambda leftKeySelector, ExpressionNode_Lambda rightKeySelector, ExpressionNode_Lambda resultSelector)
         {
 
             CombinedStream finalStream;

@@ -1,24 +1,27 @@
 ﻿using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
-    public partial class SqlDbContext : DbContext
+    public partial class ExecuteDelete : IQueryExecutor
     {
+        public static readonly ExecuteDelete Instance = new();
 
-        static object Query_ExecuteDelete(QueryExecutorArgument execArg)
+        public string methodName => nameof(Orm_Extensions.ExecuteDelete);
+
+        public object ExecuteQuery(QueryExecutorArgument execArg)
         {
             CombinedStream combinedStream = execArg.combinedStream;
             var dbContext = execArg.dbContext;
             var sqlTranslateService = dbContext.sqlTranslateService;
 
-
+            // #2 Prepare sql
             var entityType = (combinedStream.source as SourceStream)?.GetEntityType();
             var arg = new QueryTranslateArgument(dbContext, entityType);
-
             var sql = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
-            var count = dbContext.Execute(sql: sql, param: arg.sqlParam);
-            return count;
+
+            // #3 Execute
+            return dbContext.Execute(sql: sql, param: arg.sqlParam);
         }
 
     }

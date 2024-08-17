@@ -3,28 +3,29 @@
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
-    public partial class SqlDbContext : DbContext
+    public partial class ExecuteUpdate : IQueryExecutor
     {
+        public static readonly ExecuteUpdate Instance = new();
 
-        static object Query_ExecuteUpdate(QueryExecutorArgument execArg)
+        public string methodName => nameof(Orm_Extensions.ExecuteUpdate);
+
+        public object ExecuteQuery(QueryExecutorArgument execArg)
         {
             CombinedStream combinedStream = execArg.combinedStream;
 
-
             if (combinedStream is not StreamToUpdate streamToUpdate) throw new NotSupportedException("not supported query type: " + combinedStream.method);
-
 
             var dbContext = execArg.dbContext;
             var sqlTranslateService = dbContext.sqlTranslateService;
 
-            // get arg
+            // #2 Prepare sql
             var resultEntityType = streamToUpdate.fieldsToUpdate.New_GetType();
             var arg = new QueryTranslateArgument(dbContext, resultEntityType);
-
             var sql = sqlTranslateService.PrepareExecuteUpdate(arg, streamToUpdate);
 
+            // #3 Execute
             return dbContext.Execute(sql: sql, param: arg.sqlParam);
         }
     }

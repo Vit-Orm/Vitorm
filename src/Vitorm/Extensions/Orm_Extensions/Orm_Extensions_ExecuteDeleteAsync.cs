@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
+
 using Vitorm.StreamQuery;
 
 namespace Vitorm
@@ -11,22 +13,22 @@ namespace Vitorm
     public static partial class Orm_Extensions
     {
         /// <summary>
-        /// if MySql or SqlServer or Sqlite , will get sql string
+        /// delete from first collection if joined multiple collections
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [ExpressionNode_CustomMethod]
         [StreamQuery_CustomMethod]
-        public static string ToExecuteString(this IQueryable source)
+        public static Task<int> ExecuteDeleteAsync(this IQueryable source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return source.Provider.Execute<string>(
+            return source.Provider.Execute<Task<int>>(
                 Expression.Call(
                     null,
-                    new Func<IQueryable, string>(ToExecuteString).Method
+                    new Func<IQueryable, Task<int>>(ExecuteDeleteAsync).Method
                     , source.Expression));
         }
     }

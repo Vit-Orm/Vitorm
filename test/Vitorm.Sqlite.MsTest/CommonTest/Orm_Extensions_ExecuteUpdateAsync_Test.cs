@@ -4,19 +4,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.CommonTest
 {
-
     [TestClass]
-    public class Orm_Extensions_ExecuteUpdate_Test
+    public class Orm_Extensions_ExecuteUpdateAsync_Test
     {
-
         [TestMethod]
-        public void Test_ExecuteUpdate()
+        public async Task Test_ExecuteUpdate()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
             {
-                var count = userQuery.ExecuteUpdate(row => new User
+                var count = await userQuery.ExecuteUpdateAsync(row => new User
                 {
                     name = "u_" + row.id + "_" + (row.fatherId.ToString() ?? "") + "_" + (row.motherId.ToString() ?? ""),
                     birth = DateTime.Parse("2021-01-11 00:00:00")
@@ -40,7 +38,7 @@ namespace Vitorm.MsTest.CommonTest
                                 user.motherId
                             };
 
-                var count = query.ExecuteUpdate(row => new User
+                var count = await query.ExecuteUpdateAsync(row => new User
                 {
                     name = "u2_" + row.user.id + "_" + (row.father.id.ToString() ?? "") + "_" + (row.motherId.ToString() ?? "")
                 });
@@ -63,7 +61,7 @@ namespace Vitorm.MsTest.CommonTest
                                 user.motherId
                             };
 
-                var count = query.ExecuteUpdate(row => new User
+                var count = await query.ExecuteUpdateAsync(row => new User
                 {
                     name = "u3_" + row.user.id + "_" + (row.father.id.ToString() ?? "") + "_" + (row.motherId.ToString() ?? "")
                 });

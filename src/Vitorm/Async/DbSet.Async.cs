@@ -3,36 +3,33 @@ using System.Threading.Tasks;
 
 namespace Vitorm
 {
-
-
     public partial class DbSet<Entity> : IDbSet<Entity>
     {
         // #0 Schema :  Create Drop Truncate
-        public virtual async Task TryCreateTableAsync() => await dbContext.TryCreateTableAsync<Entity>();
-        public virtual async Task TryDropTableAsync() => await dbContext.TryDropTableAsync<Entity>();
-        public virtual async Task TruncateAsync() => await dbContext.TruncateAsync<Entity>();
+        public virtual Task TryCreateTableAsync() => dbContext.TryCreateTableAsync<Entity>();
+        public virtual Task TryDropTableAsync() => dbContext.TryDropTableAsync<Entity>();
+        public virtual Task TruncateAsync() => dbContext.TruncateAsync<Entity>();
 
 
         // #1 Create :  Add AddRange
-        public virtual async Task<Entity> AddAsync(Entity entity) => await dbContext.AddAsync<Entity>(entity);
-        public virtual async Task AddRangeAsync(IEnumerable<Entity> entities) => await dbContext.AddRangeAsync<Entity>(entities);
+        public virtual Task<Entity> AddAsync(Entity entity) => dbContext.AddAsync<Entity>(entity);
+        public virtual Task AddRangeAsync(IEnumerable<Entity> entities) => dbContext.AddRangeAsync<Entity>(entities);
 
 
         // #2 Retrieve : Get Query
-        public virtual async Task<Entity> GetAsync(object keyValue) => await dbContext.GetAsync<Entity>(keyValue);
-        //public virtual IQueryable<Entity> Query() => dbContext.Query<Entity>();
+        public virtual Task<Entity> GetAsync(object keyValue) => dbContext.GetAsync<Entity>(keyValue);
 
 
         // #3 Update: Update UpdateRange
-        public virtual async Task<int> UpdateAsync(Entity entity) => await dbContext.UpdateAsync<Entity>(entity);
-        public virtual async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities) => await dbContext.UpdateRangeAsync<Entity>(entities);
+        public virtual Task<int> UpdateAsync(Entity entity) => dbContext.UpdateAsync<Entity>(entity);
+        public virtual Task<int> UpdateRangeAsync(IEnumerable<Entity> entities) => dbContext.UpdateRangeAsync<Entity>(entities);
 
 
         // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public virtual async Task<int> DeleteAsync(Entity entity) => await dbContext.DeleteAsync<Entity>(entity);
-        public virtual async Task<int> DeleteRangeAsync(IEnumerable<Entity> entities) => await dbContext.DeleteRangeAsync<Entity>(entities);
-        public virtual async Task<int> DeleteByKeyAsync(object keyValue) => await dbContext.DeleteByKeyAsync<Entity>(keyValue);
-        public virtual async Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys) => await dbContext.DeleteByKeysAsync<Entity, Key>(keys);
+        public virtual Task<int> DeleteAsync(Entity entity) => dbContext.DeleteAsync<Entity>(entity);
+        public virtual Task<int> DeleteRangeAsync(IEnumerable<Entity> entities) => dbContext.DeleteRangeAsync<Entity>(entities);
+        public virtual Task<int> DeleteByKeyAsync(object keyValue) => dbContext.DeleteByKeyAsync<Entity>(keyValue);
+        public virtual Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys) => dbContext.DeleteByKeysAsync<Entity, Key>(keys);
 
 
     }

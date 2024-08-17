@@ -1,31 +1,28 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql
 {
-    public partial class SqlDbContext : DbContext
+    public partial class FirstOrDefault : IQueryExecutor
     {
+        public static readonly FirstOrDefault Instance = new();
 
-        static object Query_ToList(QueryExecutorArgument execArg)
-        {
-            var resultEntityType = execArg.expression.Type.GetGenericArguments()?.FirstOrDefault();
-            return Query_ToList(execArg, resultEntityType);
-        }
+        public string methodName => nameof(Queryable.FirstOrDefault);
 
-
-        static object Query_ToList(QueryExecutorArgument execArg, Type resultEntityType)
+        public object ExecuteQuery(QueryExecutorArgument execArg)
         {
             CombinedStream combinedStream = execArg.combinedStream;
             var dbContext = execArg.dbContext;
             var sqlTranslateService = dbContext.sqlTranslateService;
 
+            // #2 Prepare sql
+            var resultEntityType = execArg.expression.Type;
             var arg = new QueryTranslateArgument(dbContext, resultEntityType);
-
             var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
+            // #3 Execute
             using var reader = dbContext.ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
             return arg.dataReader.ReadData(reader);
         }

@@ -6,11 +6,11 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Orm_Extensions_ExecuteDelete_Test
+    public class Orm_Extensions_ExecuteDeleteAsync_Test
     {
 
         [TestMethod]
-        public void Test_ExecuteDelete()
+        public async Task Test_ExecuteDelete()
         {
             {
                 using var dbContext = DataSource.CreateDbContext();
@@ -25,7 +25,7 @@ namespace Vitorm.MsTest.CommonTest
                                 father
                             };
 
-                var rowCount = query.ExecuteDelete();
+                var rowCount = await query.ExecuteDeleteAsync();
 
                 Assert.AreEqual(3, rowCount);
 
@@ -39,7 +39,7 @@ namespace Vitorm.MsTest.CommonTest
                 using var dbContext = DataSource.CreateDbContext();
                 var userQuery = dbContext.Query<User>();
 
-                var rowCount = userQuery.Where(m => m.id == 2 || m.id == 4).ExecuteDelete();
+                var rowCount = await userQuery.Where(m => m.id == 2 || m.id == 4).ExecuteDeleteAsync();
 
                 Assert.AreEqual(2, rowCount);
 

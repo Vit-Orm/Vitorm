@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
 
@@ -9,26 +11,25 @@ using Vitorm.StreamQuery;
 namespace Vitorm
 {
 
-    public static partial class Orm_Extensions
+    public static partial class Queryable_AsyncExtensions
     {
-        /// <summary>
-        /// delete from first collection if joined multiple collections
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
         [ExpressionNode_CustomMethod]
         [StreamQuery_CustomMethod]
-        public static int ExecuteDelete(this IQueryable source)
+        public static Task<(List<TSource> list, int totalCount)> ToListAndTotalCountAsync<TSource>(this IQueryable<TSource> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return source.Provider.Execute<int>(
+            return source.Provider.Execute<Task<(List<TSource> list, int totalCount)>>(
                 Expression.Call(
                     null,
-                    new Func<IQueryable, int>(ExecuteDelete).Method
+                    new Func<IQueryable<TSource>, Task<(List<TSource> list, int totalCount)>>(ToListAndTotalCountAsync<TSource>).Method
                     , source.Expression));
         }
     }
+
+
+
+
+
 }

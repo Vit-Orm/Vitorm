@@ -1,4 +1,4 @@
-﻿using Vitorm.Sql;
+﻿using Vitorm.Sql.QueryExecutor;
 using Vitorm.StreamQuery;
 
 namespace Vitorm

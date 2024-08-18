@@ -9,7 +9,7 @@ using Vit.Linq;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
     public partial class ToListAsync : IQueryExecutor
     {

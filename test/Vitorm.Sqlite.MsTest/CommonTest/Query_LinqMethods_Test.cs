@@ -140,6 +140,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual(6, userList[0].id);
             }
+
             {
                 var query = userQuery.OrderByDescending(user => user.id).Select(user => new { fid = user.fatherId, user.id });
 
@@ -149,10 +150,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual(6, userList[0].id);
             }
-
         }
-
-
 
 
 
@@ -179,6 +177,7 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(3, count);
             }
         }
+
 
         [TestMethod]
         public void Test_TotalCount()

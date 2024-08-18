@@ -33,7 +33,6 @@ namespace Vitorm.MsTest.CommonTest
         }
 
 
-
         [TestMethod]
         public async Task Test_Count()
         {

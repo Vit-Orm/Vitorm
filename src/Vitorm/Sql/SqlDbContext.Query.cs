@@ -98,7 +98,6 @@ namespace Vitorm.Sql
             AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.FirstAsync));
             AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.LastOrDefaultAsync));
             AddDefaultQueryExecutor(FirstOrDefaultAsync.Instance, methodName: nameof(Queryable_AsyncExtensions.LastAsync));
-
             #endregion
 
             return defaultQueryExecutors;
@@ -117,7 +116,7 @@ namespace Vitorm.Sql
 
         public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
 
-        protected bool QueryIsFromSameDb(object query, Type elementType)
+        protected virtual bool QueryIsFromSameDb(object query, Type elementType)
         {
             return dbGroupName == QueryableBuilder.GetQueryConfig(query as IQueryable) as string;
         }

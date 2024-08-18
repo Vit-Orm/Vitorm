@@ -1,7 +1,7 @@
 ﻿
-using FuncQueryExecutor = System.Func<Vitorm.Sql.QueryExecutorArgument, object>;
+using FuncQueryExecutor = System.Func<Vitorm.Sql.QueryExecutor.QueryExecutorArgument, object>;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
     public class QueryExecutor_Delegate : IQueryExecutor
     {

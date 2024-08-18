@@ -21,8 +21,6 @@ namespace Vitorm.MsTest.CommonTest
 
             dbContext.TryCreateTable<User>();
             dbContext.TryCreateTable<User>();
-
-            dbContext.Truncate<User>();
         }
         #endregion
 

@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 using Vitorm.StreamQuery;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
     public class QueryExecutorArgument
     {

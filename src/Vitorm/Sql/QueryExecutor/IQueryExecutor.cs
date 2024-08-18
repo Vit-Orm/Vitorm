@@ -1,4 +1,4 @@
-﻿namespace Vitorm.Sql
+﻿namespace Vitorm.Sql.QueryExecutor
 {
     public interface IQueryExecutor
     {

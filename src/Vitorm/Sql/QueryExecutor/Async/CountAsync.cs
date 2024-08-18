@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.QueryExecutor
 {
     /// <summary>
     /// Queryable.Count or Queryable_Extensions.TotalCount

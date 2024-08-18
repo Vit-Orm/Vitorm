@@ -23,8 +23,6 @@ namespace Vitorm.MsTest.CommonTest
 
             await dbContext.TryCreateTableAsync<User>();
             await dbContext.TryCreateTableAsync<User>();
-
-            await dbContext.TruncateAsync<User>();
         }
         #endregion
 

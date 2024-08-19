@@ -6,7 +6,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_LinqMethods_Distinct_Test
+    public class Query_Distinct_Test
     {
 
         [TestMethod]

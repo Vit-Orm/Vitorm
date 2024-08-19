@@ -17,6 +17,8 @@ namespace Vitorm.Sql.QueryExecutor
 
         public object ExecuteQuery(QueryExecutorArgument execArg)
         {
+            using var _ = execArg;
+
             return Execute(execArg);
         }
 

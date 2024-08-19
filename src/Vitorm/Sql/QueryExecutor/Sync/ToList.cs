@@ -14,6 +14,8 @@ namespace Vitorm.Sql.QueryExecutor
 
         public object ExecuteQuery(QueryExecutorArgument execArg)
         {
+            using var _ = execArg;
+
             var resultEntityType = execArg.expression.Type.GetGenericArguments()?.FirstOrDefault();
             return Execute(execArg, resultEntityType);
         }

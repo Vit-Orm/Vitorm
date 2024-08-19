@@ -8,7 +8,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_AsyncMethods_Test
+    public class Query_MethodAsync_Test
     {
 
         [TestMethod]
@@ -131,6 +131,11 @@ namespace Vitorm.MsTest.CommonTest
                 var user = await userQuery.OrderByDescending(m => m.id).FirstOrDefaultAsync();
                 Assert.AreEqual(6, user?.id);
             }
+
+            {
+                var user = await userQuery.OrderBy(m => m.id).Skip(1).Take(2).FirstOrDefaultAsync();
+                Assert.AreEqual(2, user?.id);
+            }
         }
 
 
@@ -159,9 +164,12 @@ namespace Vitorm.MsTest.CommonTest
                 catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
-
             }
 
+            {
+                var user = await userQuery.OrderBy(m => m.id).Skip(1).Take(2).FirstAsync();
+                Assert.AreEqual(2, user?.id);
+            }
         }
 
 
@@ -195,6 +203,11 @@ namespace Vitorm.MsTest.CommonTest
                 var user = await userQuery.OrderByDescending(m => m.id).LastOrDefaultAsync();
                 Assert.AreEqual(1, user?.id);
             }
+
+            {
+                var user = await userQuery.OrderBy(m => m.id).Skip(1).Take(2).LastOrDefaultAsync();
+                Assert.AreEqual(3, user?.id);
+            }
         }
 
 
@@ -225,6 +238,10 @@ namespace Vitorm.MsTest.CommonTest
                 }
             }
 
+            {
+                var user = await userQuery.OrderBy(m => m.id).Skip(1).Take(2).LastAsync();
+                Assert.AreEqual(3, user?.id);
+            }
         }
 
 

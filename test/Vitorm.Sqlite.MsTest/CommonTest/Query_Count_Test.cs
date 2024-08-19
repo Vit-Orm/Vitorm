@@ -6,7 +6,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_LinqMethods_Count_Test
+    public class Query_Count_Test
     {
 
         [TestMethod]

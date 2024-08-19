@@ -41,6 +41,20 @@ namespace Vitorm.MsTest
             Test_Delete();
         }
 
+        [TestMethod]
+        public async Task TestAsync()
+        {
+            Init();
+
+            await Test_GetAsync();
+            await Test_QueryAsync();
+            //await Test_QueryJoinAsync();
+            //await Test_ExecuteUpdateAsync();
+            //await Test_ExecuteDeleteAsync();
+            await Test_UpdateAsync();
+            await Test_DeleteAsync();
+        }
+
         public override User NewUser(int id, bool forAdd = false) => new User { key = id.ToString(), id = id, name = "testUser" + id };
 
         public override void WaitForUpdate() => Thread.Sleep(1000);

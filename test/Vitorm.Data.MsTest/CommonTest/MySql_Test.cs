@@ -22,7 +22,7 @@ namespace Vitorm.MsTest
     {
 
         [TestMethod]
-        public void Test()
+        public async Task Test()
         {
             Init();
 
@@ -37,6 +37,20 @@ namespace Vitorm.MsTest
             Test_Create();
             Test_Update();
             Test_Delete();
+        }
+
+        [TestMethod]
+        public async Task TestAsync()
+        {
+            Init();
+
+            await Test_GetAsync();
+            await Test_QueryAsync();
+            await Test_QueryJoinAsync();
+            await Test_ExecuteUpdateAsync();
+            await Test_ExecuteDeleteAsync();
+            await Test_UpdateAsync();
+            await Test_DeleteAsync();
         }
 
         public override User NewUser(int id, bool forAdd = false) => new User { id = forAdd ? 0 : id, name = "testUser" + id };

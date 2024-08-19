@@ -8,7 +8,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_LinqMethods_Test
+    public class Query_Method_Test
     {
 
         [TestMethod]
@@ -251,6 +251,11 @@ namespace Vitorm.MsTest.CommonTest
                 var user = userQuery.OrderByDescending(m => m.id).FirstOrDefault();
                 Assert.AreEqual(6, user?.id);
             }
+
+            {
+                var user = userQuery.OrderBy(m => m.id).Skip(1).Take(2).FirstOrDefault();
+                Assert.AreEqual(2, user?.id);
+            }
         }
 
 
@@ -281,6 +286,10 @@ namespace Vitorm.MsTest.CommonTest
                 }
             }
 
+            {
+                var user = userQuery.OrderBy(m => m.id).Skip(1).Take(2).First();
+                Assert.AreEqual(2, user?.id);
+            }
         }
 
 
@@ -314,6 +323,11 @@ namespace Vitorm.MsTest.CommonTest
                 var user = userQuery.OrderByDescending(m => m.id).LastOrDefault();
                 Assert.AreEqual(1, user?.id);
             }
+
+            {
+                var user = userQuery.OrderBy(m => m.id).Skip(1).Take(2).LastOrDefault();
+                Assert.AreEqual(3, user?.id);
+            }
         }
 
 
@@ -342,9 +356,12 @@ namespace Vitorm.MsTest.CommonTest
                 catch (Exception ex) when (ex is not AssertFailedException)
                 {
                 }
-
             }
 
+            {
+                var user = userQuery.OrderBy(m => m.id).Skip(1).Take(2).Last();
+                Assert.AreEqual(3, user?.id);
+            }
         }
 
         // Enumerable.ToArray

@@ -142,15 +142,6 @@ namespace Vitorm.StreamQuery
                                         if (stream == default) break;
                                         return stream;
                                     }
-                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
-                                    {
-                                        var source = ReadStream(arg, call.arguments[0]);
-                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
-                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
-                                        if (stream == default) break;
-                                        stream.method = call.methodName;
-                                        return stream;
-                                    }
                                 case nameof(Queryable.Distinct):
                                     {
                                         var source = ReadStream(arg, call.arguments[0]);
@@ -236,6 +227,15 @@ namespace Vitorm.StreamQuery
                                         combinedStream.orders.Add(orderParam);
 
                                         return combinedStream;
+                                    }
+                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
+                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
+                                        if (stream == default) break;
+                                        stream.method = call.methodName;
+                                        return stream;
                                     }
                                 case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
                                 case nameof(Queryable.Count) or nameof(Enumerable.ToList) when call.arguments.Length == 1:

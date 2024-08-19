@@ -13,6 +13,8 @@ namespace Vitorm.Sql.QueryExecutor
 
         public object ExecuteQuery(QueryExecutorArgument execArg)
         {
+            using var _ = execArg;
+
             CombinedStream combinedStream = execArg.combinedStream;
 
             if (combinedStream is not StreamToUpdate streamToUpdate) throw new NotSupportedException("not supported query type: " + combinedStream.method);

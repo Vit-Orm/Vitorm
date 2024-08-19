@@ -22,6 +22,8 @@ namespace Vitorm.Sql.QueryExecutor
 
         public static async Task<Result> Execute<Result>(QueryExecutorArgument execArg)
         {
+            using var _ = execArg;
+
             CombinedStream combinedStream = execArg.combinedStream;
             var dbContext = execArg.dbContext;
             var sqlTranslateService = dbContext.sqlTranslateService;

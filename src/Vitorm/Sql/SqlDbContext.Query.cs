@@ -31,13 +31,15 @@ namespace Vitorm.Sql
         protected object QueryExecutor(Expression expression, Type expressionResultType)
         {
             object result = null;
+            Action dispose = () => AfterQuery?.Invoke(this, expression, expressionResultType, result);
             try
             {
-                return result = ExecuteQuery(expression, expressionResultType);
+                return result = ExecuteQuery(expression, expressionResultType, dispose);
             }
-            finally
+            catch
             {
-                AfterQuery?.Invoke(this, expression, expressionResultType, result);
+                dispose();
+                throw;
             }
         }
 
@@ -120,7 +122,7 @@ namespace Vitorm.Sql
         {
             return dbGroupName == QueryableBuilder.GetQueryConfig(query as IQueryable) as string;
         }
-        protected virtual object ExecuteQuery(Expression expression, Type expressionResultType)
+        protected virtual object ExecuteQuery(Expression expression, Type expressionResultType, Action dispose)
         {
             // #1 convert to ExpressionNode 
             ExpressionNode_Lambda node = convertService.ConvertToData_LambdaNode(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
@@ -138,7 +140,8 @@ namespace Vitorm.Sql
                 combinedStream = combinedStream,
                 dbContext = this,
                 expression = expression,
-                expressionResultType = expressionResultType
+                expressionResultType = expressionResultType,
+                dispose = dispose,
             };
 
 

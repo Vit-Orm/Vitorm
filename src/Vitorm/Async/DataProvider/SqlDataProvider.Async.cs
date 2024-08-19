@@ -42,7 +42,7 @@ namespace Vitorm.DataProvider
 
         // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
         public virtual async Task<int> DeleteAsync<Entity>(Entity entity) => await InvokeInDbAsync(db => db.DeleteAsync<Entity>(entity));
-        public virtual async Task<int> DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) => await InvokeInDb(db => db.DeleteRangeAsync<Entity>(entities));
+        public virtual async Task<int> DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) => await InvokeInDbAsync(db => db.DeleteRangeAsync<Entity>(entities));
 
         public virtual async Task<int> DeleteByKeyAsync<Entity>(object keyValue) => await InvokeInDbAsync(db => db.DeleteByKeyAsync<Entity>(keyValue));
         public virtual async Task<int> DeleteByKeysAsync<Entity, Key>(IEnumerable<Key> keys) => await InvokeInDbAsync(db => db.DeleteByKeysAsync<Entity, Key>(keys));

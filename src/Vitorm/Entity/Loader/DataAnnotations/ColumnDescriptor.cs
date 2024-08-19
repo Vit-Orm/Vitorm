@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Vitorm.Entity.DataAnnotations
+namespace Vitorm.Entity.Loader.DataAnnotations
 {
     public class ColumnDescriptor : IColumnDescriptor
     {
@@ -32,7 +32,7 @@ namespace Vitorm.Entity.DataAnnotations
         /// </summary>
         public string columnName { get; private set; }
 
-        public bool isKey { get; private set; }
+        public bool isKey { get; set; }
 
         /// <summary>
         /// whether column is Identity

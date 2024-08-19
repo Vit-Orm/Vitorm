@@ -8,9 +8,8 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Filter_WithJoin_Test
+    public class Query_FilterRule_WithJoin_Test
     {
-
 
         [TestMethod]
         public void Test()

@@ -6,9 +6,8 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Type_String_Like_Test
+    public class Property_String_Like_Test
     {
-
 
         [TestMethod]
         public void Test_Like()

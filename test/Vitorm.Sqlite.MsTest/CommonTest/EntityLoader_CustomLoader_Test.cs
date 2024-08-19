@@ -3,17 +3,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Vitorm.Entity;
-using Vitorm.Entity.DataAnnotations;
-using Vitorm.Entity.Loader;
-using Vitorm.Entity.LoaderAttribute;
+using Vitorm.Entity.Loader.DataAnnotations;
 
 namespace Vitorm.MsTest.CommonTest
 {
     [TestClass]
-    public class DbContext_Test
+    public class EntityLoader_CustomLoador_Test
     {
         [TestMethod]
-        public void EntityDescriptor_Test()
+        public void Test_EntityDescriptor()
         {
             using var dbContext = DataSource.CreateDbContext();
             var entityDescriptor = dbContext.GetEntityDescriptor(typeof(User));
@@ -24,7 +22,7 @@ namespace Vitorm.MsTest.CommonTest
 
 
         [TestMethod]
-        public void EntityLoader_Test()
+        public void Test_EntityLoader()
         {
             using var dbContext = DataSource.CreateDbContext();
 
@@ -38,7 +36,7 @@ namespace Vitorm.MsTest.CommonTest
 
             // #2 defaultEntityLoader
             {
-                DbContext.defaultEntityLoader.loaders.Insert(0, new CustomEntityLoader());
+                DbContext.defaultEntityLoader.loaders.Insert(0, new CustomEntityLoaderAttribute());
 
                 var users = dbContext.Query<CustomUser>().Where(m => m.name == "u146").ToList();
                 Assert.AreEqual(1, users.Count());
@@ -50,7 +48,7 @@ namespace Vitorm.MsTest.CommonTest
 
         #region Custom Entity
 
-        [EntityLoader(Loader = typeof(CustomEntityLoader))]
+        [CustomEntityLoader]
         public class CustomUser2 : CustomUser
         {
         }
@@ -105,11 +103,11 @@ namespace Vitorm.MsTest.CommonTest
         #endregion
 
         #region Custom EntityLoader
-        public class CustomEntityLoader : IEntityLoader
+        public class CustomEntityLoaderAttribute : Attribute, IEntityLoader
         {
             public void CleanCache() { }
-            public IEntityDescriptor LoadDescriptor(Type entityType) => LoadFromType(entityType);
-            public IEntityDescriptor LoadDescriptorWithoutCache(Type entityType) => LoadFromType(entityType);
+            public (bool success, IEntityDescriptor entityDescriptor) LoadDescriptor(Type entityType) => LoadFromType(entityType);
+            public (bool success, IEntityDescriptor entityDescriptor) LoadDescriptorWithoutCache(Type entityType) => LoadFromType(entityType);
 
             public static bool GetTableName(Type entityType, out string tableName, out string schema)
             {
@@ -119,9 +117,9 @@ namespace Vitorm.MsTest.CommonTest
                 return tableName != null;
             }
 
-            public static EntityDescriptor LoadFromType(Type entityType)
+            public static (bool success, IEntityDescriptor EntityDescriptor) LoadFromType(Type entityType)
             {
-                if (!GetTableName(entityType, out var tableName, out var schema)) return null;
+                if (!GetTableName(entityType, out var tableName, out var schema)) return default;
 
                 IColumnDescriptor[] allColumns = entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(propertyInfo =>
@@ -158,7 +156,7 @@ namespace Vitorm.MsTest.CommonTest
                         return new ColumnDescriptor(propertyInfo, columnName: columnName, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
                     }).Where(column => column != null).ToArray();
 
-                return new EntityDescriptor(entityType, allColumns, tableName, schema);
+                return (true, new EntityDescriptor(entityType, allColumns, tableName, schema));
             }
         }
         #endregion

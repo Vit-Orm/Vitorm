@@ -6,7 +6,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Type_Numric_Caculate_Test
+    public class Property_Numric_Caculate_Test
     {
 
         [TestMethod]

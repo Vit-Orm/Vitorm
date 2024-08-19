@@ -6,7 +6,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Type_String_Test
+    public class Property_String_Test
     {
 
         // Enumerable.Contains

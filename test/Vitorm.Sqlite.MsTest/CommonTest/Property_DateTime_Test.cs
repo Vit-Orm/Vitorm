@@ -6,7 +6,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Type_DateTime_Test
+    public class Property_DateTime_Test
     {
 
         [TestMethod]

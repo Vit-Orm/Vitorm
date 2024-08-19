@@ -6,7 +6,6 @@ using Vit.Linq.ExpressionNodes;
 using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Loader;
 
 namespace Vitorm
 {
@@ -65,13 +64,13 @@ namespace Vitorm
 
         #region EntityLoader
 
-        public static DefaultEntityLoader defaultEntityLoader = new();
+        public static EntityLoaders defaultEntityLoader = new();
 
         public IEntityLoader entityLoader = defaultEntityLoader;
         public virtual IEntityDescriptor GetEntityDescriptor(Type entityType, bool tryFromCache = true)
         {
             if (tryFromCache && dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;
-            return entityLoader.LoadDescriptor(entityType);
+            return entityLoader.LoadDescriptor(entityType).entityDescriptor;
         }
         public virtual IEntityDescriptor GetEntityDescriptor<Entity>(bool tryFromCache = true)
             => GetEntityDescriptor(typeof(Entity), tryFromCache);

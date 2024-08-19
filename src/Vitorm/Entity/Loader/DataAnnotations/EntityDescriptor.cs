@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Vitorm.Entity.DataAnnotations
+namespace Vitorm.Entity.Loader.DataAnnotations
 {
     public partial class EntityDescriptor : IEntityDescriptor
     {

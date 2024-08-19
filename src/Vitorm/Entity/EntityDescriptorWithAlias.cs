@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vitorm.Entity.DataAnnotations
+namespace Vitorm.Entity
 {
     public partial class EntityDescriptorWithAlias : IEntityDescriptor
     {

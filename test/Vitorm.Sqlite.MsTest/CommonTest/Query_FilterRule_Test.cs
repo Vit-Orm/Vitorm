@@ -9,7 +9,7 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Query_Filter_Test
+    public class Query_FilterRule_Test
     {
 
         [TestMethod]

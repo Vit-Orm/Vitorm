@@ -1,5 +1,4 @@
 ﻿using Vitorm.Entity;
-using Vitorm.Entity.DataAnnotations;
 
 namespace Vitorm
 {

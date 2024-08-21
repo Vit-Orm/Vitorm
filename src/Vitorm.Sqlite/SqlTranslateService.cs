@@ -156,7 +156,7 @@ namespace Vitorm.Sqlite
         {
             /* //sql
 CREATE TABLE IF NOT EXISTS "User" (
-  id int NOT NULL PRIMARY KEY,
+  id int PRIMARY KEY NOT NULL,
   name varchar(100) DEFAULT NULL,
   birth date DEFAULT NULL,
   fatherId int DEFAULT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS "User" (
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY");
+            sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
@@ -176,12 +176,22 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
-
             string GetColumnSql(IColumnDescriptor column)
             {
                 var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
-                // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
+                var defaultValue = column.isNullable ? "default null" : "";
+                if (column.isIdentity)
+                {
+                    throw new NotSupportedException("identity for Sqlite is not supported yet.");
+                }
+
+                /*
+                  name  type    nullable        defaultValue    primaryKey
+                  id    int     not null/null   default null    primary key
+
+                 */
+
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
         protected override string GetColumnDbType(Type type)

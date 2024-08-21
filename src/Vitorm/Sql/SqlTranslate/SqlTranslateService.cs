@@ -387,14 +387,8 @@ namespace Vitorm.Sql.SqlTranslate
             //return EAddType.unexpectedEmptyKey;
         }
 
-        protected virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, IColumnDescriptor[] columns)
+        protected virtual (List<string> columnNames, List<string> sqlColumnParams, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd_Columns(SqlTranslateArgument arg, IColumnDescriptor[] columns)
         {
-            /* //sql
-             insert into user(name,fatherId,motherId) values('',0,0);
-              */
-
-            var entityDescriptor = arg.entityDescriptor;
-
             // #1 GetSqlParams 
             Dictionary<string, object> GetSqlParams(object entity)
             {
@@ -408,27 +402,33 @@ namespace Vitorm.Sql.SqlTranslate
 
             #region #2 columns 
             List<string> columnNames = new List<string>();
-            List<string> valueParams = new List<string>();
+            List<string> sqlColumnParams = new List<string>();
 
             foreach (var column in columns)
             {
                 columnNames.Add(DelimitIdentifier(column.columnName));
-                valueParams.Add(GenerateParameterName(column.columnName));
+                sqlColumnParams.Add(GenerateParameterName(column.columnName));
             }
             #endregion
 
-            // #3 build sql
-            string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", valueParams)});";
-
-            return (sql, GetSqlParams);
+            return (columnNames, sqlColumnParams, GetSqlParams);
         }
 
-        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg)
+
+        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, EAddType addType)
         {
-            return PrepareAdd(arg, arg.entityDescriptor.allColumns);
+            if (addType == EAddType.identityKey) throw new NotImplementedException("not supported addType: " + addType);
+
+            {
+                // insert into user(name,fatherId,motherId) values('',0,0);
+
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
+                return (sql, GetSqlParams);
+            }
         }
 
-        public virtual (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg) => throw new NotImplementedException();
         #endregion
 
 

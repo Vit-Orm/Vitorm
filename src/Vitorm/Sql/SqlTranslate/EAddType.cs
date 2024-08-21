@@ -11,11 +11,11 @@
         /// </summary>
         keyWithValue,
         /// <summary>
-        /// not Identity && keyValue is empty
+        /// not Identity and keyValue is empty
         /// </summary>
         unexpectedEmptyKey,
         /// <summary>
-        /// Identity && keyValue is empty
+        /// Identity and keyValue is empty
         /// </summary>
         identityKey,
 

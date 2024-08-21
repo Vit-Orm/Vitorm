@@ -18,7 +18,7 @@
 
 - [Vitorm] EntityLoader_FromAttribute
 - [Vitorm] Vitorm.Entity.Loader.DataAnnotations.EntityLoader (strictMode, default false)
-> strictMode is false: will get typeName as tableName if not specify TableAttribute, and will set property named Id (or tableName + "Id") as key
+> if strictMode is false: will get typeName as tableName if not specify TableAttribute, and will set property named Id (or tableName + "Id") as key
 
 
 -----------------------

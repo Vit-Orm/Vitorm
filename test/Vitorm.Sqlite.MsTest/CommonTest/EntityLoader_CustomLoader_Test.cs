@@ -134,7 +134,7 @@ namespace Vitorm.MsTest.CommonTest
 
                         // #2 column name and type
                         var columnName = properties.FirstOrDefault(attr => attr.name == "ColumnName")?.value ?? propertyInfo.Name;
-                        var databaseType = properties.FirstOrDefault(attr => attr.name == "TypeName")?.value;
+                        var columnDbType = properties.FirstOrDefault(attr => attr.name == "TypeName")?.value;
                         int? columnOrder = int.TryParse(properties.FirstOrDefault(attr => attr.name == "ColumnOrder")?.value, out var order) ? order : null;
 
                         // #3 isIdentity
@@ -153,7 +153,12 @@ namespace Vitorm.MsTest.CommonTest
                             }
                         }
 
-                        return new ColumnDescriptor(propertyInfo, columnName: columnName, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
+                        return new ColumnDescriptor(
+                            propertyInfo, columnName: columnName,
+                            isKey: isKey, isIdentity: isIdentity, isNullable: isNullable,
+                            columnDbType: columnDbType,
+                            columnOrder: columnOrder
+                            );
                     }).Where(column => column != null).ToArray();
 
                 return (true, new EntityDescriptor(entityType, allColumns, tableName, schema));

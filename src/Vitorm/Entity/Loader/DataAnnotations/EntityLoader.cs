@@ -79,11 +79,12 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                     bool isKey = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.KeyAttribute>() != null;
 
                     // #2 column name and type
-                    string columnName; string databaseType; int? columnOrder;
+                    string columnName; string columnDbType; int? columnLength; int? columnOrder;
                     var columnAttr = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
                     columnName = columnAttr?.Name ?? propertyInfo.Name;
-                    databaseType = columnAttr?.TypeName;
+                    columnDbType = columnAttr?.TypeName;
                     columnOrder = columnAttr?.Order;
+                    columnLength = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.MaxLengthAttribute>()?.Length;
 
                     // #3 isIdentity
                     var isIdentity = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute>()?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity;
@@ -101,7 +102,12 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                         }
                     }
 
-                    return new ColumnDescriptor(propertyInfo, columnName: columnName, isKey: isKey, isIdentity: isIdentity, databaseType: databaseType, isNullable: isNullable, columnOrder: columnOrder);
+                    return new ColumnDescriptor(
+                        propertyInfo, columnName: columnName,
+                        isKey: isKey, isIdentity: isIdentity, isNullable: isNullable,
+                        columnDbType: columnDbType, columnLength: columnLength,
+                        columnOrder: columnOrder
+                        );
                 }).Where(column => column != null).ToList();
         }
 

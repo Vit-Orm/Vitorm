@@ -5,16 +5,24 @@ namespace Vitorm.Entity.Loader.DataAnnotations
 {
     public class ColumnDescriptor : IColumnDescriptor
     {
-        public ColumnDescriptor(PropertyInfo propertyInfo, string columnName, bool isKey, bool isIdentity, string databaseType, bool isNullable, int? columnOrder = null, bool? isIndex = null)
+        public ColumnDescriptor(
+            PropertyInfo propertyInfo, string columnName,
+            bool isKey, bool isIdentity, bool isNullable,
+            string columnDbType, int? columnLength = null,
+            int? columnOrder = null, bool? isIndex = null
+            )
         {
             this.propertyInfo = propertyInfo;
             type = propertyInfo.PropertyType;
 
             this.columnName = columnName;
+
             this.isKey = isKey;
             this.isIdentity = isIdentity;
-            this.databaseType = databaseType;
             this.isNullable = isNullable;
+
+            this.columnDbType = columnDbType;
+            this.columnLength = columnLength;
 
             this.columnOrder = columnOrder;
             this.isIndex = isIndex;
@@ -49,7 +57,11 @@ namespace Vitorm.Entity.Loader.DataAnnotations
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
-        public string databaseType { get; private set; }
+        public string columnDbType { get; private set; }
+        /// <summary>
+        /// database column length , for example:  varchar(100)
+        /// </summary>
+        public int? columnLength { get; private set; }
 
 
         public void SetValue(object entity, object value)

@@ -90,6 +90,7 @@ namespace Vitorm.Sql.SqlTranslate
             return GetSqlField(member.objectValue?.parameterName ?? member.parameterName, memberName);
         }
 
+        protected virtual string GetColumnDbType(IColumnDescriptor column) => GetColumnDbType(column.type);
         protected abstract string GetColumnDbType(Type type);
 
 

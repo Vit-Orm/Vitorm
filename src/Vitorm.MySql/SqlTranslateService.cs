@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
+                var columnDbType = column.columnDbType ?? GetColumnDbType(column);
                 var defaultValue = column.isNullable ? "default null" : "";
                 if (column.isIdentity)
                 {
@@ -234,14 +234,26 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
             [typeof(Guid)] = "binary(16)",
 
         };
+        protected override string GetColumnDbType(IColumnDescriptor column)
+        {
+            Type type = column.type;
+
+            if (column.columnLength.HasValue && type == typeof(string))
+            {
+                // varchar(1000)
+                return $"varchar({(column.columnLength.Value)})";
+            }
+            return GetColumnDbType(type);
+        }
+
         protected override string GetColumnDbType(Type type)
         {
-            type = TypeUtil.GetUnderlyingType(type);
+            var underlyingType = TypeUtil.GetUnderlyingType(type);
 
-            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
-            if (type.Name.ToLower().Contains("int")) return "INTEGER";
+            if (columnDbTypeMap.TryGetValue(underlyingType, out var dbType)) return dbType;
+            if (underlyingType.Name.ToLower().Contains("int")) return "INTEGER";
 
-            throw new NotSupportedException("unsupported column type:" + type.Name);
+            throw new NotSupportedException("unsupported column type:" + underlyingType.Name);
         }
         #endregion
 

@@ -16,10 +16,12 @@
   - ExecuteUpdateAsync
   - FirstOrDefaultAsync FirstAsync LastOrDefaultAsync LastAsync
 
-- [Vitorm] EntityLoader_FromAttribute
-- [Vitorm] Vitorm.Entity.Loader.DataAnnotations.EntityLoader (strictMode, default false)
+- EntityLoader_FromAttribute
+- Vitorm.Entity.Loader.DataAnnotations.EntityLoader (strictMode, default false)
 > if strictMode is false: will get typeName as tableName if not specify TableAttribute, and will set property named Id (or tableName + "Id") as key
 
+- support Guid
+- support column attribute Require and MaxLength
 
 -----------------------
 # 2.0.4

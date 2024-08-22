@@ -6,12 +6,12 @@ namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]
-    public class Property_String_Caculate_Test
+    public class Property_String_Calculate_Test
     {
 
 
         [TestMethod]
-        public void Test_Caculate()
+        public void Test_Calculate()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();

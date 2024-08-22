@@ -42,7 +42,11 @@ namespace Vitorm
             if (value == null || value is DBNull) return null;
 
             if (underlyingType?.IsInstanceOfType(value) == false)
-                value = Convert.ChangeType(value, underlyingType);
+            {
+                if (underlyingType == typeof(Guid) && value is string str) value = new Guid(str);
+                else
+                    value = Convert.ChangeType(value, underlyingType);
+            }
             return value;
         }
 

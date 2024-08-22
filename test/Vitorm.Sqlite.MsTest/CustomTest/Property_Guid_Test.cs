@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,7 +9,7 @@ namespace Vitorm.MsTest.CommonTest
     public class Property_Guid_Test
     {
 
-        //[TestMethod]
+        [TestMethod]
         public void Test()
         {
             using var dbContext = DataSource.CreateDbContext();
@@ -36,8 +35,7 @@ namespace Vitorm.MsTest.CommonTest
         class UserInfo
         {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-            public Guid guid { get; set; }
+            public Guid guid { get; set; } = Guid.NewGuid();
             public string name { get; set; }
         }
 
@@ -46,7 +44,7 @@ namespace Vitorm.MsTest.CommonTest
 
 
 
-        //[TestMethod]
+        [TestMethod]
         public void Test2()
         {
             using var dbContext = DataSource.CreateDbContext();
@@ -55,9 +53,21 @@ namespace Vitorm.MsTest.CommonTest
             dbSet.TryDropTable();
             dbSet.TryCreateTable();
 
-            Guid guid = Guid.NewGuid(); UserInfo2 user;
+            Guid guid = Guid.NewGuid();
+            UserInfo2 user;
+
             {
                 user = dbSet.Add(new UserInfo2 { guid = guid, name = "user1" });
+
+                DataSource.WaitForUpdate();
+
+                try
+                {
+                    dbSet.Add(new UserInfo2 { guid = guid, name = "user1" });
+                    Assert.Fail("should not be able to add same key twice");
+                }
+                catch (Exception ex)
+                { }
 
                 try
                 {
@@ -65,11 +75,8 @@ namespace Vitorm.MsTest.CommonTest
                     Assert.Fail("should not be able to add entity without key");
                 }
                 catch (Exception ex)
-                {
-                }
+                { }
             }
-
-            DataSource.WaitForUpdate();
 
             {
                 user = dbSet.Get(guid);

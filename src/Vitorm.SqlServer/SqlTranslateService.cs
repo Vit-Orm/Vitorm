@@ -247,7 +247,7 @@ create table {DelimitTableName(entityDescriptor)} (
             }
         }
 
-        protected readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
         {
             [typeof(DateTime)] = "datetime",
             [typeof(string)] = "varchar(max)",

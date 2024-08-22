@@ -194,20 +194,30 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
+
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        {
+            [typeof(DateTime)] = "datetime",
+            [typeof(string)] = "text",
+
+            [typeof(float)] = "real",
+            [typeof(double)] = "real",
+            [typeof(decimal)] = "real",
+
+            [typeof(Int32)] = "integer",
+            [typeof(Int16)] = "integer",
+            [typeof(byte)] = "integer",
+            [typeof(bool)] = "integer",
+
+            [typeof(Guid)] = "text",
+
+        };
         protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 
-            if (type == typeof(DateTime))
-                return "datetime";
-
-            if (type == typeof(string))
-                return "text";
-
-            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal))
-                return "real";
-
-            if (type == typeof(bool) || type.Name.ToLower().Contains("int")) return "integer";
+            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
+            if (type.Name.ToLower().Contains("int")) return "integer";
 
             throw new NotSupportedException("unsupported column type:" + type.Name);
         }

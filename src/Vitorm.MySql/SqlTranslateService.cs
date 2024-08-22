@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq.Expressions;
 
 using Vit.Linq;
@@ -204,7 +203,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 if (column.isIdentity)
                 {
                     var type = TypeUtil.GetUnderlyingType(column.type);
-                    if (type == typeof(Guid)) throw new NotSupportedException("Guid for MySql is not supported yet.");
+                    if (type == typeof(Guid)) { }
                     else defaultValue = "AUTO_INCREMENT";
                 }
 
@@ -218,25 +217,28 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        {
+            [typeof(DateTime)] = "DATETIME",
+            [typeof(string)] = "varchar(1000)",
+
+            [typeof(float)] = "FLOAT",
+            [typeof(double)] = "DOUBLE",
+            [typeof(decimal)] = "DOUBLE",
+
+            [typeof(Int32)] = "INTEGER",
+            [typeof(Int16)] = "SMALLINT",
+            [typeof(byte)] = "TINYINT",
+            [typeof(bool)] = "TINYINT",
+
+            [typeof(Guid)] = "binary(16)",
+
+        };
         protected override string GetColumnDbType(Type type)
         {
             type = TypeUtil.GetUnderlyingType(type);
 
-            if (type == typeof(DateTime))
-                return "DATETIME";
-
-            if (type == typeof(string))
-                return "varchar(1000)";
-
-            if (type == typeof(float)) return "FLOAT";
-            if (type == typeof(double) || type == typeof(decimal))
-                return "DOUBLE";
-
-            if (type == typeof(Int32)) return "INTEGER";
-            if (type == typeof(Int16)) return "SMALLINT";
-            if (type == typeof(byte)) return "TINYINT";
-            if (type == typeof(bool)) return "TINYINT";
-
+            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
             if (type.Name.ToLower().Contains("int")) return "INTEGER";
 
             throw new NotSupportedException("unsupported column type:" + type.Name);

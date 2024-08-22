@@ -1,4 +1,4 @@
-﻿namespace Vit.Linq.ExpressionNodes.ExpressionTreeTest
+﻿namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
 {
 
     public abstract partial class ExpressionTester

@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vit.Linq.ExpressionNodes.ExpressionTreeTest;
+using Vit.Linq.ExpressionNodes.ExpressionNodesTest;
 
-namespace Vitorm.MsTest.ExpressionTreeTest
+namespace Vitorm.MsTest.ExpressionNodesTest
 {
     [TestClass]
-    public class Query_Test
+    public class QueryAction_Test
     {
         [TestMethod]
         public void TestQueryable()

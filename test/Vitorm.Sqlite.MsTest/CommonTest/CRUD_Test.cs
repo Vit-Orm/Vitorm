@@ -10,10 +10,21 @@ namespace Vitorm.MsTest.CommonTest
     {
         static DbContext CreateDbContext() => DataSource.CreateDbContextForWriting();
 
+        #region #0 Schema
+        [TestMethod]
+        public void Test_Schema()
+        {
+            using var dbContext = CreateDbContext();
 
+            dbContext.TryDropTable<User>();
+            dbContext.TryDropTable<User>();
+
+            dbContext.TryCreateTable<User>();
+            dbContext.TryCreateTable<User>();
+        }
+        #endregion
 
         #region #1 Create
-
         [TestMethod]
         public void Test_Create()
         {
@@ -52,9 +63,28 @@ namespace Vitorm.MsTest.CommonTest
         }
         #endregion
 
+        #region #2 Retrieve : Get Query
+        [TestMethod]
+        public void Test_Retrieve()
+        {
+            using var dbContext = CreateDbContext();
+
+            // #1 Get
+            {
+                var user = dbContext.Get<User>(1);
+                Assert.AreEqual(1, user.id);
+            }
+
+            // #2 Query
+            {
+                var userList = dbContext.Query<User>().ToList();
+                Assert.AreEqual(6, userList.Count());
+            }
+        }
+        #endregion
+
 
         #region #3 Update
-
         [TestMethod]
         public void Test_Update()
         {
@@ -88,8 +118,6 @@ namespace Vitorm.MsTest.CommonTest
 
 
         #region #4 Delete
-
-
         [TestMethod]
         public void Test_Delete()
         {

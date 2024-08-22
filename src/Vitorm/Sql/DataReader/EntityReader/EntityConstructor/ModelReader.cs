@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 namespace Vitorm.Sql.DataReader.EntityReader.EntityConstructor
 {

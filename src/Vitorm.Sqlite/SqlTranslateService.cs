@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.Sql.SqlTranslate;
@@ -156,7 +156,7 @@ namespace Vitorm.Sqlite
         {
             /* //sql
 CREATE TABLE IF NOT EXISTS "User" (
-  id int NOT NULL PRIMARY KEY,
+  id int PRIMARY KEY NOT NULL,
   name varchar(100) DEFAULT NULL,
   birth date DEFAULT NULL,
   fatherId int DEFAULT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS "User" (
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY");
+            sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
@@ -176,30 +176,64 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
-
             string GetColumnSql(IColumnDescriptor column)
             {
-                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
-                // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
+                var columnDbType = column.columnDbType ?? GetColumnDbType(column);
+                var defaultValue = column.isNullable ? "default null" : "";
+                if (column.isIdentity)
+                {
+                    throw new NotSupportedException("identity for Sqlite is not supported yet.");
+                }
+
+                /*
+                  name  type    nullable        defaultValue    primaryKey
+                  id    int     not null/null   default null    primary key
+
+                 */
+
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
+
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        {
+            [typeof(DateTime)] = "datetime",
+            [typeof(string)] = "text",
+
+            [typeof(float)] = "real",
+            [typeof(double)] = "real",
+            [typeof(decimal)] = "real",
+
+            [typeof(Int32)] = "integer",
+            [typeof(Int16)] = "integer",
+            [typeof(byte)] = "integer",
+            [typeof(bool)] = "integer",
+
+            [typeof(Guid)] = "text",
+
+        };
+
+
+        protected override string GetColumnDbType(IColumnDescriptor column)
+        {
+            Type type = column.type;
+
+            if (column.columnLength.HasValue && type == typeof(string))
+            {
+                // Name TEXT CHECK(length(Name) <= 50),
+                return $"TEXT CHECK(length({DelimitIdentifier(column.columnName)}) <= {column.columnLength})";
+            }
+            return GetColumnDbType(type);
+        }
+
         protected override string GetColumnDbType(Type type)
         {
-            type = TypeUtil.GetUnderlyingType(type);
+            var underlyingType = TypeUtil.GetUnderlyingType(type);
 
-            if (type == typeof(DateTime))
-                return "datetime";
+            if (columnDbTypeMap.TryGetValue(underlyingType, out var dbType)) return dbType;
+            if (underlyingType.Name.ToLower().Contains("int")) return "integer";
 
-            if (type == typeof(string))
-                return "text";
-
-            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal))
-                return "real";
-
-            if (type == typeof(bool) || type.Name.ToLower().Contains("int")) return "integer";
-
-            throw new NotSupportedException("unsupported column type:" + type.Name);
+            throw new NotSupportedException("unsupported column type:" + underlyingType.Name);
         }
         #endregion
 

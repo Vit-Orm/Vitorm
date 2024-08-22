@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
-using Vit.Linq.ExpressionTree.ExpressionConvertor.MethodCalls;
+using Vit.Linq.ExpressionNodes;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.StreamQuery;
 using Vitorm.StreamQuery.MethodCall;
@@ -12,7 +12,7 @@ namespace Vitorm.MsTest.StreamQuery
     public static partial class Queryable_Extensions_Batch
     {
 
-        [CustomMethod]
+        [ExpressionNode_CustomMethod]
         public static IEnumerable<List<Result>> Batch<Result>(this IQueryable<Result> source, int batchSize = 5000)
         {
             if (source == null)

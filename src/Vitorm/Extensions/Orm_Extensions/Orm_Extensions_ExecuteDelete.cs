@@ -2,6 +2,10 @@
 using System.Linq;
 using System.Linq.Expressions;
 
+using Vit.Linq.ExpressionNodes;
+
+using Vitorm.StreamQuery;
+
 namespace Vitorm
 {
 
@@ -13,6 +17,8 @@ namespace Vitorm
         /// <param name="source"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
+        [ExpressionNode_CustomMethod]
+        [StreamQuery_CustomMethod]
         public static int ExecuteDelete(this IQueryable source)
         {
             if (source == null)

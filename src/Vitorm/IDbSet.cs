@@ -5,7 +5,7 @@ using Vitorm.Entity;
 
 namespace Vitorm
 {
-    public interface IDbSet
+    public partial interface IDbSet
     {
         IEntityDescriptor entityDescriptor { get; }
         DbContext dbContext { get; }
@@ -20,7 +20,7 @@ namespace Vitorm
         void Truncate();
     }
 
-    public interface IDbSet<Entity> : IDbSet
+    public partial interface IDbSet<Entity> : IDbSet
     {
         // #1 Create :  Add AddRange
         Entity Add(Entity entity);

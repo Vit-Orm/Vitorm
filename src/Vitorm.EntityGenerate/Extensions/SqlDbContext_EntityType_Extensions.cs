@@ -30,7 +30,7 @@ namespace Vitorm
             }
             else
             {
-                var entityDescriptor = dbContext.entityLoader.LoadDescriptorWithoutCache(entityType);
+                var entityDescriptor = dbContext.entityLoader.LoadDescriptorWithoutCache(entityType).entityDescriptor;
                 dbSet = Vitorm.Sql.DbSetConstructor.CreateDbSet(dbContext, entityDescriptor);
             }
             return dbSet;

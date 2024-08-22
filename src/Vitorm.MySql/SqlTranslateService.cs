@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.MySql.TranslateService;
@@ -175,7 +175,7 @@ namespace Vitorm.MySql
         {
             /* //sql
 CREATE TABLE IF NOT EXISTS `User` (
-  id int NOT NULL PRIMARY KEY,
+  id int PRIMARY KEY AUTO_INCREMENT NOT NULL,
   name varchar(100) DEFAULT NULL,
   birth date DEFAULT NULL,
   fatherId int DEFAULT NULL,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 
             // #1 primary key
             if (entityDescriptor.key != null)
-                sqlFields.Add(GetColumnSql(entityDescriptor.key) + " PRIMARY KEY " + (entityDescriptor.key.isIdentity ? "AUTO_INCREMENT " : ""));
+                sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
@@ -196,36 +196,64 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
-
             string GetColumnSql(IColumnDescriptor column)
             {
-                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
-                // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
+                var columnDbType = column.columnDbType ?? GetColumnDbType(column);
+                var defaultValue = column.isNullable ? "default null" : "";
+                if (column.isIdentity)
+                {
+                    var type = TypeUtil.GetUnderlyingType(column.type);
+                    if (type == typeof(Guid)) { }
+                    else defaultValue = "AUTO_INCREMENT";
+                }
+
+                // https://mysql.net.cn/doc/refman/8.0/en/create-table.html
+                /*
+                  name  type    nullable        defaultValue        primaryKey
+                  id    int     not null/null   default null        primary key
+                                                AUTO_INCREMENT
+                 */
+
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        {
+            [typeof(DateTime)] = "DATETIME",
+            [typeof(string)] = "varchar(1000)",
+
+            [typeof(float)] = "FLOAT",
+            [typeof(double)] = "DOUBLE",
+            [typeof(decimal)] = "DOUBLE",
+
+            [typeof(Int32)] = "INTEGER",
+            [typeof(Int16)] = "SMALLINT",
+            [typeof(byte)] = "TINYINT",
+            [typeof(bool)] = "TINYINT",
+
+            [typeof(Guid)] = "binary(16)",
+
+        };
+        protected override string GetColumnDbType(IColumnDescriptor column)
+        {
+            Type type = column.type;
+
+            if (column.columnLength.HasValue && type == typeof(string))
+            {
+                // varchar(1000)
+                return $"varchar({(column.columnLength.Value)})";
+            }
+            return GetColumnDbType(type);
+        }
+
         protected override string GetColumnDbType(Type type)
         {
-            type = TypeUtil.GetUnderlyingType(type);
+            var underlyingType = TypeUtil.GetUnderlyingType(type);
 
-            if (type == typeof(DateTime))
-                return "DATETIME";
+            if (columnDbTypeMap.TryGetValue(underlyingType, out var dbType)) return dbType;
+            if (underlyingType.Name.ToLower().Contains("int")) return "INTEGER";
 
-            if (type == typeof(string))
-                return "varchar(1000)";
-
-            if (type == typeof(float)) return "FLOAT";
-            if (type == typeof(double) || type == typeof(decimal))
-                return "DOUBLE";
-
-            if (type == typeof(Int32)) return "INTEGER";
-            if (type == typeof(Int16)) return "SMALLINT";
-            if (type == typeof(byte)) return "TINYINT";
-            if (type == typeof(bool)) return "TINYINT";
-
-            if (type.Name.ToLower().Contains("int")) return "INTEGER";
-
-            throw new NotSupportedException("unsupported column type:" + type.Name);
+            throw new NotSupportedException("unsupported column type:" + underlyingType.Name);
         }
         #endregion
 
@@ -236,14 +264,29 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
         }
 
 
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, EAddType addType)
         {
-            var result = PrepareAdd(arg, arg.entityDescriptor.columns);
+            if (addType == EAddType.identityKey)
+            {
+                // insert into user(name,fatherId,motherId) values('',0,0); select last_insert_id();
 
-            // get generated id
-            result.sql += "select last_insert_id();";
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.columns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
 
-            return result;
+                // get generated id
+                sql += "select last_insert_id();";
+                return (sql, GetSqlParams);
+            }
+            else
+            {
+                // insert into user(name,fatherId,motherId) values('',0,0);
+
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
+                return (sql, GetSqlParams);
+            }
         }
 
     }

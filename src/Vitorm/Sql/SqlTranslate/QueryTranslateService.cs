@@ -40,17 +40,29 @@ namespace Vitorm.Sql.SqlTranslate
                 case nameof(Queryable.Count):
                 case "" or null or nameof(Enumerable.ToList) or nameof(Orm_Extensions.ToExecuteString):
                 case nameof(Queryable_Extensions.ToListAndTotalCount) or nameof(Queryable_Extensions.TotalCount):
+                case nameof(Queryable_Extensions.ToListAsync):
                     {
-                        var reader = new DataReader.DataReader();
-                        return prefix + " " + BuildDataReader(arg, stream, reader);
+                        return prefix + " " + BuildDataReader(arg, stream, new DataReader.DataReader());
                     }
                 case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last):
                     {
-                        stream.take = 1;
-                        stream.skip = null;
+                        if (stream.skip.HasValue)
+                        {
+                            if (stream.method.Contains("Last"))
+                            {
+                                stream.skip = stream.skip.Value + (stream.take ?? 0) - 1;
+                            }
+                        }
+                        else
+                        {
+                            if (stream.method.Contains("Last"))
+                            {
+                                ReverseOrder(arg, stream);
+                            }
+                        }
 
-                        if (stream.method.Contains("Last"))
-                            ReverseOrder(arg, stream);
+                        if (stream.take != 0)
+                            stream.take = 1;
 
                         var nullable = stream.method.Contains("OrDefault");
                         var reader = new DataReader_FirstRow { nullable = nullable };

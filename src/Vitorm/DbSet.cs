@@ -25,7 +25,7 @@ namespace Vitorm
     }
 
 
-    public class DbSet<Entity> : IDbSet<Entity>
+    public partial class DbSet<Entity> : IDbSet<Entity>
     {
         public virtual DbContext dbContext { get; protected set; }
 

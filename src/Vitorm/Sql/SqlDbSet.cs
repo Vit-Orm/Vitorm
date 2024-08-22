@@ -26,7 +26,7 @@ namespace Vitorm.Sql
     }
 
 
-    public class SqlDbSet<Entity> : DbSet<Entity>
+    public partial class SqlDbSet<Entity> : DbSet<Entity>
     {
 
         public virtual SqlDbContext sqlDbContext => (SqlDbContext)dbContext;
@@ -37,7 +37,7 @@ namespace Vitorm.Sql
 
         protected virtual ISqlTranslateService sqlTranslateService => sqlDbContext.sqlTranslateService;
 
-        #region #0 Schema :  Create Drop
+        #region #0 Schema :  Create Drop Truncate
         public override void TryCreateTable()
         {
             string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
@@ -62,20 +62,19 @@ namespace Vitorm.Sql
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
 
             var addType = sqlTranslateService.Entity_GetAddType(arg, entity);
-            //if (addType == EAddType.unexpectedEmptyKey) throw new ArgumentException("Key could not be empty.");
 
+            // #1 prepare sql
+            (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg, addType);
+
+            // #2 get sql params
+            var sqlParam = GetSqlParams(entity);
+
+            // #3 Execute
             if (addType == EAddType.identityKey)
             {
-                // #1 prepare sql
-                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
-
-                // #2 get sql params
-                var sqlParam = GetSqlParams(entity);
-
-                // #3 add
                 var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql, param: sqlParam);
 
-                // #4 set key value to entity
+                // set key value to entity
                 var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
                 newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
                 if (newKeyValue != null)
@@ -85,13 +84,6 @@ namespace Vitorm.Sql
             }
             else
             {
-                // #1 prepare sql
-                (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
-
-                // #2 get sql params
-                var sqlParam = GetSqlParams(entity);
-
-                // #3 add
                 sqlDbContext.Execute(sql: sql, param: sqlParam);
             }
 
@@ -99,61 +91,41 @@ namespace Vitorm.Sql
         }
         public override void AddRange(IEnumerable<Entity> entities)
         {
-            // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
-            List<(Entity entity, EAddType addType)> entityAndTypes = entities.Select(entity => (entity, sqlTranslateService.Entity_GetAddType(arg, entity))).ToList();
-            //if (entityAndTypes.Any(row => row.addType == EAddType.unexpectedEmptyKey)) throw new ArgumentException("Key could not be empty.");
-
-
+            Dictionary<EAddType, (string sql, Func<object, Dictionary<string, object>> GetSqlParams)> sqlMaps = new();
             var affectedRowCount = 0;
 
-            // #2 keyWithValue
+            List<(Entity entity, EAddType addType)> entityAndAddTypes = entities.Select(entity => (entity, sqlTranslateService.Entity_GetAddType(arg, entity))).ToList();
+
+            foreach (var (entity, addType) in entityAndAddTypes)
             {
-                var rows = entityAndTypes.Where(row => row.addType == EAddType.keyWithValue);
-                if (rows.Any())
+                // #1 prepare sql
+                if (!sqlMaps.TryGetValue(addType, out var sqlAndGetParams))
                 {
-                    // ##1 prepare sql
-                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareAdd(arg);
-
-                    foreach ((var entity, _) in rows)
-                    {
-                        // #2 get sql params
-                        var sqlParam = GetSqlParams(entity);
-
-                        // #3 add
-                        sqlDbContext.Execute(sql: sql, param: sqlParam);
-                        affectedRowCount++;
-                    }
+                    sqlMaps[addType] = sqlAndGetParams = sqlTranslateService.PrepareAdd(arg, addType);
                 }
-            }
 
-            // #3 identityKey
-            {
-                var rows = entityAndTypes.Where(row => row.addType == EAddType.identityKey);
-                if (rows.Any())
+                // #2 get sql params
+                var sqlParam = sqlAndGetParams.GetSqlParams(entity);
+
+                // #3 Execute
+                if (addType == EAddType.identityKey)
                 {
+                    var newKeyValue = sqlDbContext.ExecuteScalar(sql: sqlAndGetParams.sql, param: sqlParam);
+
+                    // set key value to entity
                     var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
-
-                    // ##1 prepare sql
-                    (string sql, Func<object, Dictionary<string, object>> GetSqlParams) = sqlTranslateService.PrepareIdentityAdd(arg);
-
-                    foreach ((var entity, _) in rows)
+                    newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
+                    if (newKeyValue != null)
                     {
-                        // ##2 get sql params
-                        var sqlParam = GetSqlParams(entity);
-
-                        // ##3 add
-                        var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql, param: sqlParam);
-
-                        // ##4 set key value to entity
-                        newKeyValue = TypeUtil.ConvertToUnderlyingType(newKeyValue, keyType);
-                        if (newKeyValue != null)
-                        {
-                            entityDescriptor.key.SetValue(entity, newKeyValue);
-                        }
-
-                        affectedRowCount++;
+                        entityDescriptor.key.SetValue(entity, newKeyValue);
                     }
+                    affectedRowCount++;
+                }
+                else
+                {
+                    sqlDbContext.Execute(sql: sqlAndGetParams.sql, param: sqlParam);
+                    affectedRowCount++;
                 }
             }
         }

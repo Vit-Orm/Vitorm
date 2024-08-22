@@ -2,137 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.StreamQuery.MethodCall;
 
 namespace Vitorm.StreamQuery
 {
-
-    public class ExpressionNode_RenameableMember : ExpressionNode
-    {
-        protected IStream stream;
-        public override string parameterName
-        {
-            get => stream?.alias;
-            set { }
-        }
-        public static ExpressionNode Member(IStream stream, Type memberType)
-        {
-            var node = new ExpressionNode_RenameableMember
-            {
-                nodeType = NodeType.Member,
-                stream = stream
-            };
-            node.Member_SetType(memberType);
-            return node;
-        }
-    }
-
-
-
-    public class Argument
-    {
-        public Argument(Argument arg) : this(arg.aliasConfig)
-        {
-        }
-        public Argument(AliasConfig aliasConfig)
-        {
-            this.aliasConfig = aliasConfig;
-        }
-
-        public class AliasConfig
-        {
-            int aliasNameCount = 0;
-            public string NewAliasName()
-            {
-                return "t" + (aliasNameCount++);
-            }
-        }
-
-        protected AliasConfig aliasConfig;
-
-        public string NewAliasName() => aliasConfig.NewAliasName();
-
-        Dictionary<string, ExpressionNode> parameterMap { get; set; }
-
-        public virtual ExpressionNode GetParameter(ExpressionNode_Member member)
-        {
-            if (member.nodeType == NodeType.Member && !string.IsNullOrWhiteSpace(member.parameterName))
-            {
-                if (parameterMap?.TryGetValue(member.parameterName, out var parameterValue) == true)
-                {
-                    if (string.IsNullOrWhiteSpace(member.memberName))
-                    {
-                        return parameterValue;
-                    }
-                    else
-                    {
-                        return ExpressionNode.Member(objectValue: parameterValue, memberName: member.memberName).Member_SetType(member.Member_GetType());
-                    }
-                }
-            }
-            return null;
-        }
-
-
-        public Argument SetParameter(string parameterName, ExpressionNode parameterValue)
-        {
-            parameterMap ??= new();
-            parameterMap[parameterName] = parameterValue;
-            return this;
-        }
-
-
-        public Argument WithParameter(string parameterName, ExpressionNode parameterValue)
-        {
-            var arg = new Argument(aliasConfig);
-
-            arg.parameterMap = parameterMap?.ToDictionary(kv => kv.Key, kv => kv.Value) ?? new();
-            arg.parameterMap[parameterName] = parameterValue;
-            return arg;
-        }
-
-        #region SupportNoChildParameter
-        public Argument WithParameter(string parameterName, ExpressionNode parameterValue, ExpressionNode noChildParameterValue)
-        {
-            var arg = new Argument_SupportNoChildParameter(this) { noChildParameterName = parameterName, noChildParameterValue = noChildParameterValue };
-
-            arg.parameterMap = parameterMap?.ToDictionary(kv => kv.Key, kv => kv.Value) ?? new();
-            arg.parameterMap[parameterName] = parameterValue;
-            return arg;
-        }
-
-        class Argument_SupportNoChildParameter : Argument
-        {
-            public Argument_SupportNoChildParameter(Argument arg) : base(arg)
-            {
-            }
-
-            public string noChildParameterName;
-            public ExpressionNode noChildParameterValue;
-            public override ExpressionNode GetParameter(ExpressionNode_Member member)
-            {
-                if (member.nodeType == NodeType.Member && member.parameterName == noChildParameterName && member.memberName == null)
-                {
-                    return noChildParameterValue;
-                }
-                return base.GetParameter(member);
-            }
-
-        }
-        #endregion
-
-
-        public ExpressionNode DeepClone(ExpressionNode node)
-        {
-            Func<ExpressionNode_Member, ExpressionNode> GetParameter = this.GetParameter;
-
-            return StreamReader.DeepClone(node, GetParameter);
-        }
-
-    }
-
     public partial class StreamReader
     {
         public static StreamReader Instance = new StreamReader();
@@ -157,12 +32,12 @@ namespace Vitorm.StreamQuery
         /// <returns> </returns>
         public IStream ReadFromNode(ExpressionNode_Lambda lambda)
         {
-            var arg = new Argument(new Argument.AliasConfig());
+            var arg = new StreamReaderArgument(new StreamReaderArgument.AliasConfig());
             return ReadStream(arg, lambda.body);
         }
 
 
-        CombinedStream ReadStreamWithWhere(Argument arg, IStream source, ExpressionNode_Lambda predicateLambda)
+        CombinedStream ReadStreamWithWhere(StreamReaderArgument arg, IStream source, ExpressionNode_Lambda predicateLambda)
         {
             switch (source)
             {
@@ -217,7 +92,7 @@ namespace Vitorm.StreamQuery
             }
             return default;
         }
-        CombinedStream ToCombinedStream(Argument arg, SourceStream source)
+        CombinedStream ToCombinedStream(StreamReaderArgument arg, SourceStream source)
         {
             Type entityType = source.GetEntityType();
             var selectedFields = ExpressionNode.Member(parameterName: source.alias, memberName: null).Member_SetType(entityType);
@@ -225,7 +100,7 @@ namespace Vitorm.StreamQuery
 
             return new CombinedStream(arg.NewAliasName()) { source = source, select = select };
         }
-        public CombinedStream AsCombinedStream(Argument arg, IStream source)
+        public CombinedStream AsCombinedStream(StreamReaderArgument arg, IStream source)
         {
             if (source is CombinedStream combinedStream) return combinedStream;
             if (source is SourceStream sourceStream) return ToCombinedStream(arg, sourceStream);
@@ -234,7 +109,7 @@ namespace Vitorm.StreamQuery
 
 
         // query.SelectMany(query2).Where().Where().OrderBy().Skip().Take().Select()
-        public IStream ReadStream(Argument arg, ExpressionNode node)
+        public IStream ReadStream(StreamReaderArgument arg, ExpressionNode node)
         {
             switch (node.nodeType)
             {
@@ -265,15 +140,6 @@ namespace Vitorm.StreamQuery
                                         var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
                                         var stream = ReadStreamWithWhere(arg, source, predicateLambda);
                                         if (stream == default) break;
-                                        return stream;
-                                    }
-                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
-                                    {
-                                        var source = ReadStream(arg, call.arguments[0]);
-                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
-                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
-                                        if (stream == default) break;
-                                        stream.method = call.methodName;
                                         return stream;
                                     }
                                 case nameof(Queryable.Distinct):
@@ -362,6 +228,15 @@ namespace Vitorm.StreamQuery
 
                                         return combinedStream;
                                     }
+                                case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 2:
+                                    {
+                                        var source = ReadStream(arg, call.arguments[0]);
+                                        var predicateLambda = call.arguments[1] as ExpressionNode_Lambda;
+                                        var stream = ReadStreamWithWhere(arg, source, predicateLambda);
+                                        if (stream == default) break;
+                                        stream.method = call.methodName;
+                                        return stream;
+                                    }
                                 case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last) when call.arguments.Length == 1:
                                 case nameof(Queryable.Count) or nameof(Enumerable.ToList) when call.arguments.Length == 1:
                                     {
@@ -405,7 +280,7 @@ namespace Vitorm.StreamQuery
                             var methodConvertArg = new MethodCallConvertArgrument { reader = this, arg = arg, node = node };
                             foreach (var convertor in methodCallConvertors)
                             {
-                                var stream = convertor(methodConvertArg);
+                                var stream = convertor.Convert(methodConvertArg);
                                 if (stream != null) return stream;
                             }
                         }
@@ -421,7 +296,7 @@ namespace Vitorm.StreamQuery
 
 
         // predicateLambda:          father => (father.id == user.fatherId)
-        ExpressionNode ReadWhere(Argument arg, IStream source, ExpressionNode_Lambda predicateLambda)
+        ExpressionNode ReadWhere(StreamReaderArgument arg, IStream source, ExpressionNode_Lambda predicateLambda)
         {
             var parameterName = predicateLambda.parameterNames[0];
             var parameterValue = ExpressionNode_RenameableMember.Member(stream: source, predicateLambda.Lambda_GetParamTypes()[0]);
@@ -431,13 +306,13 @@ namespace Vitorm.StreamQuery
         }
 
         // predicate:           (father.id == user.fatherId)
-        ExpressionNode ReadWhere(Argument arg, ExpressionNode predicate)
+        ExpressionNode ReadWhere(StreamReaderArgument arg, ExpressionNode predicate)
         {
             return arg.DeepClone(predicate);
         }
 
 
-        ExpressionNode ReadFields(Argument arg, ExpressionNode_Lambda resultSelector)
+        ExpressionNode ReadFields(StreamReaderArgument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
             if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)
@@ -446,7 +321,7 @@ namespace Vitorm.StreamQuery
             var fields = arg.DeepClone(node);
             return fields;
         }
-        public ResultSelector ReadResultSelector(Argument arg, ExpressionNode_Lambda resultSelector)
+        public ResultSelector ReadResultSelector(StreamReaderArgument arg, ExpressionNode_Lambda resultSelector)
         {
             ExpressionNode node = resultSelector.body;
             //if (node?.nodeType != NodeType.New && node?.nodeType != NodeType.Member && node?.nodeType != NodeType.Convert)  // could be calculated result like  query.Select(u=>u.id+10)
@@ -476,7 +351,7 @@ namespace Vitorm.StreamQuery
             return new() { fields = fields, isDefaultSelect = isDefaultSelect, resultSelector = resultSelector };
         }
 
-        ExpressionNode ReadSortField(Argument arg, ExpressionNode_Lambda resultSelector, CombinedStream stream)
+        ExpressionNode ReadSortField(StreamReaderArgument arg, ExpressionNode_Lambda resultSelector, CombinedStream stream)
         {
             ExpressionNode parameterValue;
             if (stream.isGroupedStream)
@@ -492,7 +367,7 @@ namespace Vitorm.StreamQuery
             }
 
             var parameterName = resultSelector.parameterNames[0];
-            var argForClone = new Argument(arg).SetParameter(parameterName, parameterValue);
+            var argForClone = new StreamReaderArgument(arg).SetParameter(parameterName, parameterValue);
 
             ExpressionNode sortField = resultSelector.body;
 

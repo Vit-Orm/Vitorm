@@ -1,23 +1,19 @@
 ﻿using System.Collections.Generic;
 
-using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 namespace Vitorm.StreamQuery.MethodCall
 {
-    public class MethodCallConvertor_ExecuteEnd
+    public class MethodCallConvertor_ExecuteEnd : IMethodConvertor
     {
 
         public static MethodCallConvertor_ExecuteEnd Instance =
             new MethodCallConvertor_ExecuteEnd(
                 new List<string>()
                 {
-                    nameof(Queryable_Extensions.ToListAndTotalCount),
-                    nameof(Queryable_Extensions.TotalCount),
-                    nameof(Queryable_Extensions.ToListAsync),
-
-                    nameof(Orm_Extensions.ExecuteDelete),
-                    nameof(Orm_Extensions.ToExecuteString),
+                    nameof(Vit.Linq.Queryable_Extensions.ToListAndTotalCount),
+                    nameof(Vit.Linq.Queryable_Extensions.TotalCount),
+                    nameof(Vit.Linq.Queryable_Extensions.ToListAsync),
                 }
             );
 

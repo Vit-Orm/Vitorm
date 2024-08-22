@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using Vit.Linq;
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.Sql.SqlTranslate;
@@ -199,39 +199,55 @@ namespace Vitorm.SqlServer
         {
             /* //sql
 if object_id(N'[dbo].[User]', N'U') is null
-    CREATE TABLE [dbo].[User] (
-      id int NOT NULL PRIMARY KEY IDENTITY(1,1),
-      name varchar(100) DEFAULT NULL,
-      birth date DEFAULT NULL,
-      fatherId int DEFAULT NULL,
-      motherId int DEFAULT NULL
+    create table [dbo].[User] (
+      id int not null primary key identity(1,1),
+      name varchar(100) default null,
+      birth date default null,
+      fatherId int default null,
+      motherId int default null
     ) ;
               */
             List<string> sqlFields = new();
 
             // #1 primary key
             if (entityDescriptor.key != null)
-                sqlFields.Add(GetColumnSql(entityDescriptor.key) + " " + (entityDescriptor.key.isIdentity ? "PRIMARY KEY IDENTITY(1,1) " : ""));
+                sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
 if object_id(N'{DelimitTableName(entityDescriptor)}', N'U') is null
-CREATE TABLE {DelimitTableName(entityDescriptor)} (
+create table {DelimitTableName(entityDescriptor)} (
 {string.Join(",\r\n  ", sqlFields)}
 )";
 
 
             string GetColumnSql(IColumnDescriptor column)
             {
-                var columnDbType = column.databaseType ?? GetColumnDbType(column.type);
-                // name varchar(100) DEFAULT NULL
-                return $"  {DelimitIdentifier(column.columnName)} {columnDbType} {(column.isNullable ? "DEFAULT NULL" : "NOT NULL")}";
+                var columnDbType = column.columnDbType ?? GetColumnDbType(column);
+                var defaultValue = column.isNullable ? "default null" : "";
+                if (column.isIdentity)
+                {
+                    var type = TypeUtil.GetUnderlyingType(column.type);
+                    if (type == typeof(Guid)) defaultValue = "default NewId()";
+                    else defaultValue = "identity(1,1)";
+                }
+
+                /*
+                  name  type    nullable        defaultValue                    primaryKey 
+                  id    int     not null/null   default null                    primary key
+                                                identity(1,1)
+                                                default NewId()
+                                                default NewSequentialId()
+                                                default 12
+                 */
+
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
             }
         }
 
-        protected readonly static Dictionary<Type, string> columnDbTypeMap = new()
+        public readonly static Dictionary<Type, string> columnDbTypeMap = new()
         {
             [typeof(DateTime)] = "datetime",
             [typeof(string)] = "varchar(max)",
@@ -244,13 +260,27 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
             [typeof(Int16)] = "smallint",
             [typeof(byte)] = "tinyint",
             [typeof(bool)] = "bit",
+
+            [typeof(Guid)] = "uniqueIdentifier",
+
         };
+        protected override string GetColumnDbType(IColumnDescriptor column)
+        {
+            Type type = column.type;
+
+            if (column.columnLength.HasValue && type == typeof(string))
+            {
+                // varchar(1000)
+                return $"varchar({(column.columnLength.Value)})";
+            }
+            return GetColumnDbType(type);
+        }
         protected override string GetColumnDbType(Type type)
         {
-            type = TypeUtil.GetUnderlyingType(type);
+            var underlyingType = TypeUtil.GetUnderlyingType(type);
 
-            if (columnDbTypeMap.TryGetValue(type, out var dbType)) return dbType;
-            throw new NotSupportedException("unsupported column type:" + type.Name);
+            if (columnDbTypeMap.TryGetValue(underlyingType, out var dbType)) return dbType;
+            throw new NotSupportedException("unsupported column type:" + underlyingType.Name);
         }
         #endregion
 
@@ -278,14 +308,28 @@ CREATE TABLE {DelimitTableName(entityDescriptor)} (
                 return !keyIsEmpty ? EAddType.keyWithValue : throw new ArgumentException("Key could not be empty.");
             }
         }
-        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg)
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, EAddType addType)
         {
-            var result = PrepareAdd(arg, arg.entityDescriptor.columns);
+            if (addType == EAddType.identityKey)
+            {
+                // insert into UserInfo(name) output inserted.guid values('dd');
 
-            // get generated id
-            result.sql += "select convert(int,isnull(SCOPE_IDENTITY(),-1));";
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.columns);
+                var sqlOutput = "output inserted." + DelimitIdentifier(entityDescriptor.key.columnName);
 
-            return result;
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) {sqlOutput} values({string.Join(",", sqlColumnParams)});";
+                return (sql, GetSqlParams);
+            }
+            else
+            {
+                // insert into user(name,fatherId,motherId) values('',0,0);
+
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
+                return (sql, GetSqlParams);
+            }
         }
 
 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Core.Util.Reflection;
@@ -106,7 +107,7 @@ namespace Vitorm
 
 
 
-        #region CRUD
+        #region CRUD Sync
 
         // #0 Schema :  TryCreateTable TryDropTable
         public static void TryCreateTable<Entity>() => DataProvider<Entity>().TryCreateTable<Entity>();
@@ -135,6 +136,37 @@ namespace Vitorm
         public static int DeleteByKey<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKey<Entity>(keyValue);
         public static int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeys<Entity, Key>(keys);
 
+        #endregion
+
+
+
+        #region CRUD Async
+
+        // #0 Schema :  TryCreateTable TryDropTable
+        public static Task TryCreateTableAsync<Entity>() => DataProvider<Entity>().TryCreateTableAsync<Entity>();
+        public static Task TryDropTableAsync<Entity>() => DataProvider<Entity>().TryDropTableAsync<Entity>();
+        public static Task TruncateAsync<Entity>() => DataProvider<Entity>().TruncateAsync<Entity>();
+
+
+        // #1 Create :  Add AddRange
+        public static Task<Entity> AddAsync<Entity>(Entity entity) => DataProvider<Entity>().AddAsync<Entity>(entity);
+        public static Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().AddRangeAsync<Entity>(entities);
+
+        // #2 Retrieve : Get Query
+        public static Task<Entity> GetAsync<Entity>(object keyValue) => DataProvider<Entity>().GetAsync<Entity>(keyValue);
+
+
+        // #3 Update: Update UpdateRange
+        public static Task<int> UpdateAsync<Entity>(Entity entity) => DataProvider<Entity>().UpdateAsync<Entity>(entity);
+        public static Task<int> UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().UpdateRangeAsync<Entity>(entities);
+
+
+        // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
+        public static Task<int> DeleteAsync<Entity>(Entity entity) => DataProvider<Entity>().DeleteAsync<Entity>(entity);
+        public static Task<int> DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().DeleteRangeAsync<Entity>(entities);
+
+        public static Task<int> DeleteByKeyAsync<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKeyAsync<Entity>(keyValue);
+        public static Task<int> DeleteByKeysAsync<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeysAsync<Entity, Key>(keys);
 
         #endregion
 

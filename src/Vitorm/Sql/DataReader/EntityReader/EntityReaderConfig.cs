@@ -1,4 +1,4 @@
-﻿using Vit.Linq.ExpressionTree;
+﻿using Vit.Linq.ExpressionNodes;
 
 using Vitorm.Sql.SqlTranslate;
 

@@ -1,11 +1,31 @@
 ﻿# Vitorm ReleaseLog
 
+-----------------------
+# 2.0.5
+- support Async Methods
+  - AddAsync AddRangeAsync
+  - GetAsync
+  - UpdateAsync UpdateRangeAsync
+  - DeleteAsync DeleteRangeAsync DeleteByKeyAsync DeleteByKeysAsync
 
+- support Async IQueryable Methods
+  - ToListAsync
+  - CountAsync TotalCountAsync
+  - ToListAndTotalCountAsync
+  - ExecuteDeleteAsync
+  - ExecuteUpdateAsync
+  - FirstOrDefaultAsync FirstAsync LastOrDefaultAsync LastAsync
+
+- EntityLoader_FromAttribute
+- Vitorm.Entity.Loader.DataAnnotations.EntityLoader (strictMode, default false)
+> if strictMode is false: will get typeName as tableName if not specify TableAttribute, and will set property named Id (or tableName + "Id") as key
+
+- support Guid
+- support column attribute Require and MaxLength
 
 -----------------------
 # 2.0.4
 - [Vitorm] support Truncate
-
 
 -----------------------
 # 2.0.3

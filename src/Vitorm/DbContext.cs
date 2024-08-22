@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Linq.ExpressionTree;
-using Vit.Linq.ExpressionTree.ExpressionConvertor.MethodCalls;
+using Vit.Linq.ExpressionNodes;
+using Vit.Linq.ExpressionNodes.ExpressionConvertor.MethodCalls;
 
 using Vitorm.Entity;
-using Vitorm.Entity.Loader;
 
 namespace Vitorm
 {
-    public class DbContext : IDbContext, IDisposable
+    public abstract partial class DbContext : IDbContext, IDisposable
     {
         public DbContext()
         {
@@ -65,13 +64,13 @@ namespace Vitorm
 
         #region EntityLoader
 
-        public static DefaultEntityLoader defaultEntityLoader = new();
+        public static EntityLoaders defaultEntityLoader = new();
 
         public IEntityLoader entityLoader = defaultEntityLoader;
         public virtual IEntityDescriptor GetEntityDescriptor(Type entityType, bool tryFromCache = true)
         {
             if (tryFromCache && dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;
-            return entityLoader.LoadDescriptor(entityType);
+            return entityLoader.LoadDescriptor(entityType).entityDescriptor;
         }
         public virtual IEntityDescriptor GetEntityDescriptor<Entity>(bool tryFromCache = true)
             => GetEntityDescriptor(typeof(Entity), tryFromCache);
@@ -106,42 +105,43 @@ namespace Vitorm
 
 
 
+        public virtual void Dispose()
+        {
+        }
 
 
 
         // #0 Schema :  Create Drop
-        public virtual void TryCreateTable<Entity>() => throw new NotImplementedException();
-        public virtual void TryDropTable<Entity>() => throw new NotImplementedException();
-        public virtual void Truncate<Entity>() => throw new NotImplementedException();
+        public abstract void TryCreateTable<Entity>();
+        public abstract void TryDropTable<Entity>();
+        public abstract void Truncate<Entity>();
 
 
         // #1 Create :  Add AddRange
-        public virtual Entity Add<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual void AddRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
+        public abstract Entity Add<Entity>(Entity entity);
+        public abstract void AddRange<Entity>(IEnumerable<Entity> entities);
 
         // #2 Retrieve : Get Query
-        public virtual Entity Get<Entity>(object keyValue) => throw new NotImplementedException();
-        public virtual IQueryable<Entity> Query<Entity>() => throw new NotImplementedException();
+        public abstract Entity Get<Entity>(object keyValue);
+        public abstract IQueryable<Entity> Query<Entity>();
 
 
         // #3 Update: Update UpdateRange
-        public virtual int Update<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual int UpdateRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
+        public abstract int Update<Entity>(Entity entity);
+        public abstract int UpdateRange<Entity>(IEnumerable<Entity> entities);
 
 
         // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public virtual int Delete<Entity>(Entity entity) => throw new NotImplementedException();
-        public virtual int DeleteRange<Entity>(IEnumerable<Entity> entities) => throw new NotImplementedException();
+        public abstract int Delete<Entity>(Entity entity);
+        public abstract int DeleteRange<Entity>(IEnumerable<Entity> entities);
 
 
-        public virtual int DeleteByKey<Entity>(object keyValue) => throw new NotImplementedException();
-        public virtual int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => throw new NotImplementedException();
+        public abstract int DeleteByKey<Entity>(object keyValue);
+        public abstract int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys);
 
 
 
 
-        public virtual void Dispose()
-        {
-        }
+
     }
 }

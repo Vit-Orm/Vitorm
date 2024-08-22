@@ -3,9 +3,8 @@
 
 namespace Vitorm.MsTest
 {
-    public abstract class UserTest<User> where User : Vitorm.MsTest.UserBase, new()
+    public abstract partial class UserTest<User> where User : Vitorm.MsTest.UserBase, new()
     {
-
         public virtual void WaitForUpdate() { }
         public abstract User NewUser(int id, bool forAdd = false);
 
@@ -77,7 +76,7 @@ namespace Vitorm.MsTest
 
         public void Test_Get()
         {
-            #region #1 Get
+            #region Get
             {
                 var user = Data.Get<User>(1);
                 Assert.AreEqual(1, user?.id);
@@ -87,7 +86,7 @@ namespace Vitorm.MsTest
 
         public void Test_Query()
         {
-            #region #2 Query
+            #region Query
             {
                 var userList = Data.Query<User>().Where(u => u.id == 1).ToList();
                 Assert.AreEqual(1, userList.Count);
@@ -98,7 +97,7 @@ namespace Vitorm.MsTest
 
         public void Test_QueryJoin()
         {
-            #region #2 Query
+            #region Query
             {
                 var query =
                     from user in Data.Query<User>()
@@ -127,7 +126,7 @@ namespace Vitorm.MsTest
         }
         public void Test_ExecuteUpdate()
         {
-            #region #3 ExecuteUpdate
+            #region ExecuteUpdate
             {
                 var query = Data.Query<User>();
 
@@ -150,7 +149,7 @@ namespace Vitorm.MsTest
         }
         public void Test_ExecuteDelete()
         {
-            #region #4 ExecuteDelete
+            #region ExecuteDelete
             {
                 var query = Data.Query<User>();
 
@@ -166,7 +165,7 @@ namespace Vitorm.MsTest
         }
         public void Test_Create()
         {
-            #region #5 Create :  Add AddRange
+            #region Create :  Add AddRange
             {
                 var newUserList = NewUsers(7, 4, forAdd: true);
 
@@ -191,7 +190,7 @@ namespace Vitorm.MsTest
 
         public void Test_Update()
         {
-            #region #6 Update: Update UpdateRange
+            #region Update: Update UpdateRange
             {
                 var ids = Data.Query<User>().OrderBy(u => u.id).Select(u => u.id).ToArray()[^2..];
 
@@ -225,7 +224,7 @@ namespace Vitorm.MsTest
 
         public void Test_Delete()
         {
-            #region #7 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
+            #region Delete : Delete DeleteRange DeleteByKey DeleteByKeys
             {
                 // #1 Delete
                 {
@@ -281,6 +280,11 @@ namespace Vitorm.MsTest
                 }
             }
             #endregion
+        }
+
+        public void Test_Truncate()
+        {
+            Data.Truncate<User>();
         }
 
     }

@@ -30,7 +30,11 @@ namespace Vitorm.Entity
         /// <summary>
         /// database provider specific data type of the column the property is mapped to.  example:  varchar(1000)
         /// </summary>
-        string databaseType { get; }
+        string columnDbType { get; }
+        /// <summary>
+        /// database column length , for example:  varchar(100)
+        /// </summary>
+        int? columnLength { get; }
 
 
         void SetValue(object entity, object value);

@@ -30,7 +30,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual("u_6__", userList.Last().name);
             }
 
-
             {
                 var query = from user in userQuery
                             from father in userQuery.Where(father => user.fatherId == father.id).DefaultIfEmpty()
@@ -52,7 +51,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual("u2_1_4_6", userList.First().name);
                 Assert.AreEqual("u2_6__", userList.Last().name);
             }
-
 
             {
                 var query = from user in userQuery

@@ -32,8 +32,8 @@ namespace Vitorm.MsTest.CommonTest
                              })
                             .Skip(1).Take(2);
 
-                var sql = query.ToExecuteString();
-                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sql));
+                var executeString = query.ToExecuteString();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(executeString));
 
                 var list = query.ToList();
                 Assert.AreEqual(2, list.Count);

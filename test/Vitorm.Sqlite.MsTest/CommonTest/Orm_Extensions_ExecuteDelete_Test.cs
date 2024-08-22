@@ -12,7 +12,6 @@ namespace Vitorm.MsTest.CommonTest
         [TestMethod]
         public void Test_ExecuteDelete()
         {
-            if (1 == 1)
             {
                 using var dbContext = DataSource.CreateDbContext();
                 var userQuery = dbContext.Query<User>();
@@ -36,7 +35,6 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(6, newUsers.Last().id);
             }
 
-            if (1 == 1)
             {
                 using var dbContext = DataSource.CreateDbContext();
                 var userQuery = dbContext.Query<User>();

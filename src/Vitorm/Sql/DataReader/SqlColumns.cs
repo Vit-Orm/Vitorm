@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.Sql.DataReader.EntityReader;

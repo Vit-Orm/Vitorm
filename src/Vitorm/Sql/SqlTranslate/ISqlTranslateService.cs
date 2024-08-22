@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Vit.Linq.ExpressionTree.ComponentModel;
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 using Vitorm.Entity;
 using Vitorm.StreamQuery;
@@ -48,8 +48,7 @@ namespace Vitorm.Sql.SqlTranslate
 
         // #1 Create :  PrepareAdd
         EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity);
-        (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg);
-        (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareIdentityAdd(SqlTranslateArgument arg);
+        (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, EAddType addType);
 
 
         // #2 Retrieve : PrepareGet PrepareQuery

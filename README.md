@@ -456,17 +456,17 @@ namespace App
 - [ExecuteUpdate](test/Vitorm.Sqlite.MsTest/CommonTest/Orm_Extensions_ExecuteUpdate_Test.cs)    
 - [ToExecuteString](test/Vitorm.Sqlite.MsTest/CommonTest/Orm_Extensions_ToExecuteString_Test.cs)    
     
-- [Query_LinqMethods](test/Vitorm.Sqlite.MsTest/CommonTest/Query_LinqMethods_Test.cs)  
-- [Query_Distinct](test/Vitorm.Sqlite.MsTest/CommonTest/Query_LinqMethods_Distinct_Test.cs)  
+- [Query_Method_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Method_Test.cs)  
+- [Query_Distinct_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Distinct_Test.cs)  
     
-- [Query_String](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_String_Test.cs)  
-- [Query_String_Like](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_String_Like_Test.cs)  
-- [Query_String_Caculate](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_String_Caculate_Test.cs)  
+- [Property_String_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_String_Test.cs)  
+- [Property_String_Like_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_String_Like_Test.cs)  
+- [Property_String_Calculate_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_String_Calculate_Test.cs)  
     
-- [Query_Numric](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_Numric_Test.cs)  
-- [Query_Numric_Caculate](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_Numric_Caculate_Test.cs)  
+- [Property_Numeric_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_Numeric_Test.cs)  
+- [Property_Numeric_Calculate_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_Numeric_Calculate_Test.cs)  
     
-- [Query_DateTime](test/Vitorm.Sqlite.MsTest/CommonTest/Query_Type_DateTime_Test.cs)  
+- [Property_DateTime_Test](test/Vitorm.Sqlite.MsTest/CommonTest/Property_DateTime_Test.cs)  
     
 - [InnerJoin_BySelectMany](test/Vitorm.Sqlite.MsTest/CommonTest/Query_InnerJoin_BySelectMany_Test.cs)  
 - [InnerJoin_ByJoin](test/Vitorm.Sqlite.MsTest/CommonTest/Query_InnerJoin_ByJoin_Test.cs)  

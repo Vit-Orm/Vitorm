@@ -44,8 +44,15 @@ namespace Vitorm.Sql.SqlTranslate
         /// </returns>
         public virtual string GenerateParameterName(string name) => name.StartsWith("@", StringComparison.Ordinal) ? name : "@" + name;
 
+        public virtual string DelimitTableName(IEntityDescriptor entityDescriptor) => delimitTableName(this, entityDescriptor);
 
-        public virtual string DelimitTableName(IEntityDescriptor entityDescriptor) => DelimitIdentifier(entityDescriptor.tableName);
+        public Func<SqlTranslateService, IEntityDescriptor, string> delimitTableName = DelimitTableName;
+
+        public static string DelimitTableName(SqlTranslateService sqlTranslateService, IEntityDescriptor entityDescriptor)
+        {
+            if (entityDescriptor.schema == null) return sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName);
+            return $"{sqlTranslateService.DelimitIdentifier(entityDescriptor.schema)}.{sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName)}";
+        }
         #endregion
 
 

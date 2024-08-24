@@ -91,7 +91,7 @@ pipeline {
             when { expression { env.ApprovalForBuild == "yes" } }
             steps {
                 script {
-                    sshCommand remote: remote, command:  "sh -c 'set -e; export APPNAME=$APPNAME;    cd $codePath/Publish/DevOps3/build-bash; sh 10.Test.bash;  '"
+                    sshCommand remote: remote, command:  "sh -c 'set -e; export APPNAME=$APPNAME; export NUGET_PATH=$NUGET_PATH;    cd $codePath/Publish/DevOps3/build-bash; sh 10.Test.bash;  '"
                 }
             }
         }

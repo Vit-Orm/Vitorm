@@ -3,9 +3,11 @@
 
 
 # build-bash
-extra steps when building, all sh files could be remove if not needed.
+extra steps for build, all sh files are optional (remove if not need).
 
 
+# jenkins_NoNeedApprovalForBuild.txt
+if this file exists, will not need approval for jenkins build.
 
 
 ----------------------------------------------

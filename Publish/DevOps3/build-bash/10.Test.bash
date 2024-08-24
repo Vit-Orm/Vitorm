@@ -11,8 +11,8 @@ export basePath=/root/temp/svn
 
 #----------------------------------------------
 # basePath
-if [ -z "$basePath" ]; then basePath=$PWD/../../..; fi
-
+if [ -z "$basePath" ]; then export basePath=$PWD/../../..; fi
+export devOpsPath="$PWD/.."
 
 #----------------------------------------------
 echo "#10.Test.bash -> #1 init test environment"

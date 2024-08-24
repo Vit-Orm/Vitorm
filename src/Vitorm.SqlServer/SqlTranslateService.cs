@@ -211,7 +211,7 @@ if object_id(N'[dbo].[User]', N'U') is null
             return $@"
 if object_id(N'{DelimitTableName(entityDescriptor)}', N'U') is null
 create table {DelimitTableName(entityDescriptor)} (
-{string.Join(",\r\n  ", sqlFields)}
+  {string.Join(",\r\n  ", sqlFields)}
 )";
 
 

@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 
             return $@"
 CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
-{string.Join(",\r\n  ", sqlFields)}
+  {string.Join(",\r\n  ", sqlFields)}
 )";
 
             string GetColumnSql(IColumnDescriptor column)

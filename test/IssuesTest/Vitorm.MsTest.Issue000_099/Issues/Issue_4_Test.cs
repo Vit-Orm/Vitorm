@@ -13,7 +13,7 @@ namespace Vitorm.MsTest.Issue000_099.Issues
     public class Issue_004_Test
     {
         [TestMethod]
-        public void Test()
+        public void Test_MySql()
         {
             var name = Guid.NewGuid().ToString();
 
@@ -28,6 +28,26 @@ CREATE TABLE IF NOT EXISTS `schemaTest`.`MyUser` (`id` int NOT NULL primary key,
 insert into `schemaTest`.`MyUser`(`id`,name) values(1,@name);
 ", param: new Dictionary<string, object> { ["name"] = name });
             }
+
+            // #2 Assert
+            {
+                var user = Data.Get<MyUser>(1);
+                Assert.AreEqual(name, user.name);
+            }
+        }
+
+
+        [TestMethod]
+        public void Test_Sqlite()
+        {
+            var name = Guid.NewGuid().ToString();
+
+            // #1 Init
+            using var dbContext = Data.DataProvider("Vitorm.MsTest.Sqlite").CreateSqlDbContext();
+            var dbSet = dbContext.DbSet<MyUser>();
+            dbSet.TryDropTable();
+            dbSet.TryCreateTable();
+            Data.Add(new MyUser { id = 1, name = name });
 
             // #2 Assert
             {

@@ -6,13 +6,18 @@ set -e
 args_="
 
 export basePath=/root/temp/svn
+export NUGET_PATH=$basePath/Publish/release/.nuget
 
 # "
 
+
 #----------------------------------------------
-# basePath
+# init args
 if [ -z "$basePath" ]; then export basePath=$PWD/../../..; fi
 export devOpsPath="$PWD/.."
+
+if [ ! $NUGET_PATH ]; then NUGET_PATH=$basePath/Publish/release/.nuget; fi
+
 
 #----------------------------------------------
 echo "#10.Test.bash -> #1 init test environment"

@@ -1,6 +1,13 @@
 ﻿# Vitorm ReleaseLog
 
 -----------------------
+# 2.0.6
+
+- support schema name of table for mysql
+
+
+
+-----------------------
 # 2.0.5
 - support Async Methods
   - AddAsync AddRangeAsync

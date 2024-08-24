@@ -57,4 +57,4 @@ docker run -t --rm --link orm-mssql mcr.microsoft.com/mssql/server:2019-CU12-ubu
 
 
 #---------------------------------------------------------------------
-echo '#build-bash__10.Test__#1.InitEnv.sh -> #9 init mysql success!'
+echo '#build-bash__10.Test__#1.InitEnv.sh -> #9 init test environment success!'

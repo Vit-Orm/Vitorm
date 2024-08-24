@@ -49,7 +49,7 @@ echo '#build-bash__10.Test__#1.InitEnv.sh -> #8 wait for containers to init'
 
 
 echo '#build-bash__10.Test__#1.InitEnv.sh -> #8.1 wait for MySql to init' 
-docker run -t --rm --link orm-mysql mysql:8.0.26 timeout 120 sh -c 'until mysql -h orm-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;  mysql -h orm-mysql --database=db_orm -u root -p123456 -e "create schema if not exists orm";  mysql -h orm-mysql -u root -p123456 -e "create database if not exists db_orm2";    '
+docker run -t --rm --link orm-mysql mysql:8.0.26 timeout 120 sh -c 'until mysql -h orm-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;  mysql -h orm-mysql --database=db_orm -u root -p123456 -e "create database if not exists db_orm2;create schema if not exists orm;";    '
 
 
 echo '#build-bash__10.Test__#1.InitEnv.sh -> #8.2 wait for SqlServer to init' 

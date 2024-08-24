@@ -24,6 +24,8 @@ namespace Vitorm.Sqlite
             queryTranslateService = new QueryTranslateService(this);
             executeUpdateTranslateService = new ExecuteUpdateTranslateService(this);
             executeDeleteTranslateService = new ExecuteDeleteTranslateService(this);
+
+            delimitTableName = Vitorm.Sql.SqlTranslate.SqlTranslateService.DelimitTableNameWithoutSchema;
         }
 
         #region EvalExpression

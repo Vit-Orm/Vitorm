@@ -24,7 +24,7 @@ namespace Vitorm.Sql.SqlTranslate
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string DelimitIdentifier(string identifier) => $"\"{EscapeIdentifier(identifier)}\""; // Interpolation okay; strings
+        public virtual string DelimitIdentifier(string identifier) => $"\"{EscapeIdentifier(identifier)}\"";
 
         /// <summary>
         ///     Generates the escaped SQL representation of an identifier (column name, table name, etc.).
@@ -53,6 +53,8 @@ namespace Vitorm.Sql.SqlTranslate
             if (entityDescriptor.schema == null) return sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName);
             return $"{sqlTranslateService.DelimitIdentifier(entityDescriptor.schema)}.{sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName)}";
         }
+        public static string DelimitTableNameWithoutSchema(SqlTranslateService sqlTranslateService, IEntityDescriptor entityDescriptor)
+            => sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName);
         #endregion
 
 
@@ -386,7 +388,7 @@ namespace Vitorm.Sql.SqlTranslate
         public static bool Entity_HasKeyValue(SqlTranslateArgument arg, object entity)
         {
             var keyValue = arg.entityDescriptor?.key.GetValue(entity);
-            return keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+            return keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
         }
         public virtual bool HasKeyValue(SqlTranslateArgument arg, object entity) => hasKeyValue?.Invoke(arg, entity) == true;
         public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)

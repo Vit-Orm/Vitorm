@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <test>MSTest</test>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -15,15 +19,12 @@
         <PackageReference Include="MSTest.TestFramework" Version="3.5.1" />
 
         <PackageReference Include="Vit.Core" Version="2.2.0" />
-
-        <PackageReference Include="Vitorm.ClickHouse" Version="2.0.5" />
-        <PackageReference Include="Vitorm.ElasticSearch" Version="2.0.5" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.MySql\Vitorm.MySql.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
         <ProjectReference Include="..\..\src\Vitorm.Data\Vitorm.Data.csproj" />
     </ItemGroup>
 

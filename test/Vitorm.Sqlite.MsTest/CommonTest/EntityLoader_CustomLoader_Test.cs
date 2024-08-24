@@ -55,7 +55,7 @@ namespace Vitorm.MsTest.CommonTest
 
 
         [Property(name = "TableName", value = "User")]
-        [Property(name = "Schema", value = "dbo")]
+        //[Property(name = "Schema", value = "dev_orm")]
         public class CustomUser
         {
             [Label("Key")]

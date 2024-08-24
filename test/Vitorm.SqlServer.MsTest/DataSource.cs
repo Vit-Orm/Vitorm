@@ -4,7 +4,7 @@ using Vitorm.Sql;
 
 namespace Vitorm.MsTest
 {
-    [System.ComponentModel.DataAnnotations.Schema.Table("User", Schema = "dbo")]
+    [System.ComponentModel.DataAnnotations.Schema.Table("User", Schema = "dev_orm")]
     public class User
     {
         [System.ComponentModel.DataAnnotations.Key]

@@ -89,6 +89,6 @@ namespace Vitorm.MsTest.MySql.Issue_004
     {
         [System.ComponentModel.DataAnnotations.Key]
         public int id { get; set; }
-        public string name { get; set; } 
+        public string name { get; set; }
     }
 }

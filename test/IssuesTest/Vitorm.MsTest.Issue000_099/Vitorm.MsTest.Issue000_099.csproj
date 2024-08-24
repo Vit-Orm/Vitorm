@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\src\Vitorm\Vitorm.csproj" />
         <ProjectReference Include="..\..\..\src\Vitorm.Data\Vitorm.Data.csproj" />
         <ProjectReference Include="..\..\..\src\Vitorm.EntityGenerate\Vitorm.EntityGenerate.csproj" />
         <ProjectReference Include="..\..\..\src\Vitorm.MySql\Vitorm.MySql.csproj" />

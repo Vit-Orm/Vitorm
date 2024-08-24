@@ -39,22 +39,19 @@ export netVersion=\$(grep '<TargetFramework>' \$(grep '<publish>' -rl --include 
 echo netVersion: \$netVersion
 
 
-export basePath=/root/code
-export publishPath=\$basePath/Publish/release/release/Station\(\$netVersion\)
+export publishPath=/root/code/Publish/release/release/Station\(\$netVersion\)
 mkdir -p \$publishPath
 
 echo '#2 publish station'
-cd \$basePath
-for file in \$(grep -a '<publish>' . -rl --include *.csproj)
-do
-	cd \$basePath
-	
-	#get publishName
+for file in \$(grep -a '<publish>' . -rl --include *.csproj /root/code)
+do	
+	# get publishName
+	cd /root/code
 	publishName=\`grep '<publish>' \$file -r | grep -oP '>(.*)<' | tr -d '<>'\`
 
 	echo publish \$publishName
 
-	#publish
+	# publish
 	cd \$(dirname \"\$file\")
 	dotnet build --configuration Release
 	dotnet publish --configuration Release --output \"\$publishPath/\$publishName\"
@@ -65,9 +62,9 @@ done
 
 
 #3 copy station release files
-if [ -d \"\$basePath/Publish/ReleaseFile/Station\" ]; then
+if [ -d \"\/root/code/Publish/ReleaseFile/Station\" ]; then
 	echo '#3 copy station release files'
-	\cp -rf \$basePath/Publish/ReleaseFile/Station/. \"\$publishPath\"
+	\cp -rf \/root/code/Publish/ReleaseFile/Station/. \"\$publishPath\"
 fi
 
 

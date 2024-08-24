@@ -84,7 +84,7 @@ pipeline {
             when { expression { env.inputChoice == "yes" } }
             steps {
                 script {
-                    sshCommand remote: remote, command:  "sh -c 'set -e; export APPNAME=$APPNAME;    cd $codePath/Publish/DevOps3/build-bash; sh 10.Tester.bash;  '"
+                    sshCommand remote: remote, command:  "sh -c 'set -e; export APPNAME=$APPNAME;    cd $codePath/Publish/DevOps3/build-bash; sh 10.Test.bash;  '"
                 }
             }
         }

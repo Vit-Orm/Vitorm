@@ -145,7 +145,7 @@ pipeline {
 
     post {
         always {
-            timeout(time:3600,unit:'SECONDS') {
+            timeout(time:600,unit:'SECONDS') {
                 script {
                     env.inputChoice = "yes"
                     env.inputChoice = input message: "Clean temp files, \n will wait for 3600 seconds. \n click abort to skip clean.", 

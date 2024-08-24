@@ -25,6 +25,6 @@ docker run -d \
 mysql:8.0.26
 
 echo '#build-bash__10.Test_1.InitEnv.sh -> #1.2 wait for mysql to init' 
-docker run -t --rm --link dev-mysql:dev-mysql mysql:8.0.26 timeout 3 sh -c 'until mysql -h dev-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;'
+docker run -t --rm --link dev-mysql:dev-mysql mysql:8.0.26 timeout 120 sh -c 'until mysql -h dev-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;'
 
 echo '#build-bash__10.Test_1.InitEnv.sh -> #1.3 init mysql success!'

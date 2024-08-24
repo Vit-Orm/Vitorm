@@ -42,6 +42,7 @@ pipeline {
     }
 
     stages {
+
         stage('#1 deploy ?') {
             steps {
                 timeout(time:600,unit:'SECONDS') {
@@ -75,6 +76,15 @@ pipeline {
                     echo "#2.2 get app version"
                     env.appVersion = readFile("Publish/DevOps3/environment/env.appVersion.txt")
                     echo "-------- appVersion: [${env.appVersion}]"
+                }
+            }
+        }
+
+        stage('#3.0 build - run test') {
+            when { expression { env.inputChoice == "yes" } }
+            steps {
+                script {
+                    sshCommand remote: remote, command:  "sh -c 'set -e; export APPNAME=$APPNAME;    cd $codePath/Publish/DevOps3/build-bash; sh 10.Tester.bash;  '"
                 }
             }
         }

@@ -12,8 +12,10 @@ export basePath=/root/temp
 
 
 #---------------------------------------------------------------------
-echo '#build-bash__10.Test_InitEnv.sh -> #1 init mysql'
+echo '#build-bash__10.Test_1.InitEnv.sh -> #1 init mysql'
 
+
+echo '#build-bash__10.Test_1.InitEnv.sh -> #1.0 start mysql container'
 docker rm dev-mysql -f || true
 docker run -d \
 --name dev-mysql \
@@ -22,7 +24,7 @@ docker run -d \
 -e MYSQL_ROOT_PASSWORD=123456 \
 mysql:8.0.26
 
+echo '#build-bash__10.Test_1.InitEnv.sh -> #1.2 wait for mysql to init' 
+docker run -t --rm --link dev-mysql:dev-mysql mysql:8.0.26 timeout 3 sh -c 'until mysql -h dev-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;'
 
-# wait until mysql inited
-docker run -it --rm --link dev-mysql:dev-mysql mysql:8.0.26 timeout 3 sh -c 'until mysql -h dev-mysql -u root -p123456 -e "SELECT 1"; do echo waiting for mysql; sleep 2; done;'
-echo '#build-bash__10.Test_InitEnv.sh -> #1 init mysql success'
+echo '#build-bash__10.Test_1.InitEnv.sh -> #1.3 init mysql success!'

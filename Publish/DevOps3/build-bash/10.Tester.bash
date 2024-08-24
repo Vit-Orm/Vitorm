@@ -6,11 +6,12 @@ set -e
 args_="
 
 export basePath=/root/temp/svn
-export NUGET_PATH=$basePath/Publish/release/.nuget
 
 # "
 
-if [ ! $NUGET_PATH ]; then NUGET_PATH=$basePath/Publish/release/.nuget; fi
+#----------------------------------------------
+# basePath
+if [ -z "$basePath" ]; then basePath=$PWD/../../..; fi
 
 
 #----------------------------------------------

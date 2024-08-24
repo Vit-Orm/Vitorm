@@ -27,7 +27,9 @@ serset/dotnet:sdk-6.0 \
 bash -c "
 set -e
 
-if grep '<publish>' -r --include *.csproj /root/code; then
+cd /root/code
+
+if grep '<publish>' -r --include *.csproj; then
 	echo '#40.Station-publish.sh -> got projects need to be built'
 else
 	echo '#40.Station-publish.sh -> skip for no project needs to be built'
@@ -35,7 +37,7 @@ else
 fi
 
 echo '#1 get netVersion'
-export netVersion=\$(grep '<TargetFramework>' \$(grep '<publish>' -rl --include *.csproj /root/code | head -n 1) | grep -oP '>(.*)<' | tr -d '<>')
+export netVersion=\$(grep '<TargetFramework>' \$(grep '<publish>' -rl --include *.csproj | head -n 1) | grep -oP '>(.*)<' | tr -d '<>')
 echo netVersion: \$netVersion
 
 
@@ -43,7 +45,7 @@ export publishPath=/root/code/Publish/release/release/Station\(\$netVersion\)
 mkdir -p \$publishPath
 
 echo '#2 publish station'
-for file in \$(grep -a '<publish>' . -rl --include *.csproj /root/code)
+for file in \$(grep -a '<publish>' . -rl --include *.csproj)
 do	
 	# get publishName
 	cd /root/code

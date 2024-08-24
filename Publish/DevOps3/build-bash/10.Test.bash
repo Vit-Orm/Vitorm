@@ -36,8 +36,10 @@ serset/dotnet:sdk-6.0 \
 bash -c "
 set -e
 
+cd /root/code
+
 #2.1 skip if no test projects
-if grep '<test>' -r --include *.csproj /root/code; then
+if grep '<test>' -r --include *.csproj; then
 	echo '#10.Test.bash -> got projects need to test'
 else
 	echo '#10.Test.bash -> skip for no project needs to test'
@@ -46,7 +48,7 @@ fi
 
 #2.2 run test
 echo '#10.Test.bash -> #2.2 run test...'
-for file in \$(grep -a '<test>' . -rl --include *.csproj /root/code)
+for file in \$(grep -a '<test>' . -rl --include *.csproj)
 do
 	echo '#10.Test.bash -> #2.2.1 run test:'
 	echo run test for project \"\$file\"

@@ -44,14 +44,6 @@ namespace Vitorm.SqlServer
         /// </returns>
         public override string EscapeIdentifier(string identifier) => identifier?.Replace("[", "\"[").Replace("]", "\"]");
 
-        public override string DelimitTableName(IEntityDescriptor entityDescriptor)
-        {
-            if (entityDescriptor.schema == null) return DelimitIdentifier(entityDescriptor.tableName);
-
-            return $"{DelimitIdentifier(entityDescriptor.schema)}.{DelimitIdentifier(entityDescriptor.tableName)}";
-        }
-
-
 
         #region EvalExpression
 

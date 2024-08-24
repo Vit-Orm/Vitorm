@@ -381,13 +381,20 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         #region #1 Create :  PrepareAdd
+
+        public Func<SqlTranslateArgument, object, bool> hasKeyValue = Entity_HasKeyValue;
+        public static bool Entity_HasKeyValue(SqlTranslateArgument arg, object entity)
+        {
+            var keyValue = arg.entityDescriptor?.key.GetValue(entity);
+            return keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+        }
+        public virtual bool HasKeyValue(SqlTranslateArgument arg, object entity) => hasKeyValue?.Invoke(arg, entity) == true;
         public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
         {
             var key = arg.entityDescriptor.key;
             if (key == null) return EAddType.noKeyColumn;
 
-            var keyValue = key.GetValue(entity);
-            if (keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type))) return EAddType.keyWithValue;
+            if (HasKeyValue(arg, entity)) return EAddType.keyWithValue;
 
             if (key.isIdentity) return EAddType.identityKey;
 

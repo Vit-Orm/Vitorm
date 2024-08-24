@@ -16,10 +16,10 @@ export devOpsPath="$PWD/.."
 
 #----------------------------------------------
 echo "#10.Test.bash -> #1 init test environment"
-bashFile=\"$devOpsPath/environment/build-bash__10.Test_InitEnv.sh\"
-if [ -f \"\$bashFile\" ]; then
+bashFile="$devOpsPath/environment/build-bash__10.Test_InitEnv.sh"
+if [ -f "$bashFile" ]; then
 	echo "#10.Test.bash -> #1 init test environment - Run bash"
-	sh \"\$bashFile\"
+	sh "$bashFile"
 fi
 
 

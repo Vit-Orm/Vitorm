@@ -35,7 +35,7 @@ do
 	cd /root/code
 	cd \$(dirname \"\$file\")
 	dotnet build --configuration Release
-	dotnet pack --configuration Release --output '\$publishPath'
+	dotnet pack --configuration Release --output \"\$publishPath\"
 done
 "
 

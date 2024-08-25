@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS "User" (
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key));
+            if (entityDescriptor.key != null)
+                sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));

@@ -98,7 +98,7 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                         if (type == typeof(string)) isNullable = true;
                         else
                         {
-                            isNullable = (type.IsGenericType && typeof(Nullable<>) == type.GetGenericTypeDefinition());
+                            isNullable = TypeUtil.IsNullable(type);
                         }
                     }
 

@@ -7,7 +7,7 @@ namespace Vitorm.MsTest
 {
 
     [TestClass]
-    public partial class DataAccess_Test
+    public partial class DataProvider_Test
     {
 
         [TestMethod]

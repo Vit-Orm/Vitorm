@@ -64,9 +64,7 @@ namespace Vitorm
 
         #region EntityLoader
 
-        public static EntityLoaders defaultEntityLoader = new();
-
-        public IEntityLoader entityLoader = defaultEntityLoader;
+        public IEntityLoader entityLoader = EntityLoaders.Instance;
         public virtual IEntityDescriptor GetEntityDescriptor(Type entityType, bool tryFromCache = true)
         {
             if (tryFromCache && dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;

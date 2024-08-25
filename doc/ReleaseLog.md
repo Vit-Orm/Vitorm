@@ -3,9 +3,9 @@
 -----------------------
 # 2.0.6
 
-- support schema name of table for mysql
-
-
+- #4 support schema name of table for MySql
+- #5 single bool value in where condition
+- [Vitorm.Data] support name and multiple namespace
 
 -----------------------
 # 2.0.5

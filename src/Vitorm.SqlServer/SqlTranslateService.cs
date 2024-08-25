@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 using Vit.Linq;
@@ -48,25 +49,28 @@ namespace Vitorm.SqlServer
         #region EvalExpression
 
         /// <summary>
-        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// evaluate column in select / order by / group by,  for example :  "select (u.id + 100) as newId",  "order by a.name",  "group by a.name"
         /// </summary>
         /// <param name="arg"></param>
-        /// <param name="data"></param>
+        /// <param name="node"></param>
         /// <param name="columnType"></param>
         /// <returns></returns>
-        public override string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null)
+        public override string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode node, Type columnType = null)
         {
-            var selectFieldSentence = base.EvalSelectExpression(arg, data, columnType);
+            using var expressionTreeStack = arg.ExpressionTree_Push(selectExpressionTreeStackHolder);
+
+            var selectFieldSentence = base.EvalSelectExpression(arg, node, columnType);
             if (columnType == typeof(bool) || columnType == typeof(bool?))
             {
                 if (!selectFieldSentence.StartsWith("IIF(", StringComparison.OrdinalIgnoreCase))
                 {
                     // select IIF(userFatherId is not null, 1, 0) as hasFather, * from [User]
-                    return $"IIF({base.EvalSelectExpression(arg, data, columnType)}, 1, 0)";
+                    return $"IIF({selectFieldSentence}, 1, 0)";
                 }
             }
             return selectFieldSentence;
         }
+        static ExpressionNode selectExpressionTreeStackHolder = ExpressionNode.Binary(nodeType: NodeType.Equal, null, null);
 
 
         /// <summary>
@@ -75,14 +79,33 @@ namespace Vitorm.SqlServer
         /// <param name="arg"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        /// <param name="data"></param>
-        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode data)
+        /// <param name="node"></param>
+        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode node)
         {
-            switch (data.nodeType)
+            var parentNode = arg.ExpressionTree_Current();
+            using var expressionTreeStack = arg.ExpressionTree_Push(node);
+
+            switch (node.nodeType)
             {
+                case NodeType.Member:
+                    {
+                        ExpressionNode_Member member = node;
+
+                        var sqlField = GetSqlField(member, arg.dbContext);
+
+                        var memberType = member.Member_GetType();
+                        if (memberType == typeof(bool) || memberType == typeof(bool?))
+                        {
+                            if (parentNode == null || new[] { NodeType.Not, NodeType.AndAlso, NodeType.OrElse, }.Contains(parentNode.nodeType))
+                            {
+                                return $"({sqlField} = 1)";
+                            }
+                        }
+                        return sqlField;
+                    }
                 case NodeType.Constant:
                     {
-                        ExpressionNode_Constant constant = data;
+                        ExpressionNode_Constant constant = node;
                         var value = constant.value;
                         if (value is bool boolean)
                         {
@@ -92,7 +115,7 @@ namespace Vitorm.SqlServer
                     }
                 case NodeType.MethodCall:
                     {
-                        ExpressionNode_MethodCall methodCall = data;
+                        ExpressionNode_MethodCall methodCall = node;
                         switch (methodCall.methodName)
                         {
                             // ##1 ToString
@@ -130,7 +153,7 @@ namespace Vitorm.SqlServer
                     {
                         // cast( 4.1 as signed)
 
-                        ExpressionNode_Convert convert = data;
+                        ExpressionNode_Convert convert = node;
 
                         Type targetType = convert.valueType?.ToType();
 
@@ -153,33 +176,33 @@ namespace Vitorm.SqlServer
                     }
                 case nameof(ExpressionType.Add):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
 
                         // ##1 String Add
-                        if (data.valueType?.ToType() == typeof(string))
+                        if (node.valueType?.ToType() == typeof(string))
                         {
                             return $"CONCAT({EvalExpression(arg, binary.left)} ,{EvalExpression(arg, binary.right)})";
                         }
 
-                        // ##2 Numberic Add
+                        // ##2 Numeric Add
                         return $"{EvalExpression(arg, binary.left)} + {EvalExpression(arg, binary.right)}";
                     }
                 case nameof(ExpressionType.Coalesce):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
                     }
                 case nameof(ExpressionType.Conditional):
                     {
                         // IIF(`t0`.`fatherId` is not null, 1, 0)
-                        ExpressionNode_Conditional conditional = data;
+                        ExpressionNode_Conditional conditional = node;
                         return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }
                     #endregion
 
             }
 
-            return base.EvalExpression(arg, data);
+            return base.EvalExpression(arg, node);
         }
 
         #endregion

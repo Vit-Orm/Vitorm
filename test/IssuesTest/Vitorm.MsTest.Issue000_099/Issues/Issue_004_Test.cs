@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-using Vitorm.MsTest.MySql.Issue_004;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Vitorm.MsTest.Issue000_099.Issues
 {
     /// <summary>
     /// https://github.com/VitormLib/Vitorm/issues/4
-    /// support schema name of table for mysql
+    /// #4 support schema name of table for MySql
     /// </summary>
     [TestClass]
     public class Issue_004_Test
@@ -20,16 +20,17 @@ namespace Vitorm.MsTest.Issue000_099.Issues
             // #1 Init
             using var dbContext = Data.DataProvider("Vitorm.MsTest.SqlServer").CreateSqlDbContext();
             using var tran = dbContext.BeginTransaction();
-            dbContext.Execute(@"create schema schemaTest;");
+            var dbSet = dbContext.DbSet<MyUser>();
+            dbContext.Execute(@"create schema issue004_schema;");
             dbContext.Execute(@"
-CREATE TABLE schemaTest.MyUser (id int NOT NULL primary key,  name varchar(1000) DEFAULT NULL);
-insert into schemaTest.MyUser(id,name) values(1,@name);
+CREATE TABLE issue004_schema.Issue004_MyUser (id int NOT NULL primary key,  name varchar(1000) DEFAULT NULL);
+insert into issue004_schema.Issue004_MyUser(id,name) values(1,@name);
 ", param: new Dictionary<string, object> { ["name"] = name });
 
 
             // #2 Assert
             {
-                var user = dbContext.Get<MyUser>(1);
+                var user = dbSet.Get(1);
                 Assert.AreEqual(name, user.name);
             }
         }
@@ -41,20 +42,20 @@ insert into schemaTest.MyUser(id,name) values(1,@name);
             var name = Guid.NewGuid().ToString();
 
             // #1 Init
-            {
-                using var dbContext = Data.DataProvider<MyUser>().CreateSqlDbContext();
-                dbContext.Execute(@"
-create schema IF NOT EXISTS `schemaTest`;
-use `schemaTest`;
-drop table if exists `schemaTest`.`MyUser`;
-CREATE TABLE IF NOT EXISTS `schemaTest`.`MyUser` (`id` int NOT NULL primary key,  `name` varchar(1000) DEFAULT NULL);
-insert into `schemaTest`.`MyUser`(`id`,name) values(1,@name);
+            using var dbContext = Data.DataProvider("Vitorm.MsTest.MySql").CreateSqlDbContext();
+            using var tran = dbContext.BeginTransaction();
+            var dbSet = dbContext.DbSet<MyUser>();
+            dbContext.Execute(@"
+create schema IF NOT EXISTS `issue004_schema`;
+use `issue004_schema`;
+drop table if exists `issue004_schema`.`Issue004_MyUser`;
+CREATE TABLE IF NOT EXISTS `issue004_schema`.`Issue004_MyUser` (`id` int NOT NULL primary key,  `name` varchar(1000) DEFAULT NULL);
+insert into `issue004_schema`.`Issue004_MyUser`(`id`,name) values(1,@name);
 ", param: new Dictionary<string, object> { ["name"] = name });
-            }
 
             // #2 Assert
             {
-                var user = Data.Get<MyUser>(1);
+                var user = dbSet.Get(1);
                 Assert.AreEqual(name, user.name);
             }
         }
@@ -67,6 +68,7 @@ insert into `schemaTest`.`MyUser`(`id`,name) values(1,@name);
 
             // #1 Init
             using var dbContext = Data.DataProvider("Vitorm.MsTest.Sqlite").CreateSqlDbContext();
+            using var tran = dbContext.BeginTransaction();
             var dbSet = dbContext.DbSet<MyUser>();
             dbSet.TryDropTable();
             dbSet.TryCreateTable();
@@ -78,17 +80,15 @@ insert into `schemaTest`.`MyUser`(`id`,name) values(1,@name);
                 Assert.AreEqual(name, user.name);
             }
         }
+
+        // Entity
+        [Table("Issue004_MyUser", Schema = "issue004_schema")]
+        public class MyUser
+        {
+            [Key]
+            public int id { get; set; }
+            public string name { get; set; }
+        }
     }
 }
 
-// Entity Definition
-namespace Vitorm.MsTest.MySql.Issue_004
-{
-    [System.ComponentModel.DataAnnotations.Schema.Table("MyUser", Schema = "schemaTest")]
-    public class MyUser
-    {
-        [System.ComponentModel.DataAnnotations.Key]
-        public int id { get; set; }
-        public string name { get; set; }
-    }
-}

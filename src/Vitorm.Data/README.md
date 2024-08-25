@@ -28,6 +28,7 @@ dotnet add package Vitorm.Sqlite
 ```
 
 ## Config settings
+> full example: [appsettings.json](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.MsTest/appsettings.json)    
 ``` json
 // appsettings.json
 {

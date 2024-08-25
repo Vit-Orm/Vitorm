@@ -51,14 +51,20 @@ namespace Vitorm
 
             static IDataProvider GetDataProviderFromConfig(Type entityType)
             {
-                var FullName = entityType.FullName;
-                return providerCache.FirstOrDefault(cache => cache.Match(FullName))?.dataProvider
-                    ?? throw new NotImplementedException("can not find config for type: " + entityType.FullName);
+                var classFullName = entityType.FullName;
+                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
+                    ?? throw new NotImplementedException("can not find config for type: " + classFullName);
             }
         }
-        public static IDataProvider DataProvider(string @namespace)
+
+        /// <summary>
+        /// dataProviderName:  dataProviderName or dataProviderNamespace
+        /// </summary>
+        /// <param name="dataProviderName"></param>
+        /// <returns></returns>
+        public static IDataProvider DataProvider(string dataProviderName)
         {
-            return providerCache.FirstOrDefault(cache => cache.@namespace == @namespace)?.dataProvider;
+            return providerCache.FirstOrDefault(cache => cache.name == dataProviderName || cache.@namespace == dataProviderName)?.dataProvider;
         }
 
 

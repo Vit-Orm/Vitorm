@@ -13,7 +13,7 @@ namespace Vitorm.MsTest.CommonTest
         [TestMethod]
         public void Test()
         {
-            using var dbContext = DataSource.CreateDbContext();
+            using var dbContext = DataSource.CreateDbContextForWriting();
 
             // #1 Init
             var name = Guid.NewGuid().ToString();
@@ -23,6 +23,8 @@ namespace Vitorm.MsTest.CommonTest
             dbSet.Add(new MyUser { id = 1, enable = true, isEven = null });
             dbSet.Add(new MyUser { id = 2, enable = true, isEven = true });
             dbSet.Add(new MyUser { id = 3, enable = false, isEven = false });
+
+            DataSource.WaitForUpdate();
 
             // #2 Assert
             {

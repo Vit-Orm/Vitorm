@@ -19,13 +19,13 @@ namespace Vitorm.MsTest.SqlServer
             dbContext.UseSqlServer(connectionString);
 
             dbContext.Execute(@"
-if object_id(N'[dev_orm].[GeneratedUser]', N'U') is not null  DROP TABLE [dev_orm].[GeneratedUser];
-CREATE TABLE [dev_orm].[GeneratedUser] ([id] int NOT NULL PRIMARY KEY, [name] varchar(1000) );
-Insert into [dev_orm].[GeneratedUser] ([id],[name]) values(1,'u146');
+if object_id(N'[GeneratedUser]', N'U') is not null  DROP TABLE [GeneratedUser];
+CREATE TABLE [GeneratedUser] ([id] int NOT NULL PRIMARY KEY, [name] varchar(1000) );
+Insert into [GeneratedUser] ([id],[name]) values(1,'u146');
 ");
 
             // #2 test
-            var dbSet = dbContext.GenerateDbSet(entityNamespace: entityNamespace, tableName: "GeneratedUser", schemaName: "dev_orm");
+            var dbSet = dbContext.GenerateDbSet(entityNamespace: entityNamespace, tableName: "GeneratedUser");
             var entityType = dbSet.entityDescriptor.entityType;
 
             // GetEntity

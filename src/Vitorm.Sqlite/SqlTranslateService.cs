@@ -24,6 +24,8 @@ namespace Vitorm.Sqlite
             queryTranslateService = new QueryTranslateService(this);
             executeUpdateTranslateService = new ExecuteUpdateTranslateService(this);
             executeDeleteTranslateService = new ExecuteDeleteTranslateService(this);
+
+            delimitTableName = Vitorm.Sql.SqlTranslate.SqlTranslateService.DelimitTableNameWithoutSchema;
         }
 
         #region EvalExpression
@@ -33,14 +35,14 @@ namespace Vitorm.Sqlite
         /// <param name="arg"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        /// <param name="data"></param>
-        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode data)
+        /// <param name="node"></param>
+        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode node)
         {
-            switch (data.nodeType)
+            switch (node.nodeType)
             {
                 case NodeType.MethodCall:
                     {
-                        ExpressionNode_MethodCall methodCall = data;
+                        ExpressionNode_MethodCall methodCall = node;
                         switch (methodCall.methodName)
                         {
                             // ##1 ToString
@@ -78,7 +80,7 @@ namespace Vitorm.Sqlite
                     {
                         // cast( 4.1 as signed)
 
-                        ExpressionNode_Convert convert = data;
+                        ExpressionNode_Convert convert = node;
 
                         Type targetType = convert.valueType?.ToType();
 
@@ -105,10 +107,10 @@ namespace Vitorm.Sqlite
                     }
                 case nameof(ExpressionType.Add):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
 
                         // ##1 String Add
-                        if (data.valueType?.ToType() == typeof(string))
+                        if (node.valueType?.ToType() == typeof(string))
                         {
                             // select ifNull( cast( (userFatherId) as text ) , '' )  from `User`
 
@@ -127,25 +129,25 @@ namespace Vitorm.Sqlite
                             }
                         }
 
-                        // ##2 Numberic Add
+                        // ##2 Numeric Add
                         return $"{EvalExpression(arg, binary.left)} + {EvalExpression(arg, binary.right)}";
                     }
                 case nameof(ExpressionType.Coalesce):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
                     }
                 case nameof(ExpressionType.Conditional):
                     {
                         // IIF(`t0`.`fatherId` is not null, true, false)
-                        ExpressionNode_Conditional conditional = data;
+                        ExpressionNode_Conditional conditional = node;
                         return $"IIF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }
                     #endregion
 
             }
 
-            return base.EvalExpression(arg, data);
+            return base.EvalExpression(arg, node);
         }
         #endregion
 
@@ -166,14 +168,15 @@ CREATE TABLE IF NOT EXISTS "User" (
             List<string> sqlFields = new();
 
             // #1 primary key
-            sqlFields.Add(GetColumnSql(entityDescriptor.key));
+            if (entityDescriptor.key != null)
+                sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
             entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
 CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
-{string.Join(",\r\n  ", sqlFields)}
+  {string.Join(",\r\n  ", sqlFields)}
 )";
 
             string GetColumnSql(IColumnDescriptor column)

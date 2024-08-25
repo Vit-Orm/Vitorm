@@ -24,7 +24,7 @@ namespace Vitorm.Sql.SqlTranslate
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string DelimitIdentifier(string identifier) => $"\"{EscapeIdentifier(identifier)}\""; // Interpolation okay; strings
+        public virtual string DelimitIdentifier(string identifier) => $"\"{EscapeIdentifier(identifier)}\"";
 
         /// <summary>
         ///     Generates the escaped SQL representation of an identifier (column name, table name, etc.).
@@ -44,8 +44,17 @@ namespace Vitorm.Sql.SqlTranslate
         /// </returns>
         public virtual string GenerateParameterName(string name) => name.StartsWith("@", StringComparison.Ordinal) ? name : "@" + name;
 
+        public virtual string DelimitTableName(IEntityDescriptor entityDescriptor) => delimitTableName(this, entityDescriptor);
 
-        public virtual string DelimitTableName(IEntityDescriptor entityDescriptor) => DelimitIdentifier(entityDescriptor.tableName);
+        public Func<SqlTranslateService, IEntityDescriptor, string> delimitTableName = DelimitTableName;
+
+        public static string DelimitTableName(SqlTranslateService sqlTranslateService, IEntityDescriptor entityDescriptor)
+        {
+            if (entityDescriptor.schema == null) return sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName);
+            return $"{sqlTranslateService.DelimitIdentifier(entityDescriptor.schema)}.{sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName)}";
+        }
+        public static string DelimitTableNameWithoutSchema(SqlTranslateService sqlTranslateService, IEntityDescriptor entityDescriptor)
+            => sqlTranslateService.DelimitIdentifier(entityDescriptor.tableName);
         #endregion
 
 
@@ -72,10 +81,16 @@ namespace Vitorm.Sql.SqlTranslate
             }
             else if (member.objectValue != null)
             {
-                var entityType = member.objectValue.Member_GetType();
-                if (entityType != null)
+                var memberType = member.objectValue.Member_GetType();
+                if (memberType != null)
                 {
-                    var entityDescriptor = dbContext.GetEntityDescriptor(entityType);
+                    // bool?.Value
+                    if (memberName == nameof(Nullable<bool>.Value) && TypeUtil.IsNullable(memberType))
+                    {
+                        return GetSqlField(member.objectValue, dbContext);
+                    }
+
+                    var entityDescriptor = dbContext.GetEntityDescriptor(memberType);
                     if (entityDescriptor != null)
                     {
                         var columnName = entityDescriptor.GetColumnNameByPropertyName(memberName);
@@ -97,15 +112,15 @@ namespace Vitorm.Sql.SqlTranslate
         #region EvalExpression
 
         /// <summary>
-        /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
+        /// evaluate column in select / order by / group by,  for example :  "select (u.id + 100) as newId",  "order by a.name",  "group by a.name"
         /// </summary>
         /// <param name="arg"></param>
-        /// <param name="data"></param>
+        /// <param name="node"></param>
         /// <param name="columnType"></param>
         /// <returns></returns>
-        public virtual string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null)
+        public virtual string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode node, Type columnType = null)
         {
-            return EvalExpression(arg, data);
+            return EvalExpression(arg, node);
         }
 
         /// <summary>
@@ -114,50 +129,50 @@ namespace Vitorm.Sql.SqlTranslate
         /// <param name="arg"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        /// <param name="data"></param>
-        public virtual string EvalExpression(QueryTranslateArgument arg, ExpressionNode data)
+        /// <param name="node"></param>
+        public virtual string EvalExpression(QueryTranslateArgument arg, ExpressionNode node)
         {
-            switch (data.nodeType)
+            switch (node.nodeType)
             {
                 case NodeType.AndAlso:
                     {
-                        ExpressionNode_AndAlso and = data;
+                        ExpressionNode_AndAlso and = node;
                         return $"({EvalExpression(arg, and.left)} and {EvalExpression(arg, and.right)})";
                     }
                 case NodeType.OrElse:
                     {
-                        ExpressionNode_OrElse or = data;
+                        ExpressionNode_OrElse or = node;
                         return $"({EvalExpression(arg, or.left)} or {EvalExpression(arg, or.right)})";
                     }
                 case NodeType.Not:
                     {
-                        ExpressionNode_Not not = data;
+                        ExpressionNode_Not not = node;
                         return $"(not {EvalExpression(arg, not.body)})";
                     }
                 case NodeType.ArrayIndex:
                     {
-                        throw new NotSupportedException(data.nodeType);
+                        throw new NotSupportedException(node.nodeType);
                         //ExpressionNode_ArrayIndex arrayIndex = data;
                         //return Expression.ArrayIndex(ToExpression(arg, arrayIndex.left), ToExpression(arg, arrayIndex.right));
                     }
                 case NodeType.Equal:
                 case NodeType.NotEqual:
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
 
                         //   "= null"  ->   "is null" ,    "!=null" -> "is not null"   
                         if (binary.right.nodeType == NodeType.Constant && binary.right.value == null)
                         {
-                            var opera = data.nodeType == NodeType.Equal ? "is null" : "is not null";
+                            var opera = node.nodeType == NodeType.Equal ? "is null" : "is not null";
                             return $"{EvalExpression(arg, binary.left)} " + opera;
                         }
                         else if (binary.left.nodeType == NodeType.Constant && binary.left.value == null)
                         {
-                            var opera = data.nodeType == NodeType.Equal ? "is null" : "is not null";
+                            var opera = node.nodeType == NodeType.Equal ? "is null" : "is not null";
                             return $"{EvalExpression(arg, binary.right)} " + opera;
                         }
 
-                        var @operator = operatorMap[data.nodeType];
+                        var @operator = operatorMap[node.nodeType];
                         return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
                     }
                 case NodeType.LessThan:
@@ -170,18 +185,18 @@ namespace Vitorm.Sql.SqlTranslate
                 case nameof(ExpressionType.Power):
                 case nameof(ExpressionType.Subtract):
                     {
-                        ExpressionNode_Binary binary = data;
-                        var @operator = operatorMap[data.nodeType];
+                        ExpressionNode_Binary binary = node;
+                        var @operator = operatorMap[node.nodeType];
                         return $"({EvalExpression(arg, binary.left)} {@operator} {EvalExpression(arg, binary.right)})";
                     }
                 case nameof(ExpressionType.Negate):
                     {
-                        ExpressionNode_Unary unary = data;
+                        ExpressionNode_Unary unary = node;
                         return $"(-{EvalExpression(arg, unary.body)})";
                     }
                 case NodeType.MethodCall:
                     {
-                        ExpressionNode_MethodCall methodCall = data;
+                        ExpressionNode_MethodCall methodCall = node;
 
                         switch (methodCall.methodName)
                         {
@@ -262,10 +277,10 @@ namespace Vitorm.Sql.SqlTranslate
                                     var nodeParts = SplitToNodeParts(format, args);
 
                                     ExpressionNode nodeForAdd = null;
-                                    foreach (var node in nodeParts)
+                                    foreach (var child in nodeParts)
                                     {
-                                        if (nodeForAdd == null) nodeForAdd = node;
-                                        else nodeForAdd = ExpressionNode.Add(left: nodeForAdd, right: node, typeof(string));
+                                        if (nodeForAdd == null) nodeForAdd = child;
+                                        else nodeForAdd = ExpressionNode.Add(left: nodeForAdd, right: child, typeof(string));
                                     }
 
                                     return $"({EvalExpression(arg, nodeForAdd)})";
@@ -299,11 +314,11 @@ namespace Vitorm.Sql.SqlTranslate
                 #region Read Value
 
                 case NodeType.Member:
-                    return GetSqlField(data, arg.dbContext);
+                    return GetSqlField(node, arg.dbContext);
 
                 case NodeType.Constant:
                     {
-                        ExpressionNode_Constant constant = data;
+                        ExpressionNode_Constant constant = node;
                         var value = constant.value;
                         if (value == null)
                         {
@@ -340,7 +355,7 @@ namespace Vitorm.Sql.SqlTranslate
                     }
                     #endregion
             }
-            throw new NotSupportedException("[QueryTranslator] not suported nodeType: " + data.nodeType);
+            throw new NotSupportedException("[QueryTranslator] not suported nodeType: " + node.nodeType);
         }
 
 
@@ -374,13 +389,20 @@ namespace Vitorm.Sql.SqlTranslate
 
 
         #region #1 Create :  PrepareAdd
+
+        public Func<SqlTranslateArgument, object, bool> hasKeyValue = Entity_HasKeyValue;
+        public static bool Entity_HasKeyValue(SqlTranslateArgument arg, object entity)
+        {
+            var keyValue = arg.entityDescriptor?.key.GetValue(entity);
+            return keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+        }
+        public virtual bool HasKeyValue(SqlTranslateArgument arg, object entity) => hasKeyValue?.Invoke(arg, entity) == true;
         public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
         {
             var key = arg.entityDescriptor.key;
             if (key == null) return EAddType.noKeyColumn;
 
-            var keyValue = key.GetValue(entity);
-            if (keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type))) return EAddType.keyWithValue;
+            if (HasKeyValue(arg, entity)) return EAddType.keyWithValue;
 
             if (key.isIdentity) return EAddType.identityKey;
 

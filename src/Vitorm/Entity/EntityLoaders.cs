@@ -6,6 +6,9 @@ namespace Vitorm.Entity
 {
     public class EntityLoaders : IEntityLoader
     {
+        public readonly static EntityLoaders Instance = new();
+
+
         public List<IEntityLoader> loaders = new();
         public EntityLoaders()
         {

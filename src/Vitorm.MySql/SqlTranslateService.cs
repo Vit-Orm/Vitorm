@@ -51,14 +51,14 @@ namespace Vitorm.MySql
         /// <param name="arg"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        /// <param name="data"></param>
-        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode data)
+        /// <param name="node"></param>
+        public override string EvalExpression(QueryTranslateArgument arg, ExpressionNode node)
         {
-            switch (data.nodeType)
+            switch (node.nodeType)
             {
                 case NodeType.MethodCall:
                     {
-                        ExpressionNode_MethodCall methodCall = data;
+                        ExpressionNode_MethodCall methodCall = node;
                         switch (methodCall.methodName)
                         {
                             // ##1 ToString
@@ -96,7 +96,7 @@ namespace Vitorm.MySql
                     {
                         // cast( 4.1 as signed)
 
-                        ExpressionNode_Convert convert = data;
+                        ExpressionNode_Convert convert = node;
 
                         Type targetType = convert.valueType?.ToType();
 
@@ -124,10 +124,10 @@ namespace Vitorm.MySql
                     }
                 case nameof(ExpressionType.Add):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
 
                         // ##1 String Add
-                        if (data.valueType?.ToType() == typeof(string))
+                        if (node.valueType?.ToType() == typeof(string))
                         {
                             //  select ifNull( cast( (userFatherId) as char ) , '' )  from `User`
 
@@ -146,25 +146,25 @@ namespace Vitorm.MySql
                             }
                         }
 
-                        // ##2 Numberic Add
+                        // ##2 Numeric Add
                         return $"{EvalExpression(arg, binary.left)} + {EvalExpression(arg, binary.right)}";
                     }
                 case nameof(ExpressionType.Coalesce):
                     {
-                        ExpressionNode_Binary binary = data;
+                        ExpressionNode_Binary binary = node;
                         return $"COALESCE({EvalExpression(arg, binary.left)},{EvalExpression(arg, binary.right)})";
                     }
                 case nameof(ExpressionType.Conditional):
                     {
                         // IF(500<1000,true,false)
-                        ExpressionNode_Conditional conditional = data;
+                        ExpressionNode_Conditional conditional = node;
                         return $"IF({EvalExpression(arg, conditional.Conditional_GetTest())},{EvalExpression(arg, conditional.Conditional_GetIfTrue())},{EvalExpression(arg, conditional.Conditional_GetIfFalse())})";
                     }
                     #endregion
 
             }
 
-            return base.EvalExpression(arg, data);
+            return base.EvalExpression(arg, node);
         }
         #endregion
 
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 
             return $@"
 CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
-{string.Join(",\r\n  ", sqlFields)}
+  {string.Join(",\r\n  ", sqlFields)}
 )";
 
             string GetColumnSql(IColumnDescriptor column)

@@ -37,6 +37,10 @@ if [ ! $APPNAME ]; then
 fi
 
 #---------------------------------------------- 
+echo '#0 run test'
+cd "$devOpsPath/build-bash"; bash 10.Test.bash;
+
+#---------------------------------------------- 
 echo '#1 build'
 cd "$devOpsPath/build-bash"; bash startup.bash;
 

@@ -29,7 +29,7 @@ namespace Vitorm.Entity.Loader.DataAnnotations
 
         public static (string tableName, string schema) GetTableName(Type entityType)
         {
-            var attribute = entityType?.GetCustomAttribute<global::System.ComponentModel.DataAnnotations.Schema.TableAttribute>();
+            var attribute = entityType?.GetCustomAttribute<global::System.ComponentModel.DataAnnotations.Schema.TableAttribute>(inherit: true);
             var tableName = attribute?.Name;
             var schema = attribute?.Schema;
             return (tableName, schema);
@@ -73,32 +73,32 @@ namespace Vitorm.Entity.Loader.DataAnnotations
             return entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(propertyInfo =>
                 {
-                    if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>() != null) return null;
+                    if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>(inherit: true) != null) return null;
 
                     // #1 isKey
-                    bool isKey = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.KeyAttribute>() != null;
+                    bool isKey = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.KeyAttribute>(inherit: true) != null;
 
                     // #2 column name and type
                     string columnName; string columnDbType; int? columnLength; int? columnOrder;
-                    var columnAttr = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
+                    var columnAttr = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>(inherit: true);
                     columnName = columnAttr?.Name ?? propertyInfo.Name;
                     columnDbType = columnAttr?.TypeName;
                     columnOrder = columnAttr?.Order;
-                    columnLength = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.MaxLengthAttribute>()?.Length;
+                    columnLength = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.MaxLengthAttribute>(inherit: true)?.Length;
 
                     // #3 isIdentity
-                    var isIdentity = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute>()?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity;
+                    var isIdentity = propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute>(inherit: true)?.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity;
 
                     // #4 isNullable
                     bool isNullable;
-                    if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.RequiredAttribute>() != null) isNullable = false;
+                    if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.RequiredAttribute>(inherit: true) != null) isNullable = false;
                     else
                     {
                         var type = propertyInfo.PropertyType;
                         if (type == typeof(string)) isNullable = true;
                         else
                         {
-                            isNullable = (type.IsGenericType && typeof(Nullable<>) == type.GetGenericTypeDefinition());
+                            isNullable = TypeUtil.IsNullable(type);
                         }
                     }
 

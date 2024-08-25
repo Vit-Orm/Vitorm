@@ -116,12 +116,12 @@ namespace Vitorm.Sql.SqlTranslate
                 ExpressionNode_New newNode = node;
                 newNode.constructorArgs.ForEach((Action<MemberBind>)(nodeArg =>
                 {
-                    fields.Add(sqlTranslator.EvalExpression(arg, (ExpressionNode)nodeArg.value));
+                    fields.Add(sqlTranslator.EvalSelectExpression(arg, (ExpressionNode)nodeArg.value));
                 }));
             }
             else if (node?.nodeType == NodeType.Member)
             {
-                fields.Add(sqlTranslator.EvalExpression(arg, node));
+                fields.Add(sqlTranslator.EvalSelectExpression(arg, node));
             }
             else
             {
@@ -133,7 +133,7 @@ namespace Vitorm.Sql.SqlTranslate
         {
             var columns = stream.orders.Select(field =>
                 {
-                    var sqlColumnName = sqlTranslator.EvalExpression(arg, field.member);
+                    var sqlColumnName = sqlTranslator.EvalSelectExpression(arg, field.member);
                     return sqlColumnName + " " + (field.asc ? "asc" : "desc");
                 }
             );

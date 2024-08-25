@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <test>MSTest</test>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -18,8 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
-        <ProjectReference Include="..\..\..\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
         <ProjectReference Include="..\..\src\Vitorm.EntityGenerate\Vitorm.EntityGenerate.csproj" />
     </ItemGroup>
 

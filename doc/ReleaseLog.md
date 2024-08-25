@@ -1,6 +1,14 @@
 ﻿# Vitorm ReleaseLog
 
 -----------------------
+# 2.0.6
+
+- #4 support schema name of table for MySql
+- #5 single bool value in where condition
+- [Vitorm.Data] support name and multiple namespace
+- #6 [Vitorm.Data] auto load entityLoader from appsettings.json
+
+-----------------------
 # 2.0.5
 - support Async Methods
   - AddAsync AddRangeAsync

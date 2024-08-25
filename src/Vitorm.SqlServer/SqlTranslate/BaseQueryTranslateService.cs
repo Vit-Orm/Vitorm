@@ -62,7 +62,7 @@ ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
                         {
                             var columns = stream.orders.Select(field =>
                                 {
-                                    var sqlColumnName = sqlTranslator.EvalExpression(arg, field.member);
+                                    var sqlColumnName = sqlTranslator.EvalSelectExpression(arg, field.member);
                                     var sqlColumnAlias = sqlColumns.GetColumnAliasBySqlColumnName(sqlColumnName);
                                     if (sqlColumnAlias == null) throw new NotSupportedException("can not find sort column from result columns, sort column name:" + sqlColumnName);
                                     return sqlColumnAlias + " " + (field.asc ? "asc" : "desc");

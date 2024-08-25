@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
+using Vit.Linq.ExpressionNodes.ComponentModel;
 
 namespace Vitorm.Sql.SqlTranslate
 {
@@ -36,6 +39,31 @@ namespace Vitorm.Sql.SqlTranslate
 
             sqlParam[paramName] = value;
             return paramName;
+        }
+
+
+        protected Stack<ExpressionNode> expressionTree;
+        public IDisposable ExpressionTree_Push(ExpressionNode node)
+        {
+            expressionTree ??= new();
+            expressionTree.Push(node);
+            return expressionTreeDisposable ??= new Disposable { OnDispose = ExpressionTree_Pop };
+        }
+        protected IDisposable expressionTreeDisposable;
+        protected void ExpressionTree_Pop()
+        {
+            expressionTree?.Pop();
+        }
+        public ExpressionNode ExpressionTree_Current()
+        {
+            if (expressionTree?.Any() == true)
+                return expressionTree.Peek();
+            return default;
+        }
+        class Disposable : IDisposable
+        {
+            public Action OnDispose;
+            public void Dispose() => OnDispose?.Invoke();
         }
 
     }

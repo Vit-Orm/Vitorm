@@ -8,7 +8,7 @@ using Vitorm.Entity.Loader.DataAnnotations;
 namespace Vitorm.MsTest.CommonTest
 {
     [TestClass]
-    public class EntityLoader_CustomLoador_Test
+    public class EntityLoader_CustomLoader_Test
     {
         [TestMethod]
         public void Test_EntityDescriptor()
@@ -36,7 +36,7 @@ namespace Vitorm.MsTest.CommonTest
 
             // #2 defaultEntityLoader
             {
-                DbContext.defaultEntityLoader.loaders.Insert(0, new CustomEntityLoaderAttribute());
+                EntityLoaders.Instance.loaders.Insert(0, new CustomEntityLoaderAttribute());
 
                 var users = dbContext.Query<CustomUser>().Where(m => m.name == "u146").ToList();
                 Assert.AreEqual(1, users.Count());
@@ -55,7 +55,7 @@ namespace Vitorm.MsTest.CommonTest
 
 
         [Property(name = "TableName", value = "User")]
-        [Property(name = "Schema", value = "dbo")]
+        //[Property(name = "Schema", value = "orm")]
         public class CustomUser
         {
             [Label("Key")]
@@ -149,7 +149,7 @@ namespace Vitorm.MsTest.CommonTest
                             if (type == typeof(string)) isNullable = true;
                             else
                             {
-                                isNullable = (type.IsGenericType && typeof(Nullable<>) == type.GetGenericTypeDefinition());
+                                isNullable = TypeUtil.IsNullable(type);
                             }
                         }
 

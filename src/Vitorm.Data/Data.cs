@@ -9,6 +9,7 @@ using Vit.Core.Util.Reflection;
 using Vit.Linq;
 
 using Vitorm.DataProvider;
+using Vitorm.Entity;
 
 namespace Vitorm
 {
@@ -17,10 +18,35 @@ namespace Vitorm
 
         static Data()
         {
-            var dataSourceConfigs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
-            var dataProviders = dataSourceConfigs?.Select(CreateDataProvider).NotNull().ToList();
+            #region #1 load dataProvider
+            {
+                var dataSourceConfigs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
+                var dataProviders = dataSourceConfigs?.Select(CreateDataProvider).NotNull().ToList();
 
-            if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
+                if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
+            }
+            #endregion
+
+
+            #region #2 load entityLoader from appsettings.json
+            {
+                var configs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.EntityLoader");
+                configs?.ForEach(config =>
+                {
+                    object temp;
+                    string className = config.TryGetValue("className", out temp) ? temp as string : null;
+                    string assemblyFile = config.TryGetValue("assemblyFile", out temp) ? temp as string : null;
+                    string assemblyName = config.TryGetValue("assemblyName", out temp) ? temp as string : null;
+
+                    int index = config.TryGetValue("index", out temp) && temp is int i ? i : 0;
+
+                    var entityLoader = ObjectLoader.CreateInstance(className, assemblyFile: assemblyFile, assemblyName: assemblyName) as IEntityLoader;
+                    if (entityLoader == null) return;
+
+                    EntityLoaders.Instance.loaders.Insert(index, entityLoader);
+                });
+            }
+            #endregion
         }
 
         public static bool AddDataSource(Dictionary<string, object> dataSourceConfig)
@@ -51,14 +77,20 @@ namespace Vitorm
 
             static IDataProvider GetDataProviderFromConfig(Type entityType)
             {
-                var FullName = entityType.FullName;
-                return providerCache.FirstOrDefault(cache => cache.Match(FullName))?.dataProvider
-                    ?? throw new NotImplementedException("can not find config for type: " + entityType.FullName);
+                var classFullName = entityType.FullName;
+                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
+                    ?? throw new NotImplementedException("can not find config for type: " + classFullName);
             }
         }
-        public static IDataProvider DataProvider(string @namespace)
+
+        /// <summary>
+        /// dataProviderName:  dataProviderName or dataProviderNamespace
+        /// </summary>
+        /// <param name="dataProviderName"></param>
+        /// <returns></returns>
+        public static IDataProvider DataProvider(string dataProviderName)
         {
-            return providerCache.FirstOrDefault(cache => cache.@namespace == @namespace)?.dataProvider;
+            return providerCache.FirstOrDefault(cache => cache.name == dataProviderName || cache.@namespace == dataProviderName)?.dataProvider;
         }
 
 

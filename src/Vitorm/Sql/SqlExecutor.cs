@@ -6,7 +6,7 @@ namespace Vitorm.Sql
 {
     public partial class SqlExecutor
     {
-        public readonly static SqlExecutor Instance = new SqlExecutor();
+        public readonly static SqlExecutor Instance = new();
 
         public virtual int Execute(IDbConnection conn, string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {

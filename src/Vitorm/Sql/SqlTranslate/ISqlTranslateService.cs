@@ -34,11 +34,11 @@ namespace Vitorm.Sql.SqlTranslate
         /// evaluate column in select,  for example :  "select (u.id + 100) as newId"
         /// </summary>
         /// <param name="arg"></param>
-        /// <param name="data"></param>
+        /// <param name="node"></param>
         /// <param name="columnType"></param>
         /// <returns></returns>
-        string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode data, Type columnType = null);
-        string EvalExpression(QueryTranslateArgument arg, ExpressionNode data);
+        string EvalSelectExpression(QueryTranslateArgument arg, ExpressionNode node, Type columnType = null);
+        string EvalExpression(QueryTranslateArgument arg, ExpressionNode node);
 
         // #0 Schema :  PrepareCreate PrepareDrop
         string PrepareTryCreateTable(IEntityDescriptor entityDescriptor);

@@ -6,13 +6,14 @@ namespace Vitorm
     public static class TypeUtil
     {
 
+        public static bool IsNullable(Type type)
+        {
+            return type?.IsGenericType == true && typeof(Nullable<>) == type.GetGenericTypeDefinition();
+        }
+
         public static Type GetUnderlyingType(Type type)
         {
-            if (type?.IsGenericType == true && typeof(Nullable<>) == type.GetGenericTypeDefinition())
-            {
-                return type.GetGenericArguments()[0];
-            }
-            return type;
+            return IsNullable(type) ? type.GetGenericArguments()[0] : type;
         }
 
         /// <summary>
@@ -23,11 +24,7 @@ namespace Vitorm
         public static bool IsValueType(Type type)
         {
             if (type.IsValueType || type == typeof(string)) return true;
-            if (type.IsGenericType && typeof(Nullable<>) == type.GetGenericTypeDefinition())
-            {
-                return true;
-            }
-            return false;
+            return IsNullable(type);
         }
 
 

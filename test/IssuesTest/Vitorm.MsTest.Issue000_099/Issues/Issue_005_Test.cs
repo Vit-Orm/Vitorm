@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Vitorm.MsTest.Issue000_099.Issues
 {
     /// <summary>
-    /// https://github.com/VitormLib/Vitorm/issues/5
+    /// https://github.com/Vit-Orm/Vitorm/issues/5
     /// #5 single bool value in where condition
     /// </summary>
     [TestClass]

@@ -4,15 +4,15 @@ Vitorm.SqlServer is a lightweight yet comprehensive ORM for SqlServer that strik
 Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.     
 However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.     
 This means you get the best of both worlds: the performance and simplicity of Dapper with the robust features and flexibility of Entity Framework, making Vitorm an ideal choice for developers seeking a powerful yet streamlined ORM solution.
-> source address: [https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.SqlServer](https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.SqlServer "https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.SqlServer")        
+> source address: [https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.SqlServer](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.SqlServer "https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.SqlServer")        
 
-![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
-![](https://img.shields.io/github/repo-size/VitormLib/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/VitormLib/Vitorm.svg)  
+![](https://img.shields.io/github/license/Vit-Orm/Vitorm.svg)  
+![](https://img.shields.io/github/repo-size/Vit-Orm/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/Vit-Orm/Vitorm.svg)  
  
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/VitormLib/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg) |
 
 
 
@@ -47,7 +47,7 @@ dotnet add package Vitorm.SqlServer
 ```
 
 ## Minimum viable demo
-> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
+> code address: [Program_Min.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -82,7 +82,7 @@ namespace App
 
 ## Full Example
 > This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
-> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
+> code address: [Program.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -230,7 +230,7 @@ dotnet add package Vitorm.SqlServer
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
-> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
+> code address: [Program_Min.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -260,7 +260,7 @@ namespace App
 ```
 
 ## Full Example    
-> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
+> code address: [Program.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -368,4 +368,4 @@ namespace App
 ```
 
 
-[Test Example](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.SqlServer.MsTest)    
+[Test Example](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.SqlServer.MsTest)    

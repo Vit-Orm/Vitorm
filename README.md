@@ -4,25 +4,25 @@ Vitorm is a lightweight yet comprehensive ORM that strikes the perfect balance b
 Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.    
 However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.    
 This means you get the best of both worlds: the performance and simplicity of Dapper with the robust features and flexibility of Entity Framework, making Vitorm an ideal choice for developers seeking a powerful yet streamlined ORM solution.
-> source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm")    
+> source address: [https://github.com/Vit-Orm/Vitorm](https://github.com/Vit-Orm/Vitorm "https://github.com/Vit-Orm/Vitorm")    
 
-![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
-![](https://img.shields.io/github/repo-size/VitormLib/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/VitormLib/Vitorm.svg)  
+![](https://img.shields.io/github/license/Vit-Orm/Vitorm.svg)  
+![](https://img.shields.io/github/repo-size/Vit-Orm/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/Vit-Orm/Vitorm.svg)  
  
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/VitormLib/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.svg)](https://www.nuget.org/packages/Vitorm) ![](https://img.shields.io/nuget/dt/Vitorm.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.svg)](https://www.nuget.org/packages/Vitorm) ![](https://img.shields.io/nuget/dt/Vitorm.svg) |
 
 
 
 | Database | Supported | Code | NuGet |
 | -------- | -------- | -------- | -------- |
-| MySql         |   √   | [MySql](https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.MySql)             |  [![](https://img.shields.io/nuget/v/Vitorm.MySql.svg)](https://www.nuget.org/packages/Vitorm.MySql) ![](https://img.shields.io/nuget/dt/Vitorm.MySql.svg)   |
-| SqlServer     |   √   | [SqlServer](https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.SqlServer)     |  [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg)   |
-| Sqlite        |   √   | [Sqlite](https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.Sqlite)           |  [![](https://img.shields.io/nuget/v/Vitorm.Sqlite.svg)](https://www.nuget.org/packages/Vitorm.Sqlite) ![](https://img.shields.io/nuget/dt/Vitorm.Sqlite.svg)   |
-| ElasticSearch |   √   | [ElasticSearch](https://github.com/VitormLib/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
-| ClickHouse    |   √   | [ClickHouse](https://github.com/VitormLib/Vitorm.ClickHouse)     |  [![](https://img.shields.io/nuget/v/Vitorm.ClickHouse.svg)](https://www.nuget.org/packages/Vitorm.ClickHouse) ![](https://img.shields.io/nuget/dt/Vitorm.ClickHouse.svg)   |
+| MySql         |   √   | [MySql](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.MySql)             |  [![](https://img.shields.io/nuget/v/Vitorm.MySql.svg)](https://www.nuget.org/packages/Vitorm.MySql) ![](https://img.shields.io/nuget/dt/Vitorm.MySql.svg)   |
+| SqlServer     |   √   | [SqlServer](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.SqlServer)     |  [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg)   |
+| Sqlite        |   √   | [Sqlite](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.Sqlite)           |  [![](https://img.shields.io/nuget/v/Vitorm.Sqlite.svg)](https://www.nuget.org/packages/Vitorm.Sqlite) ![](https://img.shields.io/nuget/dt/Vitorm.Sqlite.svg)   |
+| ElasticSearch |   √   | [ElasticSearch](https://github.com/Vit-Orm/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
+| ClickHouse    |   √   | [ClickHouse](https://github.com/Vit-Orm/Vitorm.ClickHouse)     |  [![](https://img.shields.io/nuget/v/Vitorm.ClickHouse.svg)](https://www.nuget.org/packages/Vitorm.ClickHouse) ![](https://img.shields.io/nuget/dt/Vitorm.ClickHouse.svg)   |
 | Oracle        |   ×   |      |      |
 
 
@@ -58,7 +58,7 @@ dotnet add package Vitorm.Sqlite
 ```
 
 ## Minimum viable demo
-> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
+> code address: [Program_Min.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -93,7 +93,7 @@ namespace App
 
 ## Full Example
 > This example provides a comprehensive guide to utilizing Vitorm for basic and advanced database operations while maintaining lightweight performance.    
-> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
+> code address: [Program.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Sqlite.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -249,7 +249,7 @@ dotnet add package Vitorm.Sqlite
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
-> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
+> code address: [Program_Min.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -279,7 +279,7 @@ namespace App
 ```
 
 ## Full Example    
-> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
+> code address: [Program.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -397,7 +397,7 @@ namespace App
 
 # Comparison of performance with other ORMs
 > Through benchmarks, there may be slight variations depending on the database source, for reference only.
-> code address: [Vitorm.Data.Benchmark](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Benchmark)    
+> code address: [Vitorm.Data.Benchmark](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Benchmark)    
 
 ## SqlServer 
 | Method | queryJoin | take | runner                 | Mean         | Error     | StdDev    |

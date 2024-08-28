@@ -1,6 +1,10 @@
 ﻿# Vitorm ReleaseLog
 
 -----------------------
+# 2.1.0
+- block query from different datasource
+
+-----------------------
 # 2.0.6
 
 - #4 support schema name of table for MySql

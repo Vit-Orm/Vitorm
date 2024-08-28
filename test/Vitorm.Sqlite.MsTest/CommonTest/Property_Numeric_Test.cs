@@ -9,7 +9,6 @@ namespace Vitorm.MsTest.CommonTest
     public class Property_Numeric_Test
     {
         // Enumerable.Contains
-        // Queryable.Contains
         [TestMethod]
         public void Test_In()
         {
@@ -31,9 +30,9 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
             }
 
-            // Queryable.Contains
+            // List.Contains
             {
-                var ids = new[] { 3, 5 }.AsQueryable();
+                var ids = new[] { 3, 5 }.ToList();
                 var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());

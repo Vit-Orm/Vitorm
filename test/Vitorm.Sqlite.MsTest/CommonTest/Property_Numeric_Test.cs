@@ -9,15 +9,24 @@ namespace Vitorm.MsTest.CommonTest
     public class Property_Numeric_Test
     {
         // Enumerable.Contains
+        // Queryable.Contains
         [TestMethod]
         public void Test_In()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Enumerable.Contains
+            // Array.Contains
             {
                 var userList = userQuery.Where(u => new[] { 3, 5 }.Contains(u.id)).ToList();
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
+            }
+
+            // List.Contains
+            {
+                var ids = new[] { 3, 5 }.ToList();
+                var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
             }
@@ -30,9 +39,9 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
             }
 
-            // List.Contains
+            // Queryable.Contains
             {
-                var ids = new[] { 3, 5 }.ToList();
+                var ids = new[] { 3, 5 }.AsQueryable();
                 var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());

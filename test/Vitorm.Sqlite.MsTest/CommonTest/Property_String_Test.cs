@@ -10,18 +10,28 @@ namespace Vitorm.MsTest.CommonTest
     {
 
         // Enumerable.Contains
+        // Queryable.Contains
         [TestMethod]
         public void Test_In()
         {
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Enumerable.Contains
+            // Array.Contains
             {
                 var userList = userQuery.Where(u => new[] { "u356", "u500" }.Contains(u.name)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(new[] { "u356", "u500" }).Count());
             }
+
+            // List.Contains
+            {
+                var ids = new[] { "u356", "u500" }.ToList();
+                var userList = userQuery.Where(u => ids.Contains(u.name)).ToList();
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(0, userList.Select(m => m.name).Except(new[] { "u356", "u500" }).Count());
+            }
+
 
             // Enumerable.Contains
             {
@@ -31,9 +41,9 @@ namespace Vitorm.MsTest.CommonTest
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(new[] { "u356", "u500" }).Count());
             }
 
-            // List.Contains
+            // Queryable.Contains
             {
-                var ids = new[] { "u356", "u500" }.ToList();
+                var ids = new[] { "u356", "u500" }.AsQueryable();
                 var userList = userQuery.Where(u => ids.Contains(u.name)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(new[] { "u356", "u500" }).Count());

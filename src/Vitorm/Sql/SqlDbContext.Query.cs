@@ -124,8 +124,10 @@ namespace Vitorm.Sql
 
             if (dbGroupName == QueryableBuilder.GetQueryConfig(query) as string) return true;
 
-            throw new InvalidOperationException("do not allow to use queryable from different datasource , queryable type: " + obj?.GetType().FullName);
-            //return false;
+            if (QueryableBuilder.BuildFrom(query))
+                throw new InvalidOperationException("not allow query from different data source , queryable type: " + obj?.GetType().FullName);
+
+            return false;
         }
         protected virtual object ExecuteQuery(Expression expression, Type expressionResultType, Action dispose)
         {

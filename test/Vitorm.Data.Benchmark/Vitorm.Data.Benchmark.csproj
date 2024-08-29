@@ -15,7 +15,7 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.32" />
       <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.5" />
  
-      <PackageReference Include="SqlSugarCore" Version="5.1.4.166" />
+      <PackageReference Include="SqlSugarCore" Version="5.1.4.167" />
     </ItemGroup>
 
     <ItemGroup>

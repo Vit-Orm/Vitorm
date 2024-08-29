@@ -2,7 +2,9 @@
 
 -----------------------
 # 2.1.0
-- block query from different datasource
+- block query from different data source
+- support execute event
+- [Vitorm.Data] Ability to load the configuration from a specified file, such as appsettings.Development.json
 
 -----------------------
 # 2.0.6

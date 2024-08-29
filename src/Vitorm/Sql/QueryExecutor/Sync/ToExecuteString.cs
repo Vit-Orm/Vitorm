@@ -19,7 +19,11 @@ namespace Vitorm.Sql.QueryExecutor
 
             // #2 Prepare sql
             var arg = new QueryTranslateArgument(dbContext, null);
-            return sqlTranslateService.PrepareQuery(arg, combinedStream);
+            var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
+
+            dbContext.Event_OnExecuting(sql, arg.sqlParam);
+
+            return sql;
         }
 
     }

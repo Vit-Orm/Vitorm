@@ -1,15 +1,15 @@
 ﻿
 # Vitorm.EntityGenerate
 Library to generate Entity Type from Database
-> source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.EntityGenerate")        
+> source address: [https://github.com/Vit-Orm/Vitorm](https://github.com/Vit-Orm/Vitorm "https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.EntityGenerate")        
 
-![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
-![](https://img.shields.io/github/repo-size/VitormLib/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/VitormLib/Vitorm.svg)  
+![](https://img.shields.io/github/license/Vit-Orm/Vitorm.svg)  
+![](https://img.shields.io/github/repo-size/Vit-Orm/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/Vit-Orm/Vitorm.svg)  
  
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/VitormLib/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.EntityGenerate.svg)](https://www.nuget.org/packages/Vitorm.EntityGenerate) ![](https://img.shields.io/nuget/dt/Vitorm.EntityGenerate.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.EntityGenerate.svg)](https://www.nuget.org/packages/Vitorm.EntityGenerate) ![](https://img.shields.io/nuget/dt/Vitorm.EntityGenerate.svg) |
 
 
 
@@ -69,4 +69,4 @@ Insert into GeneratedUser(id,name) values(1,'u146');
 ```
  
 
-[Test Example](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.EntityGenerate.MsTest)    
+[Test Example](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.EntityGenerate.MsTest)    

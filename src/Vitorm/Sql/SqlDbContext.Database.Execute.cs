@@ -20,6 +20,8 @@ namespace Vitorm.Sql
 
         public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
+            this.Event_OnExecuting(sql, param);
+
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             var transaction = GetCurrentTransaction();
 
@@ -35,6 +37,8 @@ namespace Vitorm.Sql
 
         public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
+            this.Event_OnExecuting(sql, param);
+
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             var transaction = GetCurrentTransaction();
 
@@ -50,6 +54,8 @@ namespace Vitorm.Sql
 
         public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
+            this.Event_OnExecuting(sql, param);
+
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
             var transaction = GetCurrentTransaction();
 

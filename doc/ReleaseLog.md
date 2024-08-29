@@ -1,6 +1,12 @@
 ﻿# Vitorm ReleaseLog
 
 -----------------------
+# 2.1.0
+- block query from different data source
+- support execute event
+- [Vitorm.Data] Ability to load the configuration from a specified file, such as appsettings.Development.json
+
+-----------------------
 # 2.0.6
 
 - #4 support schema name of table for MySql

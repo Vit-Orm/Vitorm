@@ -15,12 +15,23 @@ namespace Vitorm
 {
     public partial class Data
     {
-
         static Data()
+        {
+            Init(Appsettings.json);
+        }
+        /// <summary>
+        /// Data.Init("appsettings.Development.json")
+        /// </summary>
+        /// <param name="appsettingsFileName"></param>
+        public static void Init(string appsettingsFileName)
+        {
+            Init(new JsonFile(appsettingsFileName));
+        }
+        public static void Init(JsonFile json)
         {
             #region #1 load dataProvider
             {
-                var dataSourceConfigs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
+                var dataSourceConfigs = json.GetByPath<List<Dictionary<string, object>>>("Vitorm.Data");
                 var dataProviders = dataSourceConfigs?.Select(CreateDataProvider).NotNull().ToList();
 
                 if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
@@ -28,9 +39,9 @@ namespace Vitorm
             #endregion
 
 
-            #region #2 load entityLoader from appsettings.json
+            #region #2 load entityLoader
             {
-                var configs = Appsettings.json.GetByPath<List<Dictionary<string, object>>>("Vitorm.EntityLoader");
+                var configs = json.GetByPath<List<Dictionary<string, object>>>("Vitorm.EntityLoader");
                 configs?.ForEach(config =>
                 {
                     object temp;

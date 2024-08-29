@@ -118,9 +118,16 @@ namespace Vitorm.Sql
 
         public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
 
-        protected virtual bool QueryIsFromSameDb(object query, Type elementType)
+        protected virtual bool QueryIsFromSameDb(object obj, Type elementType)
         {
-            return dbGroupName == QueryableBuilder.GetQueryConfig(query as IQueryable) as string;
+            if (obj is not IQueryable query) return false;
+
+            if (dbGroupName == QueryableBuilder.GetQueryConfig(query) as string) return true;
+
+            if (QueryableBuilder.BuildFrom(query))
+                throw new InvalidOperationException("not allow query from different data source , queryable type: " + obj?.GetType().FullName);
+
+            return false;
         }
         protected virtual object ExecuteQuery(Expression expression, Type expressionResultType, Action dispose)
         {

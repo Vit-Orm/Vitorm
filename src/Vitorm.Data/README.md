@@ -4,15 +4,15 @@ Vitorm is a lightweight yet comprehensive ORM that strikes the perfect balance b
 Similar to Dapper in its lightweight design, Vitorm offers an easy-to-use, efficient interface for data access.     
 However, it doesn't stop there; Vitorm goes beyond basic ORM capabilities to provide a rich feature set akin to Entity Framework.     
 This means you get the best of both worlds: the performance and simplicity of Dapper with the robust features and flexibility of Entity Framework, making Vitorm an ideal choice for developers seeking a powerful yet streamlined ORM solution.
-> source address: [https://github.com/VitormLib/Vitorm](https://github.com/VitormLib/Vitorm "https://github.com/VitormLib/Vitorm/tree/master/src/Vitorm.Data")        
+> source address: [https://github.com/Vit-Orm/Vitorm](https://github.com/Vit-Orm/Vitorm "https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.Data")        
 
-![](https://img.shields.io/github/license/VitormLib/Vitorm.svg)  
-![](https://img.shields.io/github/repo-size/VitormLib/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/VitormLib/Vitorm.svg)  
+![](https://img.shields.io/github/license/Vit-Orm/Vitorm.svg)  
+![](https://img.shields.io/github/repo-size/Vit-Orm/Vitorm.svg)  ![](https://img.shields.io/github/last-commit/Vit-Orm/Vitorm.svg)  
  
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/VitormLib/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.Data.svg)](https://www.nuget.org/packages/Vitorm.Data) ![](https://img.shields.io/nuget/dt/Vitorm.Data.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.Data.svg)](https://www.nuget.org/packages/Vitorm.Data) ![](https://img.shields.io/nuget/dt/Vitorm.Data.svg) |
 
 
 
@@ -28,7 +28,7 @@ dotnet add package Vitorm.Sqlite
 ```
 
 ## Config settings
-> full example: [appsettings.json](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.MsTest/appsettings.json)    
+> full example: [appsettings.json](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.MsTest/appsettings.json)    
 ``` json
 // appsettings.json
 {
@@ -46,7 +46,7 @@ dotnet add package Vitorm.Sqlite
 
 ## Minimum viable demo
 > After configuring the `appsettings.json` file, you can directly perform queries without any additional configuration or initialization, `Vitorm.Data` is that easy to use.    
-> code address: [Program_Min.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
+> code address: [Program_Min.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program_Min.cs)    
 ``` csharp
 using Vitorm;
 namespace App
@@ -76,7 +76,7 @@ namespace App
 ```
 
 ## Full Example    
-> code address: [Program.cs](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
+> code address: [Program.cs](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console/Program.cs)    
 ``` csharp
 using Vitorm;
 
@@ -191,5 +191,5 @@ namespace App
 }
 ```
 
-[Console Example](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.Console)    
-[Test Example](https://github.com/VitormLib/Vitorm/tree/master/test/Vitorm.Data.MsTest)    
+[Console Example](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.Console)    
+[Test Example](https://github.com/Vit-Orm/Vitorm/tree/master/test/Vitorm.Data.MsTest)    

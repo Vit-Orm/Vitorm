@@ -201,7 +201,13 @@ namespace Vitorm.Sql.SqlTranslate
                         switch (methodCall.methodName)
                         {
                             // ##1 in
-                            case nameof(Enumerable.Contains):
+                            case nameof(List<string>.Contains) when methodCall.@object is not null && methodCall.arguments.Length == 1:
+                                {
+                                    var values = methodCall.@object;
+                                    var member = methodCall.arguments[0];
+                                    return $"{EvalExpression(arg, member)} in {EvalExpression(arg, values)}";
+                                }
+                            case nameof(Enumerable.Contains) when methodCall.arguments.Length == 2:
                                 {
                                     var values = methodCall.arguments[0];
                                     var member = methodCall.arguments[1];

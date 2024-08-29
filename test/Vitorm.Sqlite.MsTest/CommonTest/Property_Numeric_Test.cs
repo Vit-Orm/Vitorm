@@ -16,9 +16,17 @@ namespace Vitorm.MsTest.CommonTest
             using var dbContext = DataSource.CreateDbContext();
             var userQuery = dbContext.Query<User>();
 
-            // Enumerable.Contains
+            // Array.Contains
             {
                 var userList = userQuery.Where(u => new[] { 3, 5 }.Contains(u.id)).ToList();
+                Assert.AreEqual(2, userList.Count);
+                Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
+            }
+
+            // List.Contains
+            {
+                var ids = new[] { 3, 5 }.ToList();
+                var userList = userQuery.Where(u => ids.Contains(u.id)).ToList();
                 Assert.AreEqual(2, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(new[] { 3, 5 }).Count());
             }

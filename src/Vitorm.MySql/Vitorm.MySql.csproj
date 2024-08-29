@@ -6,14 +6,14 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>2.1.0</Version>
+        <Version>2.1.1</Version>
         <LangVersion>9.0</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
         <Authors>Lith</Authors>
         <Description>orm for MySql</Description>
-        <PackageProjectUrl>https://github.com/VitormLib/Vitorm</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Vit-Orm/Vitorm</PackageProjectUrl>
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>orm vitorm database mysql</PackageTags>

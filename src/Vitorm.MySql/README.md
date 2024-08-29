@@ -36,7 +36,7 @@ supported features:
 |  change database  |  ChangeDatabase   | change database to be connected  |   |
 | --- | --- | --- | --- |
 |  collection total count   |  TotalCount    |  Collection Total Count without Take and Skip   |   |
-|  collection total count and list  |  ToListAndTotalCount   | query List and TotalCount at on request  |   |
+|  collection total count and list  |  ToListAndTotalCount   | query List and TotalCount in one request  |   |
 |     |     |   |   |
 
 

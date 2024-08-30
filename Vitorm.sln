@@ -16,6 +16,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vitorm", "src\Vitorm\Vitorm.csproj", "{FA62D5F8-F6C1-4677-B115-DC32CF9EFC50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{05176905-A2A5-4015-9F04-2904506C902F}"
+	ProjectSection(SolutionItems) = preProject
+		src\Versions.props = src\Versions.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vitorm.MySql", "src\Vitorm.MySql\Vitorm.MySql.csproj", "{6ED8DCE2-FAE1-4EC3-9C2A-74F8ACCAF3CB}"
 EndProject

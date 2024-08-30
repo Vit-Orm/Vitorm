@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="..\Versions.props" />
 
     <PropertyGroup>
         <pack>nuget</pack>
@@ -6,7 +7,6 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>2.1.1</Version>
         <LangVersion>9.0</LangVersion>
     </PropertyGroup>
 
@@ -32,7 +32,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-        <PackageReference Include="Vit.Linq" Version="[3.1.1, 3.2.0)" />
+        <PackageReference Include="Vit.Linq" Version="$(VitLinq_Version)" />
     </ItemGroup>
 
 </Project>

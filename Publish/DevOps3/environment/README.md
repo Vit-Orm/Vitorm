@@ -1,5 +1,5 @@
 
-# DevOps 3.5
+# DevOps 3.6
 
 
 # build-bash
@@ -12,6 +12,14 @@ if this file exists, will not need approval for jenkins build.
 
 ----------------------------------------------
 # ReleaseLog
+
+-----------------------
+# 3.6
+> 2024-08-30
+
+- able to get release version from .props file
+- [github actions] auto trigger test workflow for PR in checks
+- [github actions] auto trigger test workflow for PR in checks
 
 -----------------------
 # 3.5

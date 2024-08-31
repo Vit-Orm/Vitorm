@@ -1,6 +1,11 @@
 ﻿# Vitorm ReleaseLog
 
 -----------------------
+# 2.1.2
+- [Vitorm.Data] add DataSource class, change methods to instance from static
+
+
+-----------------------
 # 2.1.0
 - block query from different data source
 - support execute event

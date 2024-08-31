@@ -12,7 +12,7 @@ This means you get the best of both worlds: the performance and simplicity of Da
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.Data.svg)](https://www.nuget.org/packages/Vitorm.Data) ![](https://img.shields.io/nuget/dt/Vitorm.Data.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3_build/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.Data.svg)](https://www.nuget.org/packages/Vitorm.Data) ![](https://img.shields.io/nuget/dt/Vitorm.Data.svg) |
 
 
 

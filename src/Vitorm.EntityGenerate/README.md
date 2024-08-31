@@ -9,7 +9,7 @@ Library to generate Entity Type from Database
 
 | Build | NuGet |
 | -------- | -------- |
-|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.EntityGenerate.svg)](https://www.nuget.org/packages/Vitorm.EntityGenerate) ![](https://img.shields.io/nuget/dt/Vitorm.EntityGenerate.svg) |
+|![](https://github.com/Vit-Orm/Vitorm/workflows/ki_devops3_build/badge.svg) | [![](https://img.shields.io/nuget/v/Vitorm.EntityGenerate.svg)](https://www.nuget.org/packages/Vitorm.EntityGenerate) ![](https://img.shields.io/nuget/dt/Vitorm.EntityGenerate.svg) |
 
 
 

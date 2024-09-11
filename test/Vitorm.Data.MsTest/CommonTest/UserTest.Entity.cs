@@ -1,5 +1,5 @@
 ﻿
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [System.ComponentModel.DataAnnotations.Schema.Table("User")]

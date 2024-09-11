@@ -4,7 +4,7 @@ using User = Vitorm.MsTest.MySql.User;
 
 namespace Vitorm.MsTest.MySql
 {
-    public class User : Vitorm.MsTest.UserBase
+    public class User : Vitorm.MsTest.CommonTest.UserBase
     {
 
         [System.ComponentModel.DataAnnotations.Key]

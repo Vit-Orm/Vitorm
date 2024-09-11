@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Vitorm.Entity;
 
 namespace Vitorm
 {
-    public class DbSetConstructor
+    public class DefaultDbSetConstructor
     {
-        public static IDbSet CreateDbSet(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        public static IDbSet CreateDbSet(IDbContext dbContext, IEntityDescriptor entityDescriptor)
         {
             return _CreateDbSet.MakeGenericMethod(entityDescriptor.entityType)
                      .Invoke(null, new object[] { dbContext, entityDescriptor }) as IDbSet;
         }
 
-        static readonly MethodInfo _CreateDbSet = new Func<DbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
+        static readonly MethodInfo _CreateDbSet = new Func<IDbContext, IEntityDescriptor, IDbSet>(CreateDbSet<object>)
                    .Method.GetGenericMethodDefinition();
-        public static IDbSet<Entity> CreateDbSet<Entity>(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        public static IDbSet<Entity> CreateDbSet<Entity>(IDbContext dbContext, IEntityDescriptor entityDescriptor)
         {
             return new DbSet<Entity>(dbContext, entityDescriptor);
         }
@@ -27,13 +28,13 @@ namespace Vitorm
 
     public partial class DbSet<Entity> : IDbSet<Entity>
     {
-        public virtual DbContext dbContext { get; protected set; }
+        public virtual IDbContext dbContext { get; protected set; }
 
         protected IEntityDescriptor _entityDescriptor;
         public virtual IEntityDescriptor entityDescriptor => _entityDescriptor;
 
 
-        public DbSet(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        public DbSet(IDbContext dbContext, IEntityDescriptor entityDescriptor)
         {
             this.dbContext = dbContext;
             this._entityDescriptor = entityDescriptor;
@@ -43,6 +44,9 @@ namespace Vitorm
         public virtual IEntityDescriptor ChangeTable(string tableName) => _entityDescriptor = _entityDescriptor.WithTable(tableName);
         public virtual IEntityDescriptor ChangeTableBack() => _entityDescriptor = _entityDescriptor.GetOriginEntityDescriptor();
 
+
+
+        #region Sync Method
 
         // #0 Schema :  Create Drop
         public virtual void TryCreateTable() => dbContext.TryCreateTable<Entity>();
@@ -71,6 +75,43 @@ namespace Vitorm
         public virtual int DeleteByKey(object keyValue) => dbContext.DeleteByKey<Entity>(keyValue);
         public virtual int DeleteByKeys<Key>(IEnumerable<Key> keys) => dbContext.DeleteByKeys<Entity, Key>(keys);
 
+
+        #endregion
+
+
+
+
+
+        #region Async
+
+
+        // #0 Schema :  Create Drop Truncate
+        public virtual Task TryCreateTableAsync() => dbContext.TryCreateTableAsync<Entity>();
+        public virtual Task TryDropTableAsync() => dbContext.TryDropTableAsync<Entity>();
+        public virtual Task TruncateAsync() => dbContext.TruncateAsync<Entity>();
+
+
+        // #1 Create :  Add AddRange
+        public virtual Task<Entity> AddAsync(Entity entity) => dbContext.AddAsync<Entity>(entity);
+        public virtual Task AddRangeAsync(IEnumerable<Entity> entities) => dbContext.AddRangeAsync<Entity>(entities);
+
+
+        // #2 Retrieve : Get Query
+        public virtual Task<Entity> GetAsync(object keyValue) => dbContext.GetAsync<Entity>(keyValue);
+
+
+        // #3 Update: Update UpdateRange
+        public virtual Task<int> UpdateAsync(Entity entity) => dbContext.UpdateAsync<Entity>(entity);
+        public virtual Task<int> UpdateRangeAsync(IEnumerable<Entity> entities) => dbContext.UpdateRangeAsync<Entity>(entities);
+
+
+        // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
+        public virtual Task<int> DeleteAsync(Entity entity) => dbContext.DeleteAsync<Entity>(entity);
+        public virtual Task<int> DeleteRangeAsync(IEnumerable<Entity> entities) => dbContext.DeleteRangeAsync<Entity>(entities);
+        public virtual Task<int> DeleteByKeyAsync(object keyValue) => dbContext.DeleteByKeyAsync<Entity>(keyValue);
+        public virtual Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys) => dbContext.DeleteByKeysAsync<Entity, Key>(keys);
+
+        #endregion
 
     }
 }

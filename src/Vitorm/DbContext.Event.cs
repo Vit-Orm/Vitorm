@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Vitorm
 {
-    public abstract partial class DbContext : IDbContext, IDisposable
+    public partial class DbContext : IDbContext, IDisposable
     {
         public static Action<ExecuteEventArgument> event_DefaultOnExecuting;
         public Action<ExecuteEventArgument> event_OnExecuting = event_DefaultOnExecuting;

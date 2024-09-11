@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq.Expressions;
 
 using Vit.Linq;
 
 using Vitorm.Entity;
 using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
+using Vitorm.StreamQuery;
 
 namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {
-        public SqlDbContext()
+        public SqlDbContext() : base(DefaultDbSetCreator)
         {
-            dbSetCreator = DefaultDbSetCreator;
         }
 
         #region DbSet
-        protected new IDbSet DefaultDbSetCreator(IEntityDescriptor entityDescriptor)
+        static IDbSet DefaultDbSetCreator(IDbContext dbContext, IEntityDescriptor entityDescriptor)
         {
-            return DbSetConstructor.CreateDbSet(this, entityDescriptor);
+            return SqlDbSetConstructor.CreateDbSet(dbContext, entityDescriptor);
         }
 
         #endregion
@@ -94,7 +95,7 @@ namespace Vitorm.Sql
         /// <summary>
         /// to identify whether contexts are from the same database
         /// </summary>
-        protected virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
+        public virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
         public virtual string databaseName => dbConnectionProvider.databaseName;
 
         public virtual void ChangeDatabase(string databaseName)
@@ -128,43 +129,25 @@ namespace Vitorm.Sql
         }
 
 
+        #region Query
+        public Action<SqlDbContext, Expression, Type, object> AfterQuery;
+        public virtual SqlDbContext AutoDisposeAfterQuery()
+        {
+            AfterQuery += (_, _, _, _) => Dispose();
+            return this;
+        }
 
 
-        // #0 Schema :  Create Drop
-        public override void TryCreateTable<Entity>() => DbSet<Entity>().TryCreateTable();
-        public override void TryDropTable<Entity>() => DbSet<Entity>().TryDropTable();
-        public override void Truncate<Entity>() => DbSet<Entity>().Truncate();
+        #region StreamReader
+        public static StreamReader defaultStreamReader = new StreamReader();
+        public StreamReader streamReader = defaultStreamReader;
+        #endregion
 
-
-        // #1 Create :  Add AddRange
-        public override Entity Add<Entity>(Entity entity) => DbSet<Entity>().Add(entity);
-        public override void AddRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().AddRange(entities);
-
-
-
-        // #2 Retrieve : Get
-        public override Entity Get<Entity>(object keyValue) => DbSet<Entity>().Get(keyValue);
-
-
-
-        // #3 Update: Update UpdateRange
-        public override int Update<Entity>(Entity entity) => DbSet<Entity>().Update(entity);
-
-        public override int UpdateRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().UpdateRange(entities);
+        public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
 
 
 
-        // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public override int Delete<Entity>(Entity entity) => DbSet<Entity>().Delete(entity);
-        public override int DeleteRange<Entity>(IEnumerable<Entity> entities) => DbSet<Entity>().DeleteRange(entities);
-
-        public override int DeleteByKey<Entity>(object keyValue) => DbSet<Entity>().DeleteByKey(keyValue);
-        public override int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => DbSet<Entity>().DeleteByKeys<Key>(keys);
-
-
-
-
-
+        #endregion
 
 
 

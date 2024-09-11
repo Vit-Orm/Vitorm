@@ -217,8 +217,6 @@ namespace Vitorm.MsTest.CommonTest
             if (config?.skip.HasValue == true) query = query.Skip(config.skip.Value);
             if (config?.take.HasValue == true) query = query.Take(config.take.Value);
 
-            var sql = query.ToExecuteString();
-
             var rows = query.ToList();
             int expectedCount = rows.Count;
 

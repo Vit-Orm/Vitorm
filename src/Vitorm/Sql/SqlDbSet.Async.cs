@@ -8,21 +8,21 @@ using Vitorm.Sql.SqlTranslate;
 
 namespace Vitorm.Sql
 {
-    public partial class SqlDbSet<Entity> : DbSet<Entity>
+    public partial class SqlDbSet<Entity>
     {
         #region #0 Schema :  Create Drop Truncate
-        public override async Task TryCreateTableAsync()
+        public virtual async Task TryCreateTableAsync()
         {
             string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
             await sqlDbContext.ExecuteAsync(sql: sql);
         }
 
-        public override async Task TryDropTableAsync()
+        public virtual async Task TryDropTableAsync()
         {
             string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
             await sqlDbContext.ExecuteAsync(sql: sql);
         }
-        public override async Task TruncateAsync()
+        public virtual async Task TruncateAsync()
         {
             string sql = sqlTranslateService.PrepareTruncate(entityDescriptor);
             await sqlDbContext.ExecuteAsync(sql: sql);
@@ -31,7 +31,7 @@ namespace Vitorm.Sql
 
 
         #region #1 Create :  Add AddRange
-        public override async Task<Entity> AddAsync(Entity entity)
+        public virtual async Task<Entity> AddAsync(Entity entity)
         {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
 
@@ -64,7 +64,7 @@ namespace Vitorm.Sql
             return entity;
         }
 
-        public override async Task AddRangeAsync(IEnumerable<Entity> entities)
+        public virtual async Task AddRangeAsync(IEnumerable<Entity> entities)
         {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
             Dictionary<EAddType, (string sql, Func<object, Dictionary<string, object>> GetSqlParams)> sqlMaps = new();
@@ -108,7 +108,7 @@ namespace Vitorm.Sql
 
 
         #region #2 Retrieve : Get Query
-        public override async Task<Entity> GetAsync(object keyValue)
+        public virtual async Task<Entity> GetAsync(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -143,7 +143,7 @@ namespace Vitorm.Sql
         #endregion
 
         #region #3 Update: Update UpdateRange
-        public override async Task<int> UpdateAsync(Entity entity)
+        public virtual async Task<int> UpdateAsync(Entity entity)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -159,7 +159,7 @@ namespace Vitorm.Sql
 
             return affectedRowCount;
         }
-        public override async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities)
+        public virtual async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -180,19 +180,19 @@ namespace Vitorm.Sql
         #endregion
 
         #region #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public override async Task<int> DeleteAsync(Entity entity)
+        public virtual async Task<int> DeleteAsync(Entity entity)
         {
             var key = entityDescriptor.key.GetValue(entity);
             return await DeleteByKeyAsync(key);
         }
 
-        public override async Task<int> DeleteRangeAsync(IEnumerable<Entity> entities)
+        public virtual async Task<int> DeleteRangeAsync(IEnumerable<Entity> entities)
         {
             var keys = entities.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
             return await DeleteByKeysAsync(keys);
         }
 
-        public override async Task<int> DeleteByKeyAsync(object keyValue)
+        public virtual async Task<int> DeleteByKeyAsync(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -210,7 +210,7 @@ namespace Vitorm.Sql
             return affectedRowCount;
         }
 
-        public override async Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys)
+        public virtual async Task<int> DeleteByKeysAsync<Key>(IEnumerable<Key> keys)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);

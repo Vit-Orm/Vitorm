@@ -62,7 +62,6 @@ namespace Vitorm.MsTest.CommonTest
                         trueValue = true,
                     };
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
             }
 
@@ -77,7 +76,7 @@ namespace Vitorm.MsTest.CommonTest
                         uniqueId1 = user.id + "_" + user.fatherId + "_" + user.motherId,
                         uniqueId2 = $"{user.id}_{user.fatherId}_{user.motherId}"
                     };
-                var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual("1_4_6", userList[0].uniqueId1);
@@ -106,7 +105,6 @@ namespace Vitorm.MsTest.CommonTest
                     select new User2(user.id)
                     ;
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(5, userList.Count);
 
@@ -120,7 +118,6 @@ namespace Vitorm.MsTest.CommonTest
                     select new User2(user.name)
                     ;
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(5, userList.Count);
             }
@@ -137,7 +134,6 @@ namespace Vitorm.MsTest.CommonTest
                     }
                     ;
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(5, userList.Count);
 
@@ -154,7 +150,6 @@ namespace Vitorm.MsTest.CommonTest
                         fatherId = 12,
                     };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
                 Assert.AreEqual(5, userList.Count);
             }

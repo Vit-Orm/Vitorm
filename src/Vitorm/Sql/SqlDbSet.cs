@@ -8,9 +8,9 @@ using Vitorm.Sql.SqlTranslate;
 
 namespace Vitorm.Sql
 {
-    public class DbSetConstructor
+    public class SqlDbSetConstructor
     {
-        public static IDbSet CreateDbSet(SqlDbContext dbContext, IEntityDescriptor entityDescriptor)
+        public static IDbSet CreateDbSet(IDbContext dbContext, IEntityDescriptor entityDescriptor)
         {
             return _CreateDbSet.MakeGenericMethod(entityDescriptor.entityType)
                      .Invoke(null, new object[] { dbContext, entityDescriptor }) as IDbSet;
@@ -26,29 +26,41 @@ namespace Vitorm.Sql
     }
 
 
-    public partial class SqlDbSet<Entity> : DbSet<Entity>
+    public partial class SqlDbSet<Entity> : IDbSet<Entity>
     {
+        public virtual IDbContext dbContext { get; protected set; }
+
+        protected IEntityDescriptor _entityDescriptor;
+        public virtual IEntityDescriptor entityDescriptor => _entityDescriptor;
+
+
+        public SqlDbSet(DbContext dbContext, IEntityDescriptor entityDescriptor)
+        {
+            this.dbContext = dbContext;
+            this._entityDescriptor = entityDescriptor;
+        }
+
+        // #0 Schema :  ChangeTable
+        public virtual IEntityDescriptor ChangeTable(string tableName) => _entityDescriptor = _entityDescriptor.WithTable(tableName);
+        public virtual IEntityDescriptor ChangeTableBack() => _entityDescriptor = _entityDescriptor.GetOriginEntityDescriptor();
+
 
         public virtual SqlDbContext sqlDbContext => (SqlDbContext)dbContext;
-
-        public SqlDbSet(SqlDbContext dbContext, IEntityDescriptor entityDescriptor) : base(dbContext, entityDescriptor)
-        {
-        }
 
         protected virtual ISqlTranslateService sqlTranslateService => sqlDbContext.sqlTranslateService;
 
         #region #0 Schema :  Create Drop Truncate
-        public override void TryCreateTable()
+        public virtual void TryCreateTable()
         {
             string sql = sqlTranslateService.PrepareTryCreateTable(entityDescriptor);
             sqlDbContext.Execute(sql: sql);
         }
-        public override void TryDropTable()
+        public virtual void TryDropTable()
         {
             string sql = sqlTranslateService.PrepareTryDropTable(entityDescriptor);
             sqlDbContext.Execute(sql: sql);
         }
-        public override void Truncate()
+        public virtual void Truncate()
         {
             string sql = sqlTranslateService.PrepareTruncate(entityDescriptor);
             sqlDbContext.Execute(sql: sql);
@@ -57,7 +69,7 @@ namespace Vitorm.Sql
 
 
         #region #1 Create :  Add AddRange
-        public override Entity Add(Entity entity)
+        public virtual Entity Add(Entity entity)
         {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
 
@@ -89,7 +101,7 @@ namespace Vitorm.Sql
 
             return entity;
         }
-        public override void AddRange(IEnumerable<Entity> entities)
+        public virtual void AddRange(IEnumerable<Entity> entities)
         {
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
             Dictionary<EAddType, (string sql, Func<object, Dictionary<string, object>> GetSqlParams)> sqlMaps = new();
@@ -133,7 +145,7 @@ namespace Vitorm.Sql
 
 
         #region #2 Retrieve : Get Query
-        public override Entity Get(object keyValue)
+        public virtual Entity Get(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -162,11 +174,10 @@ namespace Vitorm.Sql
             return default;
 
         }
-        public override IQueryable<Entity> Query() => dbContext.Query<Entity>();
         #endregion
 
         #region #3 Update: Update UpdateRange
-        public override int Update(Entity entity)
+        public virtual int Update(Entity entity)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -182,7 +193,7 @@ namespace Vitorm.Sql
 
             return affectedRowCount;
         }
-        public override int UpdateRange(IEnumerable<Entity> entities)
+        public virtual int UpdateRange(IEnumerable<Entity> entities)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -203,19 +214,19 @@ namespace Vitorm.Sql
         #endregion
 
         #region #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-        public override int Delete(Entity entity)
+        public virtual int Delete(Entity entity)
         {
             var key = entityDescriptor.key.GetValue(entity);
             return DeleteByKey(key);
         }
 
-        public override int DeleteRange(IEnumerable<Entity> entities)
+        public virtual int DeleteRange(IEnumerable<Entity> entities)
         {
             var keys = entities.Select(entity => entityDescriptor.key.GetValue(entity)).ToList();
             return DeleteByKeys(keys);
         }
 
-        public override int DeleteByKey(object keyValue)
+        public virtual int DeleteByKey(object keyValue)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);
@@ -233,7 +244,7 @@ namespace Vitorm.Sql
             return affectedRowCount;
         }
 
-        public override int DeleteByKeys<Key>(IEnumerable<Key> keys)
+        public virtual int DeleteByKeys<Key>(IEnumerable<Key> keys)
         {
             // #0 get arg
             SqlTranslateArgument arg = new SqlTranslateArgument(sqlDbContext, entityDescriptor);

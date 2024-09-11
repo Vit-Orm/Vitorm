@@ -23,7 +23,6 @@ namespace Vitorm.MsTest.CommonTest
                     where user.id > 2
                     select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -41,7 +40,6 @@ namespace Vitorm.MsTest.CommonTest
                     .Where(row => row.user.id > 2)
                     .Select(row => new { row.user, row.father });
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -75,7 +73,6 @@ namespace Vitorm.MsTest.CommonTest
                     };
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -113,7 +110,6 @@ namespace Vitorm.MsTest.CommonTest
 
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -178,7 +174,6 @@ namespace Vitorm.MsTest.CommonTest
                                 motherName = mother.name,
                             };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(2, userList.Count);

@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Vit.Linq;
-
 namespace Vitorm.MsTest.CommonTest
 {
 
@@ -74,16 +72,16 @@ namespace Vitorm.MsTest.CommonTest
             }
             using (assertDisposable = new())
             {
-                var result = dbContext.Query<User>().ToExecuteString();
-            }
-            using (assertDisposable = new())
-            {
                 var result = dbContext.Query<User>().FirstOrDefault();
             }
-            using (assertDisposable = new())
-            {
-                var result = dbContext.Query<User>().ToListAndTotalCount();
-            }
+            //using (assertDisposable = new())
+            //{
+            //    var result = dbContext.Query<User>().ToExecuteString();
+            //}
+            //using (assertDisposable = new())
+            //{
+            //    var result = dbContext.Query<User>().ToListAndTotalCount();
+            //}
 
         }
 

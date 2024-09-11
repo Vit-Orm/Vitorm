@@ -18,7 +18,7 @@ namespace Vitorm.MsTest.CommonTest
             // StartsWith
             {
                 var query = userQuery.Where(u => u.name.StartsWith("u35"));
-                //var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
@@ -27,7 +27,7 @@ namespace Vitorm.MsTest.CommonTest
             // EndsWith
             {
                 var query = userQuery.Where(u => u.name.EndsWith("356"));
-                //var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);
@@ -36,7 +36,7 @@ namespace Vitorm.MsTest.CommonTest
             // Contains
             {
                 var query = userQuery.Where(u => u.name.Contains("35"));
-                //var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(1, userList.Count);
                 Assert.AreEqual(3, userList.First().id);

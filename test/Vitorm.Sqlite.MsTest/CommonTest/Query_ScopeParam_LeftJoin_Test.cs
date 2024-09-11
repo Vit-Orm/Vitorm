@@ -27,7 +27,6 @@ namespace Vitorm.MsTest.CommonTest
                         orderby user.id
                         select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(4, userList.Count);
@@ -47,7 +46,6 @@ namespace Vitorm.MsTest.CommonTest
                         orderby user.id
                         select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(4, userList.Count);
@@ -71,7 +69,6 @@ namespace Vitorm.MsTest.CommonTest
                         orderby user.id
                         select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(4, userList.Count);

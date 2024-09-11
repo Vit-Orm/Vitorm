@@ -23,7 +23,6 @@ namespace Vitorm.MsTest.CommonTest
                     where user.id > 2
                     select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -41,7 +40,6 @@ namespace Vitorm.MsTest.CommonTest
                     .Where(row => row.user.id > 2)
                     .Select(row => new { row.user, row.father });
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -76,7 +74,6 @@ namespace Vitorm.MsTest.CommonTest
                     };
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -118,7 +115,6 @@ namespace Vitorm.MsTest.CommonTest
 
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -150,7 +146,6 @@ namespace Vitorm.MsTest.CommonTest
                         , (user, father) => new { user, father }
                     );
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(3, userList.Count);
@@ -167,7 +162,6 @@ namespace Vitorm.MsTest.CommonTest
                         , (user, father) => new { user, father }
                     ).Where(row => row.user.id > 2);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -184,7 +178,6 @@ namespace Vitorm.MsTest.CommonTest
                     ).Where(row => row.user.id > 2)
                     .Select(row => new { userId = row.user.id, fatherId = row.father.id });
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);
@@ -202,7 +195,6 @@ namespace Vitorm.MsTest.CommonTest
 
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
 
                 Assert.AreEqual(1, userList.Count);

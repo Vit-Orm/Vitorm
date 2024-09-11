@@ -9,29 +9,20 @@ using Vit.Linq.ExpressionNodes.ComponentModel;
 using Vitorm.Sql.QueryExecutor;
 using Vitorm.StreamQuery;
 
-using StreamReader = Vitorm.StreamQuery.StreamReader;
-
 namespace Vitorm.Sql
 {
-    public partial class SqlDbContext : DbContext
+    public partial class SqlDbSet<Entity>
     {
-        public Action<SqlDbContext, Expression, Type, object> AfterQuery;
-        public virtual SqlDbContext AutoDisposeAfterQuery()
-        {
-            AfterQuery += (_, _, _, _) => Dispose();
-            return this;
-        }
 
-
-        public override IQueryable<Entity> Query<Entity>()
+        public virtual IQueryable<Entity> Query()
         {
-            return QueryableBuilder.Build<Entity>(QueryExecutor, dbGroupName);
+            return QueryableBuilder.Build<Entity>(QueryExecutor, sqlDbContext.dbGroupName);
         }
 
         protected object QueryExecutor(Expression expression, Type expressionResultType)
         {
             object result = null;
-            Action dispose = () => AfterQuery?.Invoke(this, expression, expressionResultType, result);
+            Action dispose = () => sqlDbContext.AfterQuery?.Invoke(sqlDbContext, expression, expressionResultType, result);
             try
             {
                 return result = ExecuteQuery(expression, expressionResultType, dispose);
@@ -42,6 +33,7 @@ namespace Vitorm.Sql
                 throw;
             }
         }
+
 
         #region QueryExecutor
 
@@ -110,34 +102,27 @@ namespace Vitorm.Sql
         #endregion
 
 
-        #region StreamReader
-        public static StreamReader defaultStreamReader = new StreamReader();
-        public StreamReader streamReader = defaultStreamReader;
-        #endregion
-
-
-        public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
-
         protected virtual bool QueryIsFromSameDb(object obj, Type elementType)
         {
             if (obj is not IQueryable query) return false;
 
-            if (dbGroupName == QueryableBuilder.GetQueryConfig(query) as string) return true;
+            if (sqlDbContext.dbGroupName == QueryableBuilder.GetQueryConfig(query) as string) return true;
 
             if (QueryableBuilder.BuildFrom(query))
                 throw new InvalidOperationException("not allow query from different data source , queryable type: " + obj?.GetType().FullName);
 
             return false;
         }
+
         protected virtual object ExecuteQuery(Expression expression, Type expressionResultType, Action dispose)
         {
             // #1 convert to ExpressionNode 
-            ExpressionNode_Lambda node = convertService.ConvertToData_LambdaNode(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
+            ExpressionNode_Lambda node = sqlDbContext.convertService.ConvertToData_LambdaNode(expression, autoReduce: true, isArgument: QueryIsFromSameDb);
             //var strNode = Json.Serialize(node);
 
 
             // #2 convert to Stream
-            var stream = streamReader.ReadFromNode(node);
+            var stream = sqlDbContext.streamReader.ReadFromNode(node);
             //var strStream = Json.Serialize(stream);
 
             if (stream is not CombinedStream combinedStream) combinedStream = new CombinedStream("tmp") { source = stream };
@@ -145,7 +130,7 @@ namespace Vitorm.Sql
             var executorArg = new QueryExecutorArgument
             {
                 combinedStream = combinedStream,
-                dbContext = this,
+                dbContext = sqlDbContext,
                 expression = expression,
                 expressionResultType = expressionResultType,
                 dispose = dispose,

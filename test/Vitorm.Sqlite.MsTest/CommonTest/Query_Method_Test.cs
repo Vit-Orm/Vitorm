@@ -57,7 +57,6 @@ namespace Vitorm.MsTest.CommonTest
                              })
                             .Skip(1).Take(2);
 
-                //var sql = query.ToExecuteString();
                 var list = query.ToList();
 
                 Assert.AreEqual(2, list.Count);
@@ -134,8 +133,6 @@ namespace Vitorm.MsTest.CommonTest
             {
                 var query = userQuery.OrderByDescending(user => user.id);
 
-                //var sql = query.ToExecuteString();
-
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
                 Assert.AreEqual(6, userList[0].id);
@@ -143,8 +140,6 @@ namespace Vitorm.MsTest.CommonTest
 
             {
                 var query = userQuery.OrderByDescending(user => user.id).Select(user => new { fid = user.fatherId, user.id });
-
-                //var sql = query.ToExecuteString();
 
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);

@@ -18,7 +18,7 @@ namespace Vitorm.MsTest.CustomTest
             // select * from [User] where IIF(userFatherId is not null, 1, 0) = 1 
             {
                 var query = userQuery.Where(u => DbFunction.Call<int>("IIF", u.fatherId != null, 1, 0) == 1);
-                var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(3, userList.Count);
                 Assert.AreEqual(3, userList.Last().id);
@@ -26,7 +26,7 @@ namespace Vitorm.MsTest.CustomTest
 
             {
                 var query = userQuery.Where(u => u.birth < DbFunction.Call<DateTime>("GETDATE"));
-                var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(6, userList.Count);
             }
@@ -34,7 +34,7 @@ namespace Vitorm.MsTest.CustomTest
             // coalesce(parameter1,parameter2, …)
             {
                 var query = userQuery.Where(u => DbFunction.Call<int?>("coalesce", u.fatherId, u.motherId) != null);
-                var sql = query.ToExecuteString();
+
                 var userList = query.ToList();
                 Assert.AreEqual(3, userList.Count);
                 Assert.AreEqual(1, userList.First().id);

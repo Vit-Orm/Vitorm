@@ -65,7 +65,6 @@ namespace Vitorm.MsTest.CommonTest
             }
             {
                 var query = dbSet.Query().Where(m => m.isEven.Value).OrderBy(m => m.isEven).Select(m => new { m.id, m.isEven });
-                var sql = query.ToExecuteString();
                 var users = query.ToList();
                 var user = users.First();
                 Assert.AreEqual(2, user.id);

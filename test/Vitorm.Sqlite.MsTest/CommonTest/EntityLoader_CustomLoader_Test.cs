@@ -29,7 +29,6 @@ namespace Vitorm.MsTest.CommonTest
             // #1 EntityLoaderAttribute
             {
                 var users = dbContext.Query<CustomUser2>().Where(m => m.name == "u146").ToList();
-                var sql = dbContext.Query<CustomUser2>().Where(m => m.name == "u146").ToExecuteString();
                 Assert.AreEqual(1, users.Count());
                 Assert.AreEqual(1, users[0].id);
             }

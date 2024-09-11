@@ -14,7 +14,7 @@ namespace Vitorm.MsTest.MySql
 }
 
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]

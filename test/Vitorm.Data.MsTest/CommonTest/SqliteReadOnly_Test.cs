@@ -12,7 +12,7 @@ namespace Vitorm.MsTest.Sqlite2
 }
 
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]

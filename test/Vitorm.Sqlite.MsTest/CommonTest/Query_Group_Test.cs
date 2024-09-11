@@ -22,7 +22,6 @@ namespace Vitorm.MsTest.CommonTest
                         group user by new { user.fatherId, user.motherId } into userGroup
                         select new { userGroup.Key.fatherId, userGroup.Key.motherId };
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
 
                 Assert.AreEqual(3, rows.Count);
@@ -42,7 +41,6 @@ namespace Vitorm.MsTest.CommonTest
                         })
                         ;
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
 
                 Assert.AreEqual(3, rows.Count);
@@ -69,7 +67,6 @@ namespace Vitorm.MsTest.CommonTest
 
                 query = query.Skip(1).Take(1);
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
 
                 Assert.AreEqual(1, rows.Count);
@@ -98,7 +95,6 @@ namespace Vitorm.MsTest.CommonTest
                         .Take(1)
                         ;
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
 
                 Assert.AreEqual(1, rows.Count);
@@ -135,7 +131,6 @@ namespace Vitorm.MsTest.CommonTest
                     })
                     ;
 
-                var sql = query.ToExecuteString();
                 var rows = query.ToList();
 
                 Assert.AreEqual(3, rows.Count);
@@ -156,7 +151,6 @@ namespace Vitorm.MsTest.CommonTest
                     ;
 
                 var rows = query.ToList();
-                var sql = query.ToExecuteString();
 
                 Assert.AreEqual(2, rows.Count);
                 Assert.AreEqual(5, rows[0].fatherId);
@@ -171,7 +165,6 @@ namespace Vitorm.MsTest.CommonTest
                     ;
 
                 var rows = query.ToList();
-                var sql = query.ToExecuteString();
 
                 Assert.AreEqual(2, rows.Count);
                 Assert.AreEqual(5, rows[0].fatherId);

@@ -25,7 +25,6 @@ namespace App
             {
                 var user = dbContext.Get<User>(1);
                 var users = dbContext.Query<User>().Where(u => u.name.Contains("li")).ToList();
-                var sql = dbContext.Query<User>().Where(u => u.name.Contains("li")).ToExecuteString();
             }
 
             // #5 Update Records
@@ -58,7 +57,6 @@ namespace App
                         orderby user.id
                         select new { user, father };
 
-                var sql = query.ToExecuteString();
                 var users = query.ToList();
             }
 
@@ -92,7 +90,6 @@ namespace App
             {
                 // select * from User where IIF(t0.fatherId is not null, true, false);
                 var query = dbContext.Query<User>().Where(u => DbFunction.Call<bool>("IIF", u.fatherId != null, true, false));
-                var sql = query.ToExecuteString();
                 var userList = query.ToList();
             }
         }

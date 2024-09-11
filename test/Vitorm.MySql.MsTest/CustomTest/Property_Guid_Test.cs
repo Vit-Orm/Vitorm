@@ -2,7 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Vitorm.MsTest.CommonTest
+namespace Vitorm.MsTest.CustomTest
 {
     /// <summary>
     /// https://www.damirscorner.com/blog/posts/20240223-GuidValuesInMySqlWithEfCore.html

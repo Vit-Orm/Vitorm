@@ -2,7 +2,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Vitorm.MsTest.CommonTest
+using Vitorm.MsTest.CommonTest;
+
+namespace Vitorm.MsTest.CustomTest
 {
     [TestClass]
     public class Query_JoinFromDifferenceDataSource_Test

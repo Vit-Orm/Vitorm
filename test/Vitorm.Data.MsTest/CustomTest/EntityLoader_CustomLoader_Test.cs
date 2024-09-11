@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Vitorm.Entity;
 using Vitorm.Entity.Loader.DataAnnotations;
-using Vitorm.MsTest.CommonTest;
+using Vitorm.MsTest.CustomTest;
 using Vitorm.MsTest.Sqlite;
 
 namespace Vitorm.MsTest.Sqlite
@@ -19,7 +19,7 @@ namespace Vitorm.MsTest.Sqlite
 }
 
 
-namespace Vitorm.MsTest.CommonTest
+namespace Vitorm.MsTest.CustomTest
 {
     [TestClass]
     public class EntityLoader_CustomLoader_Test

@@ -39,7 +39,7 @@ namespace Vitorm.SqlServer
         public int? commandTimeout { get; set; }
 
 
-        public static string ChangeDatabaseForConnecitonString(string connectionString, string databaseName)
+        public static string ChangeDatabaseForConnectionString(string connectionString, string databaseName)
             => new ConnectionStringBuilder(connectionString) { InitialCatalog = databaseName }.ConnectionString;
 
         public static string GetDatabaseName(string connectionString) => new ConnectionStringBuilder(connectionString).InitialCatalog;
@@ -50,7 +50,7 @@ namespace Vitorm.SqlServer
         public DbConnectionProvider ToDbConnectionProvider()
             => new DbConnectionProvider(
                 createDbConnection: CreateDbConnection,
-                changeDatabaseForConnectionString: ChangeDatabaseForConnecitonString,
+                changeDatabaseForConnectionString: ChangeDatabaseForConnectionString,
                 getDatabaseName: GetDatabaseName,
                 connectionString: connectionString,
                 readOnlyConnectionString: readOnlyConnectionString

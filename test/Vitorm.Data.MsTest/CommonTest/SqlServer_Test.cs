@@ -13,7 +13,7 @@ namespace Vitorm.MsTest.SqlServer
 }
 
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]

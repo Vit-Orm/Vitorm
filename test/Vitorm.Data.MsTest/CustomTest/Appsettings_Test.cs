@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-namespace Vitorm.MsTest
-{
 
+namespace Vitorm.MsTest.CustomTest
+{
     [TestClass]
     public partial class Appsettings_Test
     {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Vitorm.MsTest.CommonTest
+namespace Vitorm.MsTest.CustomTest
 {
 
     [TestClass]

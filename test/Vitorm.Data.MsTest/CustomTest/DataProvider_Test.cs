@@ -3,7 +3,8 @@
 using Vitorm.MsTest.Sqlite3;
 using Vitorm.MsTest.Sqlite4;
 using Vitorm.MsTest.Sqlite5;
-namespace Vitorm.MsTest
+
+namespace Vitorm.MsTest.CustomTest
 {
 
     [TestClass]

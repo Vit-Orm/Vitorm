@@ -10,7 +10,7 @@ namespace Vitorm.MsTest.Sqlite
 }
 
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
 
     [TestClass]

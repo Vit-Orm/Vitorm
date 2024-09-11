@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
-namespace Vitorm.MsTest
+namespace Vitorm.MsTest.CommonTest
 {
     public abstract partial class UserTest<User> where User : Vitorm.MsTest.UserBase, new()
     {

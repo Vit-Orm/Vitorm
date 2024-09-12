@@ -9,6 +9,71 @@ namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {
+        public override void Dispose()
+        {
+            try
+            {
+                transactionScope?.Dispose();
+            }
+            finally
+            {
+                transactionScope = null;
+                try
+                {
+                    _dbConnection?.Dispose();
+                }
+                finally
+                {
+                    _dbConnection = null;
+
+                    try
+                    {
+                        _readOnlyDbConnection?.Dispose();
+                    }
+                    finally
+                    {
+                        _readOnlyDbConnection = null;
+
+                        base.Dispose();
+                    }
+                }
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// to identify whether contexts are from the same database
+        /// </summary>
+        public virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
+
+
+        #region dbConnection
+
+        protected DbConnectionProvider dbConnectionProvider;
+        protected IDbConnection _dbConnection;
+        protected IDbConnection _readOnlyDbConnection;
+        public virtual IDbConnection dbConnection => _dbConnection ??= dbConnectionProvider.CreateDbConnection();
+        public virtual IDbConnection readOnlyDbConnection
+            => _readOnlyDbConnection ??
+                (dbConnectionProvider.ableToCreateReadOnly ? (_readOnlyDbConnection = dbConnectionProvider.CreateReadOnlyDbConnection()) : dbConnection);
+
+        #endregion
+
+
+
+        public virtual string databaseName => dbConnectionProvider.databaseName;
+        public virtual void ChangeDatabase(string databaseName)
+        {
+            if (_dbConnection != null || _readOnlyDbConnection != null) throw new InvalidOperationException("can not change database after connected, please try in an new DbContext.");
+
+            dbConnectionProvider = dbConnectionProvider.WithDatabase(databaseName);
+        }
+
+
+
+
         protected SqlExecutor sqlExecutor;
         public static int? defaultCommandTimeout;
         public int? commandTimeout;

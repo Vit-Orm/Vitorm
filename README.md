@@ -23,6 +23,12 @@ This means you get the best of both worlds: the performance and simplicity of Da
 | Sqlite        |   √   | [Sqlite](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.Sqlite)           |  [![](https://img.shields.io/nuget/v/Vitorm.Sqlite.svg)](https://www.nuget.org/packages/Vitorm.Sqlite) ![](https://img.shields.io/nuget/dt/Vitorm.Sqlite.svg)   |
 | ElasticSearch |   √   | [ElasticSearch](https://github.com/Vit-Orm/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
 | ClickHouse    |   √   | [ClickHouse](https://github.com/Vit-Orm/Vitorm.ClickHouse)     |  [![](https://img.shields.io/nuget/v/Vitorm.ClickHouse.svg)](https://www.nuget.org/packages/Vitorm.ClickHouse) ![](https://img.shields.io/nuget/dt/Vitorm.ClickHouse.svg)   |
+| MongoDB       |   ×   | [MongoDB](https://github.com/Vit-Orm/Vitorm.MongoDB)     |  [![](https://img.shields.io/nuget/v/Vitorm.MongoDB.svg)](https://www.nuget.org/packages/Vitorm.MongoDB) ![](https://img.shields.io/nuget/dt/Vitorm.MongoDB.svg)   |
+| PostgreSQL    |   ×   | [PostgreSQL](https://github.com/Vit-Orm/Vitorm.PostgreSQL)     |  [![](https://img.shields.io/nuget/v/Vitorm.PostgreSQL.svg)](https://www.nuget.org/packages/Vitorm.PostgreSQL) ![](https://img.shields.io/nuget/dt/Vitorm.PostgreSQL.svg)   |
+| Redis         |   ×   |      |      |
+| Excel         |   ×   |      |      |
+| File          |   ×   |      |      |
+| Memory        |   ×   |      |      |
 | Oracle        |   ×   |      |      |
 
 

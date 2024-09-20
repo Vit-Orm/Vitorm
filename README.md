@@ -16,15 +16,6 @@ This means you get the best of both worlds: the performance and simplicity of Da
 
 
 
-| Database | Supported | Code | NuGet |
-| -------- | -------- | -------- | -------- |
-| MySql         |   √   | [MySql](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.MySql)             |  [![](https://img.shields.io/nuget/v/Vitorm.MySql.svg)](https://www.nuget.org/packages/Vitorm.MySql) ![](https://img.shields.io/nuget/dt/Vitorm.MySql.svg)   |
-| SqlServer     |   √   | [SqlServer](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.SqlServer)     |  [![](https://img.shields.io/nuget/v/Vitorm.SqlServer.svg)](https://www.nuget.org/packages/Vitorm.SqlServer) ![](https://img.shields.io/nuget/dt/Vitorm.SqlServer.svg)   |
-| Sqlite        |   √   | [Sqlite](https://github.com/Vit-Orm/Vitorm/tree/master/src/Vitorm.Sqlite)           |  [![](https://img.shields.io/nuget/v/Vitorm.Sqlite.svg)](https://www.nuget.org/packages/Vitorm.Sqlite) ![](https://img.shields.io/nuget/dt/Vitorm.Sqlite.svg)   |
-| ElasticSearch |   √   | [ElasticSearch](https://github.com/Vit-Orm/Vitorm.ElasticSearch)     |  [![](https://img.shields.io/nuget/v/Vitorm.ElasticSearch.svg)](https://www.nuget.org/packages/Vitorm.ElasticSearch) ![](https://img.shields.io/nuget/dt/Vitorm.ElasticSearch.svg)   |
-| ClickHouse    |   √   | [ClickHouse](https://github.com/Vit-Orm/Vitorm.ClickHouse)     |  [![](https://img.shields.io/nuget/v/Vitorm.ClickHouse.svg)](https://www.nuget.org/packages/Vitorm.ClickHouse) ![](https://img.shields.io/nuget/dt/Vitorm.ClickHouse.svg)   |
-| Oracle        |   ×   |      |      |
-
 
 
 # Vitorm Documentation

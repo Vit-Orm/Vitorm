@@ -4,7 +4,7 @@ using User = Vitorm.MsTest.SqlServer.User;
 
 namespace Vitorm.MsTest.SqlServer
 {
-    public class User : Vitorm.MsTest.UserBase
+    public class User : Vitorm.MsTest.CommonTest.UserBase
     {
         [System.ComponentModel.DataAnnotations.Key]
         [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]

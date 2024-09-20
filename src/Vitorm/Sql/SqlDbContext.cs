@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq.Expressions;
 
 using Vit.Linq;
 
-using Vitorm.Entity;
 using Vitorm.Sql.DataReader.EntityReader;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
@@ -14,22 +12,13 @@ namespace Vitorm.Sql
 {
     public partial class SqlDbContext : DbContext
     {
-        public SqlDbContext() : base(DefaultDbSetCreator)
+        public SqlDbContext() : base(SqlDbSetConstructor.CreateDbSet)
         {
         }
-
-        #region DbSet
-        static IDbSet DefaultDbSetCreator(IDbContext dbContext, IEntityDescriptor entityDescriptor)
-        {
-            return SqlDbSetConstructor.CreateDbSet(dbContext, entityDescriptor);
-        }
-
-        #endregion
 
 
 
         #region EntityReader
-
 
         /// <summary>
         /// Vitorm.Sql.DataReader.EntityReader.IEntityReader
@@ -53,59 +42,6 @@ namespace Vitorm.Sql
         #endregion
 
 
-        #region dbConnection
-        protected DbConnectionProvider dbConnectionProvider;
-        protected IDbConnection _dbConnection;
-        protected IDbConnection _readOnlyDbConnection;
-        public override void Dispose()
-        {
-            try
-            {
-                transactionScope?.Dispose();
-            }
-            finally
-            {
-                transactionScope = null;
-                try
-                {
-                    _dbConnection?.Dispose();
-                }
-                finally
-                {
-                    _dbConnection = null;
-
-                    try
-                    {
-                        _readOnlyDbConnection?.Dispose();
-                    }
-                    finally
-                    {
-                        _readOnlyDbConnection = null;
-
-                        base.Dispose();
-                    }
-                }
-            }
-        }
-        public virtual IDbConnection dbConnection => _dbConnection ??= dbConnectionProvider.CreateDbConnection();
-        public virtual IDbConnection readOnlyDbConnection
-            => _readOnlyDbConnection ??
-                (dbConnectionProvider.ableToCreateReadOnly ? (_readOnlyDbConnection = dbConnectionProvider.CreateReadOnlyDbConnection()) : dbConnection);
-
-        /// <summary>
-        /// to identify whether contexts are from the same database
-        /// </summary>
-        public virtual string dbGroupName => "SqlDbSet_" + dbConnectionProvider.dbHashCode;
-        public virtual string databaseName => dbConnectionProvider.databaseName;
-
-        public virtual void ChangeDatabase(string databaseName)
-        {
-            if (_dbConnection != null || _readOnlyDbConnection != null) throw new InvalidOperationException("can not change database after connected, please try in an new DbContext.");
-
-            dbConnectionProvider = dbConnectionProvider.WithDatabase(databaseName);
-        }
-
-        #endregion
 
         public virtual ISqlTranslateService sqlTranslateService { get; private set; }
 
@@ -130,6 +66,7 @@ namespace Vitorm.Sql
 
 
         #region Query
+
         public Action<SqlDbContext, Expression, Type, object> AfterQuery;
         public virtual SqlDbContext AutoDisposeAfterQuery()
         {
@@ -138,14 +75,11 @@ namespace Vitorm.Sql
         }
 
 
-        #region StreamReader
         public static StreamReader defaultStreamReader = new StreamReader();
         public StreamReader streamReader = defaultStreamReader;
-        #endregion
+
 
         public bool query_ToListAndTotalCount_InvokeInOneExecute = true;
-
-
 
         #endregion
 

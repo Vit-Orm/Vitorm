@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using Vitorm.MsTest.CommonTest;
 using Vitorm.MsTest.Sqlite3;
 using Vitorm.MsTest.Sqlite4;
 using Vitorm.MsTest.Sqlite5;
@@ -78,19 +79,19 @@ namespace Vitorm.MsTest.CustomTest
 
 namespace Vitorm.MsTest.Sqlite3
 {
-    public class User3 : Vitorm.MsTest.UserBase
+    public class User3 : UserBase
     {
     }
 }
 namespace Vitorm.MsTest.Sqlite4
 {
-    public class User4 : Vitorm.MsTest.UserBase
+    public class User4 : UserBase
     {
     }
 }
 namespace Vitorm.MsTest.Sqlite5
 {
-    public class User5 : Vitorm.MsTest.UserBase
+    public class User5 : UserBase
     {
     }
 }

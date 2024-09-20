@@ -3,7 +3,7 @@
 
 namespace Vitorm.MsTest.CommonTest
 {
-    public abstract partial class UserTest<User> where User : Vitorm.MsTest.UserBase, new()
+    public abstract partial class UserTest<User> where User : UserBase, new()
     {
         public virtual void WaitForUpdate() { }
         public abstract User NewUser(int id, bool forAdd = false);

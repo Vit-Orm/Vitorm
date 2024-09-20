@@ -6,7 +6,7 @@ using User = Vitorm.MsTest.Sqlite2.User;
 
 namespace Vitorm.MsTest.Sqlite2
 {
-    public class User : Vitorm.MsTest.UserBase
+    public class User : Vitorm.MsTest.CommonTest.UserBase
     {
     }
 }

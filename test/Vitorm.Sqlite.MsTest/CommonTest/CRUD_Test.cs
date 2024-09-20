@@ -45,7 +45,7 @@ namespace Vitorm.MsTest.CommonTest
             // assert
             {
                 var userList = dbContext.Query<User>().Where(user => user.id >= 7).ToList();
-                Assert.AreEqual(newUserList.Count, userList.Count());
+                Assert.AreEqual(newUserList.Count, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
             }
@@ -78,7 +78,7 @@ namespace Vitorm.MsTest.CommonTest
             // #2 Query
             {
                 var userList = dbContext.Query<User>().ToList();
-                Assert.AreEqual(6, userList.Count());
+                Assert.AreEqual(6, userList.Count);
             }
         }
         #endregion
@@ -108,7 +108,7 @@ namespace Vitorm.MsTest.CommonTest
             {
                 var newUserList = User.NewUsers(4, 3, forAdd: false);
                 var userList = dbContext.Query<User>().Where(m => m.id >= 4).ToList();
-                Assert.AreEqual(newUserList.Count, userList.Count());
+                Assert.AreEqual(newUserList.Count, userList.Count);
                 Assert.AreEqual(0, userList.Select(m => m.id).Except(newUserList.Select(m => m.id)).Count());
                 Assert.AreEqual(0, userList.Select(m => m.name).Except(newUserList.Select(m => m.name)).Count());
             }
@@ -158,7 +158,7 @@ namespace Vitorm.MsTest.CommonTest
             // assert
             {
                 var userList = dbContext.Query<User>().ToList();
-                Assert.AreEqual(0, userList.Count());
+                Assert.AreEqual(0, userList.Count);
             }
         }
         #endregion

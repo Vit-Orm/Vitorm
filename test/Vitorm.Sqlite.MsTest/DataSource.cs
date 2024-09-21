@@ -13,6 +13,7 @@ namespace Vitorm.MsTest
 
         [System.ComponentModel.DataAnnotations.Key]
         [System.ComponentModel.DataAnnotations.Schema.Column("userId")]
+        [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
         [System.ComponentModel.DataAnnotations.Schema.Column("userName")]
         public string name { get; set; }
@@ -42,13 +43,14 @@ namespace Vitorm.MsTest
     {
         [System.ComponentModel.DataAnnotations.Key]
         [System.ComponentModel.DataAnnotations.Schema.Column("classId")]
+        [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
         [System.ComponentModel.DataAnnotations.Schema.Column("className")]
         public string name { get; set; }
 
         public static List<UserClass> NewClasses(int startId, int count = 1)
         {
-            return Enumerable.Range(startId, count).Select(id => new UserClass { id = id, name = "class" + id }).ToList();
+            return Enumerable.Range(startId, count).Select(id => new UserClass { id = 0, name = "class" + id }).ToList();
         }
     }
 
@@ -84,20 +86,23 @@ namespace Vitorm.MsTest
                 dbContext.TryCreateTable<User>();
 
                 var users = new List<User> {
-                    new User { id=1, name="u146", fatherId=4, motherId=6 },
-                    new User { id=2, name="u246", fatherId=4, motherId=6 },
-                    new User { id=3, name="u356", fatherId=5, motherId=6 },
-                    new User { id=4, name="u400" },
-                    new User { id=5, name="u500" },
-                    new User { id=6, name="u600" },
+                    new User {  name="u146", fatherId=4, motherId=6 },
+                    new User {  name="u246", fatherId=4, motherId=6 },
+                    new User {  name="u356", fatherId=5, motherId=6 },
+                    new User {  name="u400" },
+                    new User {  name="u500" },
+                    new User {  name="u600" },
                 };
+
+                dbContext.AddRange(users);
+
                 users.ForEach(user =>
                 {
                     user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id);
                     user.classId = user.id % 2 + 1;
                 });
 
-                dbContext.AddRange(users);
+                dbContext.UpdateRange(users);
             }
             #endregion
 

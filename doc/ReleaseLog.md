@@ -1,5 +1,10 @@
 ﻿# Vitorm ReleaseLog
 
+
+-----------------------
+# 2.2.0
+- [Vitorm.Data] rename DataSource.LoadDataProvider to AddDataProvider
+
 -----------------------
 # 2.1.2
 - [Vitorm.Data] add DataSource class, change methods to instance from static

@@ -33,7 +33,7 @@ namespace Vitorm
         public static void Init(JsonFile json)
         {
             // #1 load dataProviders
-            dataSource.LoadDataProviders(json);
+            dataSource.AddDataProviders(json);
 
 
             // #2 load DefaultEntityLoaders
@@ -59,12 +59,12 @@ namespace Vitorm
             });
         }
 
-        public static bool LoadDataProvider(Dictionary<string, object> dataProviderConfig) => dataSource.LoadDataProvider(dataProviderConfig);
+        public static bool AddDataProvider(Dictionary<string, object> dataProviderConfig) => dataSource.AddDataProvider(dataProviderConfig);
 
         public static void ClearDataProviders(Predicate<DataProviderCache> predicate = null) => dataSource.ClearDataProviders(predicate);
 
 
-        #region LoadDataProvider
+        #region DataProvider
 
         public static IDataProvider DataProvider<Entity>() => dataSource.DataProvider<Entity>();
         public static IDataProvider DataProvider(Type entityType) => dataSource.DataProvider(entityType);

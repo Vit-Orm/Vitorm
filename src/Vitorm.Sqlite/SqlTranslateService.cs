@@ -158,7 +158,7 @@ namespace Vitorm.Sqlite
         {
             /* //sql
 CREATE TABLE IF NOT EXISTS "User" (
-  id int PRIMARY KEY NOT NULL,
+  id integer PRIMARY KEY autoincrement NOT NULL ,
   name varchar(100) DEFAULT NULL,
   birth date DEFAULT NULL,
   fatherId int DEFAULT NULL,
@@ -185,16 +185,18 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 var defaultValue = column.isNullable ? "default null" : "";
                 if (column.isIdentity)
                 {
-                    throw new NotSupportedException("identity for Sqlite is not supported yet.");
+                    var type = TypeUtil.GetUnderlyingType(column.type);
+                    if (type == typeof(Guid)) { }
+                    else defaultValue = "autoincrement";
+                    //throw new NotSupportedException("identity for Sqlite is not supported yet.");
                 }
 
                 /*
-                  name  type    nullable        defaultValue    primaryKey
-                  id    int     not null/null   default null    primary key
-
+                  name  type    primaryKey      defaultValue    nullable
+                  id    int     primary key     default null    not null/null
+                                                autoincrement
                  */
-
-                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isKey ? "primary key" : "")}  {defaultValue}  {(column.isNullable ? "null" : "not null")}";
             }
         }
 
@@ -247,8 +249,33 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
         }
         public override string PrepareTruncate(IEntityDescriptor entityDescriptor)
         {
-            // delete from 'User';
-            return $@"delete from {DelimitTableName(entityDescriptor)};";
+            // delete from 'User'; DELETE from sqlite_sequence WHERE name = "user";
+            return $@"delete from {DelimitTableName(entityDescriptor)}; delete from sqlite_sequence where name = {DelimitTableName(entityDescriptor)};";
+        }
+
+        public override (string sql, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd(SqlTranslateArgument arg, EAddType addType)
+        {
+            if (addType == EAddType.identityKey)
+            {
+                // insert into "user"(name,fatherId,motherId) values('lith',1,1); select last_insert_rowid();
+
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.columns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
+
+                // get generated id
+                sql += "select last_insert_rowid();";
+                return (sql, GetSqlParams);
+            }
+            else
+            {
+                // insert into "user"(name,fatherId,motherId) values('lith',1,1);
+
+                var entityDescriptor = arg.entityDescriptor;
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
+                return (sql, GetSqlParams);
+            }
         }
 
     }

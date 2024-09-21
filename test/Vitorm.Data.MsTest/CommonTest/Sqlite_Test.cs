@@ -6,6 +6,9 @@ namespace Vitorm.MsTest.Sqlite
 {
     public class User : Vitorm.MsTest.CommonTest.UserBase
     {
+        [System.ComponentModel.DataAnnotations.Key]
+        [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
+        public override int id { get; set; }
     }
 }
 
@@ -61,16 +64,20 @@ namespace Vitorm.MsTest.CommonTest
             dbContext.TryCreateTable<User>();
 
             var users = new List<User> {
-                    new User { id=1, name="u146", fatherId=4, motherId=6 },
-                    new User { id=2, name="u246", fatherId=4, motherId=6 },
-                    new User { id=3, name="u356", fatherId=5, motherId=6 },
-                    new User { id=4, name="u400" },
-                    new User { id=5, name="u500" },
-                    new User { id=6, name="u600" },
+                    new User { name="u146", fatherId=4, motherId=6 },
+                    new User { name="u246", fatherId=4, motherId=6 },
+                    new User { name="u356", fatherId=5, motherId=6 },
+                    new User { name="u400" },
+                    new User { name="u500" },
+                    new User { name="u600" },
                 };
-            users.ForEach(user => { user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id); });
 
             dbContext.AddRange(users);
+
+
+            users.ForEach(user => { user.birth = DateTime.Parse("2021-01-01 00:00:00").AddHours(user.id); });
+
+            dbContext.UpdateRange(users);
 
             WaitForUpdate();
 

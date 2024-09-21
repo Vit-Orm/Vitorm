@@ -11,12 +11,13 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Authors>Lith</Authors>
         <Description>Generage Entity Type from Database</Description>
-        <PackageProjectUrl>https://github.com/Vit-Orm/Vitorm</PackageProjectUrl>
+        <PackageTags>orm vitorm database mysql sqlserver sqlite Entity DbFirst</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <PackageIcon>vitorm_logo_v1.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>orm vitorm database mysql sqlserver sqlite Entity DbFirst</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

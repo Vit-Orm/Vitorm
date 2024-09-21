@@ -15,7 +15,7 @@ namespace Vitorm
             /// </summary>
             public readonly string name;
             /// <summary>
-            /// separate by comma, for example: "Vitorm.Model.Mysql,Vitorm.Model.Sqlserver"
+            /// separate by comma, for example: "Vitorm.Model.MySql,Vitorm.Model.SqlServer"
             /// </summary>
             public readonly string @namespace;
             private readonly List<string> classFullNamePrefixList;

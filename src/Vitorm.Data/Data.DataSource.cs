@@ -21,13 +21,13 @@ namespace Vitorm
             /// Data.Init("appsettings.Development.json")
             /// </summary>
             /// <param name="appsettingsFileName"></param>
-            public DataSource LoadDataProviders(string appsettingsFileName)
+            public DataSource AddDataProviders(string appsettingsFileName)
             {
-                LoadDataProviders(new JsonFile(appsettingsFileName));
+                AddDataProviders(new JsonFile(appsettingsFileName));
                 return this;
             }
 
-            public DataSource LoadDataProviders(JsonFile json, string configPath = "Vitorm.Data")
+            public DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
             {
                 var dataProviderConfigs = json.GetByPath<List<Dictionary<string, object>>>(configPath);
                 return LoadDataProviders(dataProviderConfigs);
@@ -43,7 +43,7 @@ namespace Vitorm
                 return this;
             }
 
-            public bool LoadDataProvider(Dictionary<string, object> dataProviderConfig)
+            public bool AddDataProvider(Dictionary<string, object> dataProviderConfig)
             {
                 var provider = CreateDataProvider(dataProviderConfig);
                 if (provider == null) return false;
@@ -63,7 +63,7 @@ namespace Vitorm
             }
 
 
-            #region LoadDataProvider
+            #region DataProvider
 
             public IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
             public IDataProvider DataProvider(Type entityType)

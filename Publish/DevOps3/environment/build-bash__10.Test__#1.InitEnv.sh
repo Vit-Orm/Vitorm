@@ -31,7 +31,7 @@ docker run -d \
 -p 1433:1433 \
 -e 'ACCEPT_EULA=Y' \
 -e 'SA_PASSWORD=Admin0123' \
-mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
+mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04
 
 
 
@@ -53,7 +53,7 @@ docker run -t --rm --link vitorm-mysql mysql:8.0.26 timeout 120 sh -c 'until mys
 
 
 echo '#build-bash__10.Test__#1.InitEnv.sh -> #8.2 wait for SqlServer to init' 
-docker run -t --rm --link vitorm-sqlserver mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04 timeout 120 sh -c 'until /opt/mssql-tools/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -Q "SELECT 1"; do echo waiting for SqlServer; sleep 2; done;  /opt/mssql-tools/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -Q "CREATE DATABASE db_orm";  /opt/mssql-tools/bin/sqlcmd -S "vitorm-sqlserver" -d "db_orm" -U SA -P "Admin0123" -Q "CREATE Schema orm";  /opt/mssql-tools/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -Q "CREATE DATABASE db_orm2";    '
+docker run -t --rm --link vitorm-sqlserver mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04 timeout 120 sh -c 'until /opt/mssql-tools18/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -C -Q "SELECT 1"; do echo waiting for SqlServer; sleep 2; done;  /opt/mssql-tools18/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -C -Q "CREATE DATABASE db_orm";  /opt/mssql-tools18/bin/sqlcmd -S "vitorm-sqlserver" -d "db_orm" -U SA -P "Admin0123" -C -Q "CREATE Schema orm";  /opt/mssql-tools18/bin/sqlcmd -S "vitorm-sqlserver" -U SA -P "Admin0123" -C -Q "CREATE DATABASE db_orm2";    '
 
 
 #---------------------------------------------------------------------

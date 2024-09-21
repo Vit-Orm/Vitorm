@@ -40,7 +40,7 @@ echo '#1 get netVersion'
 export netVersion=\$(grep '<TargetFramework>' \$(grep '<publish>' -rl --include *.csproj | head -n 1) | grep -oP '>(.*)<' | tr -d '<>')
 echo netVersion: \$netVersion
 
-
+export basePath=/root/code
 export publishPath=/root/code/Publish/release/release/Station\(\$netVersion\)
 mkdir -p \$publishPath
 
@@ -58,20 +58,20 @@ do
 	dotnet build --configuration Release
 	dotnet publish --configuration Release --output \"\$publishPath/\$publishName\"
 
-	#copy xml
+	# copy xml
 	for filePath in bin/Release/\$netVersion/*.xml ; do \\cp -rf \$filePath \"\$publishPath/\$publishName\";done
 done
 
 
 #3 copy station release files
-if [ -d \"\/root/code/Publish/ReleaseFile/Station\" ]; then
+if [ -d \"/root/code/Publish/ReleaseFile/Station\" ]; then
 	echo '#3 copy station release files'
-	\cp -rf \/root/code/Publish/ReleaseFile/Station/. \"\$publishPath\"
+	\cp -rf /root/code/Publish/ReleaseFile/Station/. \"\$publishPath\"
 fi
 
 
 #4 copy extra release files
-bashFile=\"$devOpsPath/environment/build-bash__40.Station-publish__#4_copyExtraReleaseFiles.sh\"
+bashFile=\"$devOpsPath/../environment/build-bash__40.Station-publish__#4_copyExtraReleaseFiles.sh\"
 if [ -f \"\$bashFile\" ]; then
 	echo '#4 copy extra release files'
 	sh \"\$bashFile\"

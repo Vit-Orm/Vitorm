@@ -28,7 +28,7 @@ namespace Vitorm.MsTest.CommonTest
             }
 
 
-            var user = new User();
+            var user = User.NewUser(id: 1, forAdd: true);
             dbContext.Add(user);
 
             DataSource.WaitForUpdate();

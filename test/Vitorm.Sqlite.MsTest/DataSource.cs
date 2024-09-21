@@ -30,7 +30,7 @@ namespace Vitorm.MsTest
         public string test { get; set; }
 
 
-        public static User NewUser(int id, bool forAdd = false) => new User { id = id, name = "testUser" + id };
+        public static User NewUser(int id, bool forAdd = false) => new User { id = forAdd ? 0 : id, name = "testUser" + id };
 
         public static List<User> NewUsers(int startId, int count = 1, bool forAdd = false)
         {

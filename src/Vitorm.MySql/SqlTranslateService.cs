@@ -198,23 +198,25 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
+                var isNullable = !column.isKey && column.isNullable;
                 var columnDbType = column.columnDbType ?? GetColumnDbType(column);
-                var defaultValue = column.isNullable ? "default null" : "";
+                var defaultValue = isNullable ? "default null" : "";
                 if (column.isIdentity)
                 {
                     var type = TypeUtil.GetUnderlyingType(column.type);
                     if (type == typeof(Guid)) { }
                     else defaultValue = "AUTO_INCREMENT";
                 }
+                var nullable = isNullable ? "" : "not null";
 
                 // https://mysql.net.cn/doc/refman/8.0/en/create-table.html
                 /*
-                  name  type    nullable        defaultValue        primaryKey
-                  id    int     not null/null   default null        primary key
+                  name  type    primaryKey      defaultValue    nullable
+                  id    int     primary key     default null    not null/null
                                                 AUTO_INCREMENT
                  */
 
-                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isKey ? "primary key" : "")}  {defaultValue}  {nullable}";
             }
         }
         public readonly static Dictionary<Type, string> columnDbTypeMap = new()
@@ -237,6 +239,13 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
         protected override string GetColumnDbType(IColumnDescriptor column)
         {
             Type type = column.type;
+
+            if (column.isKey && column.type == typeof(string))
+            {
+                // avoid issue: SQL Error [1071] [42000]: Specified key was too long; max key length is 3072 bytes.
+                // example "CREATE TABLE test ( `name` varchar(1000)  primary key);"
+                return "varchar(200)";
+            }
 
             if (column.columnLength.HasValue && type == typeof(string))
             {

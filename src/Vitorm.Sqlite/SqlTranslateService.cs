@@ -181,8 +181,9 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
+                var isNullable = !column.isKey && column.isNullable;
                 var columnDbType = column.columnDbType ?? GetColumnDbType(column);
-                var defaultValue = column.isNullable ? "default null" : "";
+                var defaultValue = isNullable ? "default null" : "";
                 if (column.isIdentity)
                 {
                     var type = TypeUtil.GetUnderlyingType(column.type);
@@ -190,13 +191,14 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                     else defaultValue = "autoincrement";
                     //throw new NotSupportedException("identity for Sqlite is not supported yet.");
                 }
+                var nullable = isNullable ? "" : "not null";
 
                 /*
                   name  type    primaryKey      defaultValue    nullable
                   id    int     primary key     default null    not null/null
                                                 autoincrement
                  */
-                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isKey ? "primary key" : "")}  {defaultValue}  {(column.isNullable ? "null" : "not null")}";
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isKey ? "primary key" : "")}  {defaultValue}  {nullable}";
             }
         }
 

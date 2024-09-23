@@ -240,25 +240,26 @@ create table {DelimitTableName(entityDescriptor)} (
 
             string GetColumnSql(IColumnDescriptor column)
             {
+                var isNullable = !column.isKey && column.isNullable;
                 var columnDbType = column.columnDbType ?? GetColumnDbType(column);
-                var defaultValue = column.isNullable ? "default null" : "";
+                var defaultValue = isNullable ? "default null" : "";
                 if (column.isIdentity)
                 {
                     var type = TypeUtil.GetUnderlyingType(column.type);
                     if (type == typeof(Guid)) defaultValue = "default NewId()";
                     else defaultValue = "identity(1,1)";
                 }
-
+                var nullable = isNullable ? "" : "not null";
                 /*
-                  name  type    nullable        defaultValue                    primaryKey 
-                  id    int     not null/null   default null                    primary key
+                  name  type    primaryKey      defaultValue        nullable
+                  id    int     primary key     default null        not null/null
                                                 identity(1,1)
                                                 default NewId()
                                                 default NewSequentialId()
                                                 default 12
                  */
 
-                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isNullable ? "null" : "not null")}  {defaultValue}  {(column.isKey ? "primary key" : "")}";
+                return $"  {DelimitIdentifier(column.columnName)}  {columnDbType}  {(column.isKey ? "primary key" : "")}  {defaultValue}  {nullable}";
             }
         }
 
@@ -282,6 +283,13 @@ create table {DelimitTableName(entityDescriptor)} (
         protected override string GetColumnDbType(IColumnDescriptor column)
         {
             Type type = column.type;
+
+            if (column.isKey && column.type == typeof(string))
+            {
+                // avoid issue: SQL Error [1919] [S0001]: Column 'name' in table 'Issue006_Setting' is of a type that is invalid for use as a key column in an index.
+                // example "create table [Issue006_Setting] ( [name]  varchar(max) primary key not null );"
+                return "varchar(200)";
+            }
 
             if (column.columnLength.HasValue && type == typeof(string))
             {

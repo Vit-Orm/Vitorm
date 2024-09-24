@@ -59,12 +59,15 @@ namespace Vitorm
             });
         }
 
+        #region DataProvider
+
         public static bool AddDataProvider(Dictionary<string, object> dataProviderConfig) => dataSource.AddDataProvider(dataProviderConfig);
+        public static void AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs) => dataSource.AddDataProviders(dataProviderConfigs);
 
         public static void ClearDataProviders(Predicate<DataProviderCache> predicate = null) => dataSource.ClearDataProviders(predicate);
 
 
-        #region DataProvider
+
 
         public static IDataProvider DataProvider<Entity>() => dataSource.DataProvider<Entity>();
         public static IDataProvider DataProvider(Type entityType) => dataSource.DataProvider(entityType);

@@ -17,82 +17,12 @@ namespace Vitorm
         public partial class DataSource
         {
 
-            /// <summary>
-            /// Data.Init("appsettings.Development.json")
-            /// </summary>
-            /// <param name="appsettingsFileName"></param>
-            public virtual DataSource AddDataProviders(string appsettingsFileName)
-            {
-                AddDataProviders(new JsonFile(appsettingsFileName));
-                return this;
-            }
-
-            public virtual DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
-            {
-                var dataProviderConfigs = json.GetByPath<List<Dictionary<string, object>>>(configPath);
-                return AddDataProviders(dataProviderConfigs);
-            }
-            public virtual DataSource AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
-            {
-                var dataProviders = dataProviderConfigs?.Select(CreateDataProvider).NotNull().ToList();
-
-                if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
-
-                providerMap.Clear();
-
-                return this;
-            }
-
-            public virtual bool AddDataProvider(Dictionary<string, object> dataProviderConfig)
-            {
-                var provider = CreateDataProvider(dataProviderConfig);
-                if (provider == null) return false;
-
-                providerCache.Insert(0, provider);
-                providerMap.Clear();
-                return true;
-            }
-            public virtual void ClearDataProviders(Predicate<DataProviderCache> predicate = null)
-            {
-                if (predicate != null)
-                    providerCache.RemoveAll(predicate);
-                else
-                    providerCache.Clear();
-
-                providerMap.Clear();
-            }
-
 
             #region DataProvider
 
-            public virtual IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
-            public virtual IDataProvider DataProvider(Type entityType)
-            {
-                return providerMap.GetOrAdd(entityType, GetDataProviderFromConfig);
-            }
-            private IDataProvider GetDataProviderFromConfig(Type entityType)
-            {
-                var classFullName = entityType.FullName;
-                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
-                    ?? throw new NotImplementedException("can not find config for type: " + classFullName);
-            }
-
-            /// <summary>
-            /// nameOrNamespace:  dataProviderName or dataProviderNamespace
-            /// </summary>
-            /// <param name="nameOrNamespace"></param>
-            /// <returns></returns>
-            public virtual IDataProvider DataProvider(string nameOrNamespace)
-            {
-                return providerCache.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
-            }
-
-
-            readonly ConcurrentDictionary<Type, IDataProvider> providerMap = new();
+            readonly ConcurrentDictionary<Type, IDataProvider> entityProviderMap = new();
 
             readonly List<DataProviderCache> providerCache = new();
-
-
             DataProviderCache CreateDataProvider(Dictionary<string, object> dataProviderConfig)
             {
                 /*
@@ -129,6 +59,106 @@ namespace Vitorm
 
 
             #endregion
+
+            #region  AddDataProvider 
+
+
+            /// <summary>
+            /// Data.Init("appsettings.Development.json")
+            /// </summary>
+            /// <param name="appsettingsFileName"></param>
+            public virtual DataSource AddDataProviders(string appsettingsFileName)
+            {
+                AddDataProviders(new JsonFile(appsettingsFileName));
+                return this;
+            }
+
+            public virtual DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
+            {
+                var dataProviderConfigs = json.GetByPath<List<Dictionary<string, object>>>(configPath);
+                return AddDataProviders(dataProviderConfigs);
+            }
+
+            public virtual DataSource AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
+            {
+                var dataProviders = dataProviderConfigs?.Select(CreateDataProvider).NotNull().ToList();
+
+                if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
+
+                entityProviderMap.Clear();
+
+                return this;
+            }
+
+            /// <summary>
+            /// insert to header of DataProvider list
+            /// </summary>
+            /// <param name="dataProviderConfig"></param>
+            /// <returns></returns>
+            public virtual bool InsertDataProvider(Dictionary<string, object> dataProviderConfig)
+            {
+                var provider = CreateDataProvider(dataProviderConfig);
+                if (provider == null) return false;
+
+                providerCache.Insert(0, provider);
+                entityProviderMap.Clear();
+                return true;
+            }
+
+            /// <summary>
+            /// insert to tail of DataProvider list
+            /// </summary>
+            /// <param name="dataProviderConfig"></param>
+            /// <returns></returns>
+            public virtual bool AddDataProvider(Dictionary<string, object> dataProviderConfig)
+            {
+                var provider = CreateDataProvider(dataProviderConfig);
+                if (provider == null) return false;
+
+                providerCache.Add(provider);
+                entityProviderMap.Clear();
+                return true;
+            }
+
+            public virtual void ClearDataProviders(Predicate<DataProviderCache> predicate = null)
+            {
+                if (predicate != null)
+                    providerCache.RemoveAll(predicate);
+                else
+                    providerCache.Clear();
+
+                entityProviderMap.Clear();
+            }
+            #endregion
+
+
+            #region GetDataProvider
+
+            public virtual IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
+            public virtual IDataProvider DataProvider(Type entityType)
+            {
+                return entityProviderMap.GetOrAdd(entityType, GetDataProviderFromConfig);
+            }
+            private IDataProvider GetDataProviderFromConfig(Type entityType)
+            {
+                var classFullName = entityType.FullName;
+                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
+                    ?? throw new NotImplementedException("can not find config for type: " + classFullName);
+            }
+
+            /// <summary>
+            /// nameOrNamespace:  dataProviderName or dataProviderNamespace
+            /// </summary>
+            /// <param name="nameOrNamespace"></param>
+            /// <returns></returns>
+            public virtual IDataProvider DataProvider(string nameOrNamespace)
+            {
+                return providerCache.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
+            }
+
+            #endregion
+
+
 
 
 

@@ -1,4 +1,4 @@
-﻿# Vitorm ReleaseLog
+﻿# Vitorm ReleaseNotes
 
 
 -----------------------
@@ -7,7 +7,10 @@
 - [Vitorm.Sqlite]
     - support autoincrement key
     - identity key will start from 1 after truncate table
-
+- [Vitorm.Data]
+    - change methods to virtual
+    - rename LoadDataProviders to AddDataProviders
+    - get DataProvider by name or namespace or class namespace
 
 -----------------------
 # 2.1.2

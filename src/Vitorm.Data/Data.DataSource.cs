@@ -21,18 +21,18 @@ namespace Vitorm
             /// Data.Init("appsettings.Development.json")
             /// </summary>
             /// <param name="appsettingsFileName"></param>
-            public DataSource AddDataProviders(string appsettingsFileName)
+            public virtual DataSource AddDataProviders(string appsettingsFileName)
             {
                 AddDataProviders(new JsonFile(appsettingsFileName));
                 return this;
             }
 
-            public DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
+            public virtual DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
             {
                 var dataProviderConfigs = json.GetByPath<List<Dictionary<string, object>>>(configPath);
-                return LoadDataProviders(dataProviderConfigs);
+                return AddDataProviders(dataProviderConfigs);
             }
-            public DataSource LoadDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
+            public virtual DataSource AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
             {
                 var dataProviders = dataProviderConfigs?.Select(CreateDataProvider).NotNull().ToList();
 
@@ -43,7 +43,7 @@ namespace Vitorm
                 return this;
             }
 
-            public bool AddDataProvider(Dictionary<string, object> dataProviderConfig)
+            public virtual bool AddDataProvider(Dictionary<string, object> dataProviderConfig)
             {
                 var provider = CreateDataProvider(dataProviderConfig);
                 if (provider == null) return false;
@@ -52,7 +52,7 @@ namespace Vitorm
                 providerMap.Clear();
                 return true;
             }
-            public void ClearDataProviders(Predicate<DataProviderCache> predicate = null)
+            public virtual void ClearDataProviders(Predicate<DataProviderCache> predicate = null)
             {
                 if (predicate != null)
                     providerCache.RemoveAll(predicate);
@@ -65,27 +65,26 @@ namespace Vitorm
 
             #region DataProvider
 
-            public IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
-            public IDataProvider DataProvider(Type entityType)
+            public virtual IDataProvider DataProvider<Entity>() => DataProvider(typeof(Entity));
+            public virtual IDataProvider DataProvider(Type entityType)
             {
                 return providerMap.GetOrAdd(entityType, GetDataProviderFromConfig);
-
-                IDataProvider GetDataProviderFromConfig(Type entityType)
-                {
-                    var classFullName = entityType.FullName;
-                    return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
-                        ?? throw new NotImplementedException("can not find config for type: " + classFullName);
-                }
+            }
+            private IDataProvider GetDataProviderFromConfig(Type entityType)
+            {
+                var classFullName = entityType.FullName;
+                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
+                    ?? throw new NotImplementedException("can not find config for type: " + classFullName);
             }
 
             /// <summary>
-            /// dataProviderName:  dataProviderName or dataProviderNamespace
+            /// nameOrNamespace:  dataProviderName or dataProviderNamespace
             /// </summary>
-            /// <param name="dataProviderName"></param>
+            /// <param name="nameOrNamespace"></param>
             /// <returns></returns>
-            public IDataProvider DataProvider(string dataProviderName)
+            public virtual IDataProvider DataProvider(string nameOrNamespace)
             {
-                return providerCache.FirstOrDefault(cache => cache.name == dataProviderName || cache.@namespace == dataProviderName)?.dataProvider;
+                return providerCache.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
             }
 
 
@@ -137,31 +136,31 @@ namespace Vitorm
             #region CRUD Sync
 
             // #0 Schema :  TryCreateTable TryDropTable
-            public void TryCreateTable<Entity>() => DataProvider<Entity>().TryCreateTable<Entity>();
-            public void TryDropTable<Entity>() => DataProvider<Entity>().TryDropTable<Entity>();
-            public void Truncate<Entity>() => DataProvider<Entity>().Truncate<Entity>();
+            public virtual void TryCreateTable<Entity>() => DataProvider<Entity>().TryCreateTable<Entity>();
+            public virtual void TryDropTable<Entity>() => DataProvider<Entity>().TryDropTable<Entity>();
+            public virtual void Truncate<Entity>() => DataProvider<Entity>().Truncate<Entity>();
 
 
             // #1 Create :  Add AddRange
-            public Entity Add<Entity>(Entity entity) => DataProvider<Entity>().Add<Entity>(entity);
-            public void AddRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().AddRange<Entity>(entities);
+            public virtual Entity Add<Entity>(Entity entity) => DataProvider<Entity>().Add<Entity>(entity);
+            public virtual void AddRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().AddRange<Entity>(entities);
 
             // #2 Retrieve : Get Query
-            public Entity Get<Entity>(object keyValue) => DataProvider<Entity>().Get<Entity>(keyValue);
-            public IQueryable<Entity> Query<Entity>() => DataProvider<Entity>().Query<Entity>();
+            public virtual Entity Get<Entity>(object keyValue) => DataProvider<Entity>().Get<Entity>(keyValue);
+            public virtual IQueryable<Entity> Query<Entity>() => DataProvider<Entity>().Query<Entity>();
 
 
             // #3 Update: Update UpdateRange
-            public int Update<Entity>(Entity entity) => DataProvider<Entity>().Update<Entity>(entity);
-            public int UpdateRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().UpdateRange<Entity>(entities);
+            public virtual int Update<Entity>(Entity entity) => DataProvider<Entity>().Update<Entity>(entity);
+            public virtual int UpdateRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().UpdateRange<Entity>(entities);
 
 
             // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-            public int Delete<Entity>(Entity entity) => DataProvider<Entity>().Delete<Entity>(entity);
-            public int DeleteRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().DeleteRange<Entity>(entities);
+            public virtual int Delete<Entity>(Entity entity) => DataProvider<Entity>().Delete<Entity>(entity);
+            public virtual int DeleteRange<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().DeleteRange<Entity>(entities);
 
-            public int DeleteByKey<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKey<Entity>(keyValue);
-            public int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeys<Entity, Key>(keys);
+            public virtual int DeleteByKey<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKey<Entity>(keyValue);
+            public virtual int DeleteByKeys<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeys<Entity, Key>(keys);
 
             #endregion
 
@@ -170,30 +169,30 @@ namespace Vitorm
             #region CRUD Async
 
             // #0 Schema :  TryCreateTable TryDropTable
-            public Task TryCreateTableAsync<Entity>() => DataProvider<Entity>().TryCreateTableAsync<Entity>();
-            public Task TryDropTableAsync<Entity>() => DataProvider<Entity>().TryDropTableAsync<Entity>();
-            public Task TruncateAsync<Entity>() => DataProvider<Entity>().TruncateAsync<Entity>();
+            public virtual Task TryCreateTableAsync<Entity>() => DataProvider<Entity>().TryCreateTableAsync<Entity>();
+            public virtual Task TryDropTableAsync<Entity>() => DataProvider<Entity>().TryDropTableAsync<Entity>();
+            public virtual Task TruncateAsync<Entity>() => DataProvider<Entity>().TruncateAsync<Entity>();
 
 
             // #1 Create :  Add AddRange
-            public Task<Entity> AddAsync<Entity>(Entity entity) => DataProvider<Entity>().AddAsync<Entity>(entity);
-            public Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().AddRangeAsync<Entity>(entities);
+            public virtual Task<Entity> AddAsync<Entity>(Entity entity) => DataProvider<Entity>().AddAsync<Entity>(entity);
+            public virtual Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().AddRangeAsync<Entity>(entities);
 
             // #2 Retrieve : Get Query
-            public Task<Entity> GetAsync<Entity>(object keyValue) => DataProvider<Entity>().GetAsync<Entity>(keyValue);
+            public virtual Task<Entity> GetAsync<Entity>(object keyValue) => DataProvider<Entity>().GetAsync<Entity>(keyValue);
 
 
             // #3 Update: Update UpdateRange
-            public Task<int> UpdateAsync<Entity>(Entity entity) => DataProvider<Entity>().UpdateAsync<Entity>(entity);
-            public Task<int> UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().UpdateRangeAsync<Entity>(entities);
+            public virtual Task<int> UpdateAsync<Entity>(Entity entity) => DataProvider<Entity>().UpdateAsync<Entity>(entity);
+            public virtual Task<int> UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().UpdateRangeAsync<Entity>(entities);
 
 
             // #4 Delete : Delete DeleteRange DeleteByKey DeleteByKeys
-            public Task<int> DeleteAsync<Entity>(Entity entity) => DataProvider<Entity>().DeleteAsync<Entity>(entity);
-            public Task<int> DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().DeleteRangeAsync<Entity>(entities);
+            public virtual Task<int> DeleteAsync<Entity>(Entity entity) => DataProvider<Entity>().DeleteAsync<Entity>(entity);
+            public virtual Task<int> DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) => DataProvider<Entity>().DeleteRangeAsync<Entity>(entities);
 
-            public Task<int> DeleteByKeyAsync<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKeyAsync<Entity>(keyValue);
-            public Task<int> DeleteByKeysAsync<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeysAsync<Entity, Key>(keys);
+            public virtual Task<int> DeleteByKeyAsync<Entity>(object keyValue) => DataProvider<Entity>().DeleteByKeyAsync<Entity>(keyValue);
+            public virtual Task<int> DeleteByKeysAsync<Entity, Key>(IEnumerable<Key> keys) => DataProvider<Entity>().DeleteByKeysAsync<Entity, Key>(keys);
 
             #endregion
 

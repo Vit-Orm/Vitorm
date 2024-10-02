@@ -155,7 +155,7 @@ namespace Vitorm
             /// <returns></returns>
             public virtual IDataProvider DataProvider(string nameOrNamespace)
             {
-                return providerList.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
+                return providerList.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.@namespace == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
             }
 
             #endregion

@@ -18,7 +18,8 @@ namespace Vitorm
             /// separate by comma, for example: "Vitorm.Model.MySql,Vitorm.Model.SqlServer"
             /// </summary>
             public readonly string @namespace;
-            private readonly List<string> classFullNamePrefixList;
+            private readonly List<string> namespaceList;
+            private readonly List<string> namespacePrefixList;
             public readonly Dictionary<string, object> dataSourceConfig;
 
             public DataProviderCache(IDataProvider dataProvider, Dictionary<string, object> dataSourceConfig)
@@ -35,12 +36,12 @@ namespace Vitorm
                 {
                     name = strName;
                 }
-
-                classFullNamePrefixList = @namespace?.Split(',').Select(ns => ns + ".").ToList();
+                namespaceList = @namespace?.Split(',').ToList();
+                namespacePrefixList = namespaceList.Select(ns => ns + ".").ToList();
             }
             internal bool Match(string classFullName)
             {
-                return classFullNamePrefixList?.Any(classFullNamePrefix => classFullName.StartsWith(classFullNamePrefix)) == true;
+                return namespaceList.Contains(classFullName) || namespacePrefixList?.Any(classFullNamePrefix => classFullName.StartsWith(classFullNamePrefix)) == true;
             }
         }
 

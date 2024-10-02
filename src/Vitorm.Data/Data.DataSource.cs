@@ -22,7 +22,7 @@ namespace Vitorm
 
             readonly ConcurrentDictionary<Type, IDataProvider> entityProviderMap = new();
 
-            readonly List<DataProviderCache> providerCache = new();
+            readonly List<DataProviderCache> providerList = new();
             DataProviderCache CreateDataProvider(Dictionary<string, object> dataProviderConfig)
             {
                 /*
@@ -73,21 +73,23 @@ namespace Vitorm
                 return this;
             }
 
-            public virtual DataSource AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
+            public virtual int AddDataProviders(JsonFile json, string configPath = "Vitorm.Data")
             {
                 var dataProviderConfigs = json.GetByPath<List<Dictionary<string, object>>>(configPath);
                 return AddDataProviders(dataProviderConfigs);
             }
 
-            public virtual DataSource AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
+            public virtual int AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs)
             {
                 var dataProviders = dataProviderConfigs?.Select(CreateDataProvider).NotNull().ToList();
 
-                if (dataProviders?.Any() == true) providerCache.AddRange(dataProviders);
+                if (dataProviders?.Any() != true) return 0;
+
+                providerList.AddRange(dataProviders);
 
                 entityProviderMap.Clear();
 
-                return this;
+                return dataProviders.Count;
             }
 
             /// <summary>
@@ -100,7 +102,7 @@ namespace Vitorm
                 var provider = CreateDataProvider(dataProviderConfig);
                 if (provider == null) return false;
 
-                providerCache.Insert(0, provider);
+                providerList.Insert(0, provider);
                 entityProviderMap.Clear();
                 return true;
             }
@@ -115,7 +117,7 @@ namespace Vitorm
                 var provider = CreateDataProvider(dataProviderConfig);
                 if (provider == null) return false;
 
-                providerCache.Add(provider);
+                providerList.Add(provider);
                 entityProviderMap.Clear();
                 return true;
             }
@@ -123,9 +125,9 @@ namespace Vitorm
             public virtual void ClearDataProviders(Predicate<DataProviderCache> predicate = null)
             {
                 if (predicate != null)
-                    providerCache.RemoveAll(predicate);
+                    providerList.RemoveAll(predicate);
                 else
-                    providerCache.Clear();
+                    providerList.Clear();
 
                 entityProviderMap.Clear();
             }
@@ -142,7 +144,7 @@ namespace Vitorm
             private IDataProvider GetDataProviderFromConfig(Type entityType)
             {
                 var classFullName = entityType.FullName;
-                return providerCache.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
+                return providerList.FirstOrDefault(cache => cache.Match(classFullName))?.dataProvider
                     ?? throw new NotImplementedException("can not find config for type: " + classFullName);
             }
 
@@ -153,7 +155,7 @@ namespace Vitorm
             /// <returns></returns>
             public virtual IDataProvider DataProvider(string nameOrNamespace)
             {
-                return providerCache.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
+                return providerList.FirstOrDefault(cache => cache.name == nameOrNamespace || cache.Match(nameOrNamespace))?.dataProvider;
             }
 
             #endregion

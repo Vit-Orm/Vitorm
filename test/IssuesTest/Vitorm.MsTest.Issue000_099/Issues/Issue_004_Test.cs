@@ -18,7 +18,7 @@ namespace Vitorm.MsTest.Issue000_099.Issues
             var name = Guid.NewGuid().ToString();
 
             // #1 Init
-            using var dbContext = Data.DataProvider("Vitorm.MsTest.SqlServer").CreateSqlDbContext();
+            using var dbContext = Data.DataProvider("SqlServer").CreateSqlDbContext();
             using var tran = dbContext.BeginTransaction();
             var dbSet = dbContext.DbSet<MyUser>();
             dbContext.Execute(@"create schema issue004_schema;");
@@ -42,7 +42,7 @@ insert into issue004_schema.Issue004_MyUser(id,name) values(1,@name);
             var name = Guid.NewGuid().ToString();
 
             // #1 Init
-            using var dbContext = Data.DataProvider("Vitorm.MsTest.MySql").CreateSqlDbContext();
+            using var dbContext = Data.DataProvider("MySql").CreateSqlDbContext();
             using var tran = dbContext.BeginTransaction();
             var dbSet = dbContext.DbSet<MyUser>();
             dbContext.Execute(@"
@@ -67,7 +67,7 @@ insert into `issue004_schema`.`Issue004_MyUser`(`id`,name) values(1,@name);
             var name = Guid.NewGuid().ToString();
 
             // #1 Init
-            using var dbContext = Data.DataProvider("Vitorm.MsTest.Sqlite").CreateSqlDbContext();
+            using var dbContext = Data.DataProvider("Sqlite").CreateSqlDbContext();
             using var tran = dbContext.BeginTransaction();
             var dbSet = dbContext.DbSet<MyUser>();
             dbSet.TryDropTable();

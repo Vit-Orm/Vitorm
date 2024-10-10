@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Vit.Core" Version="[2.2.0, 2.3.0)"  />
+        <PackageReference Include="Vit.Core" Version="2.3.0" />
     </ItemGroup>
 
     <ItemGroup>

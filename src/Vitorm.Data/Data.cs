@@ -59,12 +59,15 @@ namespace Vitorm
             });
         }
 
+        #region DataProvider
+
         public static bool AddDataProvider(Dictionary<string, object> dataProviderConfig) => dataSource.AddDataProvider(dataProviderConfig);
+        public static int AddDataProviders(IEnumerable<Dictionary<string, object>> dataProviderConfigs) => dataSource.AddDataProviders(dataProviderConfigs);
 
         public static void ClearDataProviders(Predicate<DataProviderCache> predicate = null) => dataSource.ClearDataProviders(predicate);
 
 
-        #region DataProvider
+
 
         public static IDataProvider DataProvider<Entity>() => dataSource.DataProvider<Entity>();
         public static IDataProvider DataProvider(Type entityType) => dataSource.DataProvider(entityType);
@@ -72,9 +75,9 @@ namespace Vitorm
         /// <summary>
         /// dataProviderName:  dataProviderName or dataProviderNamespace
         /// </summary>
-        /// <param name="dataProviderName"></param>
+        /// <param name="nameOrNamespace">dataProviderName or dataProviderNamespace</param>
         /// <returns></returns>
-        public static IDataProvider DataProvider(string dataProviderName) => dataSource.DataProvider(dataProviderName);
+        public static IDataProvider DataProvider(string nameOrNamespace) => dataSource.DataProvider(nameOrNamespace);
 
         #endregion
 

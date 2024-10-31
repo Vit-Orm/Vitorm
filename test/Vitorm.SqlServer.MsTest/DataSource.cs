@@ -13,7 +13,7 @@ namespace Vitorm.MsTest
         public int id { get; set; }
 
         [System.ComponentModel.DataAnnotations.Schema.Column("userName", TypeName = "varchar(1000)")]
-        [System.ComponentModel.DataAnnotations.Required]
+        //[System.ComponentModel.DataAnnotations.Required]
         public string name { get; set; }
         [System.ComponentModel.DataAnnotations.Schema.Column("userBirth")]
         public DateTime? birth { get; set; }

@@ -200,11 +200,13 @@ namespace Vitorm.MsTest.CommonTest
         {
             using var dbContext = DataSource.CreateDbContextForWriting();
             var userQuery = dbContext.Query<User>();
-
-            var users = userQuery.Where(m => m.id >= 5).ToList();
+            var users = new List<User> {
+                User.NewUser(id: 7, forAdd: true),
+                User.NewUser(id: 8, forAdd: true),
+            };
             users[0].name = "";
             users[1].name = null;
-            dbContext.UpdateRange(users);
+            dbContext.AddRange(users);
             DataSource.WaitForUpdate();
 
 
@@ -226,8 +228,8 @@ namespace Vitorm.MsTest.CommonTest
 
                 var items = userQuery.Where(filter).OrderByDescending(u => u.id).ToList();
                 var ids = items.Select(m => m.id).Distinct().ToList();
-                Assert.AreEqual(3, ids.Count);
-                Assert.AreEqual(0, ids.Except(new int[] { 3, 4, 5 }).Count());
+                Assert.AreEqual(5, ids.Count);
+                Assert.AreEqual(0, ids.Except(new int[] { 3, 4, 5, 6, 7 }).Count());
             }
 
 

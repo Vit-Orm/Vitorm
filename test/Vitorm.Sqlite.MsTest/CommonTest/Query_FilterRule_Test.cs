@@ -199,7 +199,6 @@ namespace Vitorm.MsTest.CommonTest
         public void Test_String()
         {
             using var dbContext = DataSource.CreateDbContextForWriting();
-            var userQuery = dbContext.Query<User>();
             var users = new List<User> {
                 User.NewUser(id: 7, forAdd: true),
                 User.NewUser(id: 8, forAdd: true),
@@ -209,6 +208,8 @@ namespace Vitorm.MsTest.CommonTest
             dbContext.AddRange(users);
             DataSource.WaitForUpdate();
 
+
+            var userQuery = dbContext.Query<User>();
 
             // #1 Contains
             {
@@ -228,8 +229,8 @@ namespace Vitorm.MsTest.CommonTest
 
                 var items = userQuery.Where(filter).OrderByDescending(u => u.id).ToList();
                 var ids = items.Select(m => m.id).Distinct().ToList();
-                Assert.AreEqual(5, ids.Count);
-                Assert.AreEqual(0, ids.Except(new int[] { 3, 4, 5, 6, 7 }).Count());
+                Assert.AreEqual(6, ids.Count);
+                Assert.AreEqual(0, ids.Except(new int[] { 3, 4, 5, 6, 7, 8 }).Count());
             }
 
 

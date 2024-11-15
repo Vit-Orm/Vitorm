@@ -14,7 +14,7 @@ namespace Vitorm
         /// <returns></returns>
         public static string GetColumnNameByPropertyName(this IEntityDescriptor data, string propertyName)
         {
-            return data?.allColumns.FirstOrDefault(m => m.propertyName == propertyName)?.columnName;
+            return data?.allProperties.FirstOrDefault(m => m.propertyName == propertyName)?.columnName;
         }
     }
 }

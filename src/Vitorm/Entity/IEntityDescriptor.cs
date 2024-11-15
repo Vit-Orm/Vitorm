@@ -11,16 +11,16 @@ namespace Vitorm.Entity
         /// <summary>
         /// primary key
         /// </summary>
-        public IColumnDescriptor key { get; }
+        public IPropertyDescriptor key { get; }
 
         /// <summary>
         /// columns except primary key
         /// </summary>
-        public IColumnDescriptor[] columns { get; }
+        public IPropertyDescriptor[] properties { get; }
 
         /// <summary>
         /// columns including primary key
         /// </summary>
-        public IColumnDescriptor[] allColumns { get; }
+        public IPropertyDescriptor[] allProperties { get; }
     }
 }

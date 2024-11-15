@@ -7,9 +7,9 @@ namespace Vitorm.Sql.DataReader.EntityConstructor.CompiledLambda
 {
     class EntityPropertyReader : SqlFieldReader
     {
-        public IColumnDescriptor column { get; protected set; }
+        public IPropertyDescriptor column { get; protected set; }
 
-        public EntityPropertyReader(IColumnDescriptor column, int sqlColumnIndex) : base(column.type, sqlColumnIndex)
+        public EntityPropertyReader(IPropertyDescriptor column, int sqlColumnIndex) : base(column.type, sqlColumnIndex)
         {
             this.column = column;
         }

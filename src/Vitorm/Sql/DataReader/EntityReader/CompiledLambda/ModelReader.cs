@@ -14,7 +14,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
         public string argUniqueKey { get; set; }
         public Type entityType { get; }
 
-        List<(IColumnDescriptor columnDescriptor, SqlFieldReader sqlFieldReader)> properties = new();
+        List<(IPropertyDescriptor columnDescriptor, SqlFieldReader sqlFieldReader)> properties = new();
 
 
         public ModelReader(SqlColumns sqlColumns, ISqlTranslateService sqlTranslateService, string tableName, string argUniqueKey, string argName, IEntityDescriptor entityDescriptor)
@@ -24,7 +24,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
 
             this.entityType = entityDescriptor.entityType;
 
-            foreach (var column in entityDescriptor.allColumns)
+            foreach (var column in entityDescriptor.allProperties)
             {
                 var sqlColumnIndex = sqlColumns.AddSqlColumnAndGetIndex(sqlTranslateService, tableName, columnDescriptor: column);
 

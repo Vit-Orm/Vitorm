@@ -163,7 +163,7 @@ namespace Vitorm.Sql
             if (reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(entityDescriptor.entityType);
-                foreach (var column in entityDescriptor.allColumns)
+                foreach (var column in entityDescriptor.allProperties)
                 {
                     var value = TypeUtil.ConvertToType(reader[column.columnName], column.type);
                     if (value != null)

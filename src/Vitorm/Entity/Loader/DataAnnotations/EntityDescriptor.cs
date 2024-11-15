@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Linq;
 
+using Vitorm.Entity.PropertyType;
+
 namespace Vitorm.Entity.Loader.DataAnnotations
 {
     public partial class EntityDescriptor : IEntityDescriptor
     {
-        public EntityDescriptor(Type entityType, IColumnDescriptor[] allColumns, string tableName, string schema = null)
+        public EntityDescriptor(IPropertyObjectType propertyType, string tableName, string schema = null)
         {
-            this.entityType = entityType;
+            this.propertyType = propertyType;
             this.tableName = tableName;
             this.schema = schema;
 
-            this.key = allColumns.FirstOrDefault(m => m.isKey);
-            this.columns = allColumns.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
-            this.allColumns = allColumns.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            var allProperties = propertyType.properties;
+
+            this.key = allProperties.FirstOrDefault(m => m.isKey);
+            this.properties = allProperties.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            this.allProperties = allProperties.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
         }
 
+        public IPropertyObjectType propertyType { get; protected set; }
 
-        public Type entityType { get; protected set; }
+        public Type entityType => propertyType?.type;
         public string tableName { get; protected set; }
         public string schema { get; protected set; }
 
@@ -29,15 +34,15 @@ namespace Vitorm.Entity.Loader.DataAnnotations
         /// <summary>
         /// primary key
         /// </summary>
-        public IColumnDescriptor key { get; protected set; }
+        public IPropertyDescriptor key { get; protected set; }
 
         /// <summary>
         /// not include primary key
         /// </summary>
-        public IColumnDescriptor[] columns { get; protected set; }
+        public IPropertyDescriptor[] properties { get; protected set; }
 
 
-        public IColumnDescriptor[] allColumns { get; protected set; }
+        public IPropertyDescriptor[] allProperties { get; protected set; }
 
 
     }

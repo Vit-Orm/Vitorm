@@ -1,18 +1,31 @@
 ﻿using System;
 
+using Vitorm.Entity.PropertyType;
+
 namespace Vitorm.Entity
 {
-    public interface IColumnDescriptor
+    public interface IPropertyDescriptor
     {
         Type type { get; }
         /// <summary>
         /// property name in Entity Type
         /// </summary>
         string propertyName { get; }
+
+        IPropertyType propertyType { get; }
+
+
+        void SetValue(object entity, object value);
+        object GetValue(object entity);
+
+
+        #region datasource properties
+
         /// <summary>
         /// column name in database
         /// </summary>
         string columnName { get; }
+
         bool isKey { get; }
 
         /// <summary>
@@ -36,9 +49,8 @@ namespace Vitorm.Entity
         /// </summary>
         int? columnLength { get; }
 
+        #endregion
 
-        void SetValue(object entity, object value);
-        object GetValue(object entity);
 
 
     }

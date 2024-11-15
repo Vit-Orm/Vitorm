@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 
 namespace Vitorm
@@ -27,6 +28,13 @@ namespace Vitorm
             return IsNullable(type);
         }
 
+
+        public static Type GetElementTypeFromArray(Type type)
+        {
+            if (type.IsArray) return type.GetElementType();
+            if (type.IsGenericType && typeof(ICollection).IsAssignableFrom(type)) return type.GetGenericArguments()[0];
+            return null;
+        }
 
 
         public static object ConvertToType(object value, Type type)

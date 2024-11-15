@@ -24,15 +24,15 @@ namespace Vitorm.Entity
         /// <summary>
         /// primary key
         /// </summary>
-        public IColumnDescriptor key => originEntityDescriptor?.key;
+        public IPropertyDescriptor key => originEntityDescriptor?.key;
 
         /// <summary>
         /// not include primary key
         /// </summary>
-        public IColumnDescriptor[] columns => originEntityDescriptor?.columns;
+        public IPropertyDescriptor[] properties => originEntityDescriptor?.properties;
 
 
-        public IColumnDescriptor[] allColumns => originEntityDescriptor?.allColumns;
+        public IPropertyDescriptor[] allProperties => originEntityDescriptor?.allProperties;
 
 
     }

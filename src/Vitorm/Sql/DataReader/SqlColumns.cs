@@ -21,7 +21,7 @@ namespace Vitorm.Sql.DataReader
         /// <param name="tableName"></param>
         /// <param name="columnDescriptor"></param>
         /// <returns></returns>
-        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslateService, string tableName, IColumnDescriptor columnDescriptor)
+        public int AddSqlColumnAndGetIndex(ISqlTranslateService sqlTranslateService, string tableName, IPropertyDescriptor columnDescriptor)
         {
             var sqlColumnName = sqlTranslateService.GetSqlField(tableName, columnDescriptor.columnName);
 
@@ -97,7 +97,7 @@ namespace Vitorm.Sql.DataReader
         {
             // or table alias
             public string tableName;
-            public IColumnDescriptor columnDescriptor;
+            public IPropertyDescriptor columnDescriptor;
             public ExpressionNode_Member member;
 
             public string sqlColumnName;

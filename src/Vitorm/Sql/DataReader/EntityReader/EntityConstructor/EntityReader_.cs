@@ -10,13 +10,13 @@ namespace Vitorm.Sql.DataReader.EntityReader.EntityConstructor
     public class EntityReader_ : IValueReader
     {
         protected Type entityType;
-        protected List<(IColumnDescriptor columnDescriptor, SqlFieldReader sqlFieldReader)> properties = new();
+        protected List<(IPropertyDescriptor columnDescriptor, SqlFieldReader sqlFieldReader)> properties = new();
 
         public EntityReader_(EntityReaderConfig config, string tableName, Type entityType, IEntityDescriptor entityDescriptor)
         {
             this.entityType = entityDescriptor.entityType;
 
-            foreach (var column in entityDescriptor.allColumns)
+            foreach (var column in entityDescriptor.allProperties)
             {
                 var sqlColumnIndex = config.sqlColumns.AddSqlColumnAndGetIndex(config.sqlTranslateService, tableName, columnDescriptor: column);
 

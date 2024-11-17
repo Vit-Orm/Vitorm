@@ -127,7 +127,7 @@ namespace Vitorm.Sql
             if (reader is DbDataReader dataReader ? await dataReader.ReadAsync() : reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(entityDescriptor.entityType);
-                foreach (var column in entityDescriptor.allProperties)
+                foreach (var column in entityDescriptor.properties)
                 {
                     var value = TypeUtil.ConvertToType(reader[column.columnName], column.type);
                     if (value != null)

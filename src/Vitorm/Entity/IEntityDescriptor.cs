@@ -1,9 +1,12 @@
 ﻿using System;
 
+using Vitorm.Entity.PropertyType;
+
 namespace Vitorm.Entity
 {
     public interface IEntityDescriptor
     {
+        IPropertyObjectType propertyType { get; }
         Type entityType { get; }
         string schema { get; }
         string tableName { get; }
@@ -16,11 +19,11 @@ namespace Vitorm.Entity
         /// <summary>
         /// columns except primary key
         /// </summary>
-        public IPropertyDescriptor[] properties { get; }
+        public IPropertyDescriptor[] propertiesWithoutKey { get; }
 
         /// <summary>
         /// columns including primary key
         /// </summary>
-        public IPropertyDescriptor[] allProperties { get; }
+        public IPropertyDescriptor[] properties { get; }
     }
 }

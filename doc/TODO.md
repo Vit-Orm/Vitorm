@@ -2,7 +2,7 @@
 
 
 # group then orderBy aggregate column
-> [QueryTranslator] not suported MethodCall: Sum
+> [QueryTranslator] not supported MethodCall: Sum
 ``` csharp
 using var dbContext = DataSource.CreateDbContext();
 var userQuery = dbContext.Query<User>();

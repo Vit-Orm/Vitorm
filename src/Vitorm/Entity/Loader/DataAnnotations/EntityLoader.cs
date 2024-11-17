@@ -92,7 +92,7 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                 typeCache[propertyClrType] = propertyType;
 
                 propertyType.elementPropertyType = ConvertToPropertyType(arrayElementType, typeCache);
-
+                return propertyType;
             }
 
             // object

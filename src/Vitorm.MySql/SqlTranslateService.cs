@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `User` (
                 sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
-            entityDescriptor.properties?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
+            entityDescriptor.propertiesWithoutKey?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
 CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
@@ -280,7 +280,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 // insert into user(name,fatherId,motherId) values('',0,0); select last_insert_id();
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.properties);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.propertiesWithoutKey);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
 
                 // get generated id
@@ -292,7 +292,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 // insert into user(name,fatherId,motherId) values('',0,0);
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allProperties);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.properties);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
                 return (sql, GetSqlParams);
             }

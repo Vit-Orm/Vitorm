@@ -16,8 +16,8 @@ namespace Vitorm.Entity.Loader.DataAnnotations
             var allProperties = propertyType.properties;
 
             this.key = allProperties.FirstOrDefault(m => m.isKey);
-            this.properties = allProperties.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
-            this.allProperties = allProperties.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            this.propertiesWithoutKey = allProperties.Where(m => !m.isKey).OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
+            this.properties = allProperties.OrderBy(col => col.columnOrder ?? int.MaxValue).ToArray();
         }
 
         public IPropertyObjectType propertyType { get; protected set; }
@@ -39,10 +39,10 @@ namespace Vitorm.Entity.Loader.DataAnnotations
         /// <summary>
         /// not include primary key
         /// </summary>
+        public IPropertyDescriptor[] propertiesWithoutKey { get; protected set; }
+
+
         public IPropertyDescriptor[] properties { get; protected set; }
-
-
-        public IPropertyDescriptor[] allProperties { get; protected set; }
 
 
     }

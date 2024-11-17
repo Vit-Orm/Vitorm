@@ -16,7 +16,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.EntityConstructor
         {
             this.entityType = entityDescriptor.entityType;
 
-            foreach (var column in entityDescriptor.allProperties)
+            foreach (var column in entityDescriptor.properties)
             {
                 var sqlColumnIndex = config.sqlColumns.AddSqlColumnAndGetIndex(config.sqlTranslateService, tableName, columnDescriptor: column);
 

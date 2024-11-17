@@ -24,7 +24,7 @@ namespace Vitorm.Sql.DataReader.EntityReader.CompiledLambda
 
             this.entityType = entityDescriptor.entityType;
 
-            foreach (var column in entityDescriptor.allProperties)
+            foreach (var column in entityDescriptor.properties)
             {
                 var sqlColumnIndex = sqlColumns.AddSqlColumnAndGetIndex(sqlTranslateService, tableName, columnDescriptor: column);
 

@@ -4,6 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
+using Vitorm.Entity.PropertyType;
+
+using ValueType = Vitorm.Entity.PropertyType.PropertyValueType;
+
 namespace Vitorm.Entity.Loader.DataAnnotations
 {
     public class EntityLoader : IEntityLoader
@@ -52,25 +56,57 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                 tableName = entityType.Name;
             }
 
-            var columns = LoadColumns(entityType);
+            var propertyType = ConvertToObjectType(entityType, new());
 
             // key
-            if (!strictMode && !columns.Any(col => col.isKey))
+            if (!strictMode && !propertyType.properties.Any(col => col.isKey))
             {
                 var keyNames = new[] { "id", tableName + "id" };
-                var keyColumn = columns.FirstOrDefault(col => keyNames.Contains(col.columnName, StringComparer.OrdinalIgnoreCase));
+                var keyColumn = (PropertyDescriptor)propertyType.properties.FirstOrDefault(col => keyNames.Contains(col.columnName, StringComparer.OrdinalIgnoreCase));
                 if (keyColumn != null) keyColumn.isKey = true;
             }
 
-            IColumnDescriptor[] allColumns = columns.Select(m => (IColumnDescriptor)m).ToArray();
-
-            return (true, new EntityDescriptor(entityType, allColumns, tableName, schema));
+            return (true, new EntityDescriptor(propertyType, tableName, schema));
         }
 
 
-        public static List<ColumnDescriptor> LoadColumns(Type entityType)
+        public static IPropertyType ConvertToPropertyType(Type propertyClrType, Dictionary<Type, IPropertyType> typeCache)
         {
-            return entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            // value
+            if (TypeUtil.IsValueType(propertyClrType))
+            {
+                return new ValueType(propertyClrType);
+            }
+
+            // try get for cache
+            {
+                if (typeCache?.TryGetValue(propertyClrType, out IPropertyType propertyType) == true) return propertyType;
+            }
+
+
+            // array
+            var arrayElementType = TypeUtil.GetElementTypeFromArray(propertyClrType);
+            if (arrayElementType != null)
+            {
+                var propertyType = new PropertyArrayType(propertyClrType);
+                typeCache[propertyClrType] = propertyType;
+
+                propertyType.elementPropertyType = ConvertToPropertyType(arrayElementType, typeCache);
+                return propertyType;
+            }
+
+            // object
+            return ConvertToObjectType(propertyClrType, typeCache);
+
+        }
+
+
+        public static PropertyObjectType ConvertToObjectType(Type propertyClrType, Dictionary<Type, IPropertyType> typeCache)
+        {
+            var propertyType = new PropertyObjectType(propertyClrType);
+            typeCache[propertyClrType] = propertyType;
+
+            var propertyDescriptors = propertyClrType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(propertyInfo =>
                 {
                     if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>(inherit: true) != null) return null;
@@ -102,13 +138,17 @@ namespace Vitorm.Entity.Loader.DataAnnotations
                         }
                     }
 
-                    return new ColumnDescriptor(
-                        propertyInfo, columnName: columnName,
+                    return new PropertyDescriptor(
+                        propertyInfo, propertyType: ConvertToPropertyType(propertyInfo.PropertyType, typeCache),
+                        columnName: columnName,
                         isKey: isKey, isIdentity: isIdentity, isNullable: isNullable,
                         columnDbType: columnDbType, columnLength: columnLength,
                         columnOrder: columnOrder
                         );
-                }).Where(column => column != null).ToList();
+                }).Where(column => column != null);
+
+            propertyType.properties = propertyDescriptors.Select(m => (IPropertyDescriptor)m).ToArray();
+            return propertyType;
         }
 
 

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Vitorm.Entity;
 using Vitorm.Entity.Loader.DataAnnotations;
+using Vitorm.Entity.PropertyType;
 
 namespace Vitorm.MsTest.CommonTest
 {
@@ -120,7 +121,7 @@ namespace Vitorm.MsTest.CommonTest
             {
                 if (!GetTableName(entityType, out var tableName, out var schema)) return default;
 
-                IColumnDescriptor[] allColumns = entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                var propertyDescriptors = entityType?.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(propertyInfo =>
                     {
                         var labels = propertyInfo?.GetCustomAttributes<LabelAttribute>();
@@ -152,15 +153,19 @@ namespace Vitorm.MsTest.CommonTest
                             }
                         }
 
-                        return new ColumnDescriptor(
-                            propertyInfo, columnName: columnName,
+                        return new PropertyDescriptor(
+                            propertyInfo, propertyType: new PropertyValueType(propertyInfo.PropertyType),
+                            columnName: columnName,
                             isKey: isKey, isIdentity: isIdentity, isNullable: isNullable,
                             columnDbType: columnDbType,
                             columnOrder: columnOrder
                             );
-                    }).Where(column => column != null).ToArray();
+                    }).Where(column => column != null);
 
-                return (true, new EntityDescriptor(entityType, allColumns, tableName, schema));
+                var propertyType = new PropertyObjectType(entityType);
+                propertyType.properties = propertyDescriptors.Select(m => (IPropertyDescriptor)m).ToArray();
+
+                return (true, new EntityDescriptor(propertyType, tableName, schema));
             }
         }
         #endregion

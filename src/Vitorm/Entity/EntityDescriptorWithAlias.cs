@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Vitorm.Entity.PropertyType;
+
 namespace Vitorm.Entity
 {
     public partial class EntityDescriptorWithAlias : IEntityDescriptor
@@ -11,7 +13,7 @@ namespace Vitorm.Entity
             this.tableName = tableName;
         }
 
-
+        public IPropertyObjectType propertyType => originEntityDescriptor.propertyType;
         public Type entityType => originEntityDescriptor?.entityType;
         public string tableName { get; protected set; }
         public string schema => originEntityDescriptor?.schema;
@@ -24,15 +26,15 @@ namespace Vitorm.Entity
         /// <summary>
         /// primary key
         /// </summary>
-        public IColumnDescriptor key => originEntityDescriptor?.key;
+        public IPropertyDescriptor key => originEntityDescriptor?.key;
 
         /// <summary>
         /// not include primary key
         /// </summary>
-        public IColumnDescriptor[] columns => originEntityDescriptor?.columns;
+        public IPropertyDescriptor[] propertiesWithoutKey => originEntityDescriptor?.propertiesWithoutKey;
 
 
-        public IColumnDescriptor[] allColumns => originEntityDescriptor?.allColumns;
+        public IPropertyDescriptor[] properties => originEntityDescriptor?.properties;
 
 
     }

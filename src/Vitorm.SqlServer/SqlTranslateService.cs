@@ -229,7 +229,7 @@ if object_id(N'[dbo].[User]', N'U') is null
                 sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
-            entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
+            entityDescriptor.propertiesWithoutKey?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
 if object_id(N'{DelimitTableName(entityDescriptor)}', N'U') is null
@@ -238,7 +238,7 @@ create table {DelimitTableName(entityDescriptor)} (
 )";
 
 
-            string GetColumnSql(IColumnDescriptor column)
+            string GetColumnSql(IPropertyDescriptor column)
             {
                 var isNullable = !column.isKey && column.isNullable;
                 var columnDbType = column.columnDbType ?? GetColumnDbType(column);
@@ -280,7 +280,7 @@ create table {DelimitTableName(entityDescriptor)} (
             [typeof(Guid)] = "uniqueIdentifier",
 
         };
-        protected override string GetColumnDbType(IColumnDescriptor column)
+        protected override string GetColumnDbType(IPropertyDescriptor column)
         {
             Type type = column.type;
 
@@ -320,7 +320,7 @@ create table {DelimitTableName(entityDescriptor)} (
             if (key == null) return EAddType.noKeyColumn;
 
             var keyValue = key.GetValue(entity);
-            var keyIsEmpty = keyValue is null || keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+            var keyIsEmpty = keyValue is null || keyValue.Equals(TypeUtil.GetDefaultValue(arg.entityDescriptor.key.type));
 
             if (key.isIdentity)
             {
@@ -338,7 +338,7 @@ create table {DelimitTableName(entityDescriptor)} (
                 // insert into UserInfo(name) output inserted.guid values('dd');
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.columns);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.propertiesWithoutKey);
                 var sqlOutput = "output inserted." + DelimitIdentifier(entityDescriptor.key.columnName);
 
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) {sqlOutput} values({string.Join(",", sqlColumnParams)});";
@@ -349,7 +349,7 @@ create table {DelimitTableName(entityDescriptor)} (
                 // insert into user(name,fatherId,motherId) values('',0,0);
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.properties);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
                 return (sql, GetSqlParams);
             }

@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Reflection;
 
+using Vitorm.Entity.PropertyType;
+
 namespace Vitorm.Entity.Loader.DataAnnotations
 {
-    public class ColumnDescriptor : IColumnDescriptor
+    public class PropertyDescriptor : IPropertyDescriptor
     {
-        public ColumnDescriptor(
-            PropertyInfo propertyInfo, string columnName,
+        public PropertyDescriptor(
+            PropertyInfo propertyInfo, IPropertyType propertyType,
+            string columnName,
             bool isKey, bool isIdentity, bool isNullable,
             string columnDbType, int? columnLength = null,
             int? columnOrder = null, bool? isIndex = null
             )
         {
             this.propertyInfo = propertyInfo;
-            type = propertyInfo.PropertyType;
+            this.propertyType = propertyType;
 
             this.columnName = columnName;
 
@@ -29,7 +32,9 @@ namespace Vitorm.Entity.Loader.DataAnnotations
         }
 
         readonly PropertyInfo propertyInfo;
-        public Type type { get; private set; }
+        public Type type => propertyType?.type;
+
+        public IPropertyType propertyType { get; private set; }
 
         /// <summary>
         /// property name in Entity Type

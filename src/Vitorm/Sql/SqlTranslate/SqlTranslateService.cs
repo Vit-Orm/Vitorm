@@ -105,7 +105,7 @@ namespace Vitorm.Sql.SqlTranslate
             return GetSqlField(member.objectValue?.parameterName ?? member.parameterName, memberName);
         }
 
-        protected virtual string GetColumnDbType(IColumnDescriptor column) => GetColumnDbType(column.type);
+        protected virtual string GetColumnDbType(IPropertyDescriptor column) => GetColumnDbType(column.type);
         protected abstract string GetColumnDbType(Type type);
 
 
@@ -314,7 +314,7 @@ namespace Vitorm.Sql.SqlTranslate
                                 }
 
                         }
-                        throw new NotSupportedException("[QueryTranslator] not suported MethodCall: " + methodCall.methodName);
+                        throw new NotSupportedException("[QueryTranslator] not supported MethodCall: " + methodCall.methodName);
                     }
 
                 #region Read Value
@@ -361,7 +361,7 @@ namespace Vitorm.Sql.SqlTranslate
                     }
                     #endregion
             }
-            throw new NotSupportedException("[QueryTranslator] not suported nodeType: " + node.nodeType);
+            throw new NotSupportedException("[QueryTranslator] not supported nodeType: " + node.nodeType);
         }
 
 
@@ -400,7 +400,7 @@ namespace Vitorm.Sql.SqlTranslate
         public static bool Entity_HasKeyValue(SqlTranslateArgument arg, object entity)
         {
             var keyValue = arg.entityDescriptor?.key.GetValue(entity);
-            return keyValue is not null && !keyValue.Equals(TypeUtil.DefaultValue(arg.entityDescriptor.key.type));
+            return keyValue is not null && !keyValue.Equals(TypeUtil.GetDefaultValue(arg.entityDescriptor.key.type));
         }
         public virtual bool HasKeyValue(SqlTranslateArgument arg, object entity) => hasKeyValue?.Invoke(arg, entity) == true;
         public virtual EAddType Entity_GetAddType(SqlTranslateArgument arg, object entity)
@@ -416,7 +416,7 @@ namespace Vitorm.Sql.SqlTranslate
             //return EAddType.unexpectedEmptyKey;
         }
 
-        protected virtual (List<string> columnNames, List<string> sqlColumnParams, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd_Columns(SqlTranslateArgument arg, IColumnDescriptor[] columns)
+        protected virtual (List<string> columnNames, List<string> sqlColumnParams, Func<object, Dictionary<string, object>> GetSqlParams) PrepareAdd_Columns(SqlTranslateArgument arg, IPropertyDescriptor[] columns)
         {
             // #1 GetSqlParams 
             Dictionary<string, object> GetSqlParams(object entity)
@@ -452,7 +452,7 @@ namespace Vitorm.Sql.SqlTranslate
                 // insert into user(name,fatherId,motherId) values('',0,0);
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.properties);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
                 return (sql, GetSqlParams);
             }
@@ -501,7 +501,7 @@ namespace Vitorm.Sql.SqlTranslate
             Dictionary<string, object> GetSqlParams(object entity)
             {
                 var sqlParam = new Dictionary<string, object>();
-                foreach (var column in entityDescriptor.allColumns)
+                foreach (var column in entityDescriptor.properties)
                 {
                     var columnName = column.columnName;
                     var value = column.GetValue(entity);
@@ -515,7 +515,7 @@ namespace Vitorm.Sql.SqlTranslate
             // #2 columns
             List<string> columnsToUpdate = new List<string>();
             string columnName;
-            foreach (var column in entityDescriptor.columns)
+            foreach (var column in entityDescriptor.propertiesWithoutKey)
             {
                 columnName = column.columnName;
                 columnsToUpdate.Add($"{DelimitIdentifier(columnName)}={GenerateParameterName(columnName)}");

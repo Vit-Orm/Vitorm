@@ -189,14 +189,14 @@ CREATE TABLE IF NOT EXISTS `User` (
                 sqlFields.Add(GetColumnSql(entityDescriptor.key));
 
             // #2 columns
-            entityDescriptor.columns?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
+            entityDescriptor.propertiesWithoutKey?.ForEach(column => sqlFields.Add(GetColumnSql(column)));
 
             return $@"
 CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
   {string.Join(",\r\n  ", sqlFields)}
 )";
 
-            string GetColumnSql(IColumnDescriptor column)
+            string GetColumnSql(IPropertyDescriptor column)
             {
                 var isNullable = !column.isKey && column.isNullable;
                 var columnDbType = column.columnDbType ?? GetColumnDbType(column);
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
             [typeof(Guid)] = "binary(16)",
 
         };
-        protected override string GetColumnDbType(IColumnDescriptor column)
+        protected override string GetColumnDbType(IPropertyDescriptor column)
         {
             Type type = column.type;
 
@@ -280,7 +280,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 // insert into user(name,fatherId,motherId) values('',0,0); select last_insert_id();
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.columns);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.propertiesWithoutKey);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
 
                 // get generated id
@@ -292,7 +292,7 @@ CREATE TABLE IF NOT EXISTS {DelimitTableName(entityDescriptor)} (
                 // insert into user(name,fatherId,motherId) values('',0,0);
 
                 var entityDescriptor = arg.entityDescriptor;
-                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.allColumns);
+                var (columnNames, sqlColumnParams, GetSqlParams) = PrepareAdd_Columns(arg, entityDescriptor.properties);
                 string sql = $@"insert into {DelimitTableName(entityDescriptor)}({string.Join(",", columnNames)}) values({string.Join(",", sqlColumnParams)});";
                 return (sql, GetSqlParams);
             }

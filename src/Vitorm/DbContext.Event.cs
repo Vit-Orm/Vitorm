@@ -7,19 +7,20 @@ namespace Vitorm
     {
         public static Action<ExecuteEventArgument> event_DefaultOnExecuting;
         public Action<ExecuteEventArgument> event_OnExecuting = event_DefaultOnExecuting;
-    }
 
-    public static class DbContext_Extensions_Event
-    {
-        public static void Event_OnExecuting(this DbContext dbContext, string executeString = null, object param = null)
+        public virtual void Event_OnExecuting(string executeString = null, object param = null)
         {
-            if (dbContext.event_OnExecuting != null)
-                dbContext.event_OnExecuting(new(dbContext, executeString, param));
+            event_OnExecuting?.Invoke(new(this, executeString, param));
         }
-        public static void Event_OnExecuting(this DbContext dbContext, ExecuteEventArgument arg)
+
+        public virtual void Event_OnExecuting(ExecuteEventArgument arg)
         {
-            if (dbContext.event_OnExecuting != null)
-                dbContext.event_OnExecuting(arg);
+            event_OnExecuting?.Invoke(arg);
+        }
+
+        public virtual void Event_OnExecuting(Lazy<ExecuteEventArgument> arg)
+        {
+            event_OnExecuting?.Invoke(new ExecuteEventArgument_Lazy(arg));
         }
     }
 
@@ -31,14 +32,17 @@ namespace Vitorm
             this.dbContext = dbContext;
             this.executeString = executeString;
             this.param = param;
-            this.extraParam = extraParam;
+            this._extraParam = extraParam;
         }
 
-        public DbContext dbContext;
-        public string executeString;
-        public object param;
-        public Dictionary<string, object> extraParam;
-        public object GetExtraParam(string key) => extraParam?.TryGetValue(key, out var value) == true ? value : null;
+
+        public virtual DbContext dbContext { get; protected set; }
+        public virtual string executeString { get; protected set; }
+        public virtual object param { get; protected set; }
+
+        protected Dictionary<string, object> _extraParam;
+        public virtual Dictionary<string, object> extraParam { get => _extraParam; set => _extraParam = value; }
+        public virtual object GetExtraParam(string key) => extraParam?.TryGetValue(key, out var value) == true ? value : null;
 
         public ExecuteEventArgument SetExtraParam(string key, object param)
         {
@@ -46,6 +50,32 @@ namespace Vitorm
             extraParam[key] = param;
             return this;
         }
+    }
+
+    public class ExecuteEventArgument_Lazy : ExecuteEventArgument
+    {
+        protected Lazy<ExecuteEventArgument> _lazyArg;
+
+        public ExecuteEventArgument_Lazy(Lazy<ExecuteEventArgument> lazyArg)
+        {
+            this._lazyArg = lazyArg;
+        }
+
+        public override DbContext dbContext => _lazyArg.Value?.dbContext;
+        public override string executeString => _lazyArg.Value?.executeString;
+        public override object param => _lazyArg.Value?.dbContext;
+        public override Dictionary<string, object> extraParam
+        {
+            get
+            {
+                return _lazyArg.Value?.extraParam;
+            }
+            set
+            {
+                _lazyArg.Value.extraParam = value;
+            }
+        }
+
     }
 
 }

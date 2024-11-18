@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 
 namespace Vitorm
@@ -28,6 +29,25 @@ namespace Vitorm
         }
 
 
+        /// <summary>
+        /// is Array or List(SortedSet...)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsArrayType(Type type)
+        {
+            if (type.IsArray) return true;
+            if (type.IsGenericType && typeof(ICollection).IsAssignableFrom(type)) return true;
+            return false;
+        }
+
+        public static Type GetElementTypeFromArray(Type type)
+        {
+            if (type.IsArray) return type.GetElementType();
+            if (type.IsGenericType && typeof(ICollection).IsAssignableFrom(type)) return type.GetGenericArguments()[0];
+            return null;
+        }
+
 
         public static object ConvertToType(object value, Type type)
         {
@@ -48,7 +68,7 @@ namespace Vitorm
         }
 
 
-        public static object DefaultValue(Type type)
+        public static object GetDefaultValue(Type type)
         {
             if (null == type || !type.IsValueType) return null;
             return Activator.CreateInstance(type);

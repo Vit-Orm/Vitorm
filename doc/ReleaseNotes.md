@@ -1,5 +1,11 @@
 ﻿# Vitorm ReleaseNotes
 
+-----------------------
+# 2.3.0
+
+- [Vitorm] support nested entity and rename Column to Property
+- [Vitorm] IEntityDescriptor, rename properties/allProperties to propertiesWithoutKey/properties
+- [Vitorm] DbContext, change method Event_OnExecuting to virtual instance from static extension, and support Laze<executeString>
 
 -----------------------
 # 2.2.0

@@ -4,6 +4,7 @@ using System.Data;
 using System.Threading.Tasks;
 
 using Vitorm.Sql.Transaction;
+using Vitorm.Transaction;
 
 namespace Vitorm.Sql
 {
@@ -13,11 +14,11 @@ namespace Vitorm.Sql
         {
             try
             {
-                transactionScope?.Dispose();
+                transactionManager?.Dispose();
             }
             finally
             {
-                transactionScope = null;
+                transactionManager = null;
                 try
                 {
                     _dbConnection?.Dispose();
@@ -80,16 +81,16 @@ namespace Vitorm.Sql
 
 
         #region Transaction
-        public virtual Func<SqlDbContext, ITransactionScope> createTransactionScope { set; get; }
-                    = (dbContext) => new SqlTransactionScope(dbContext);
-        protected virtual ITransactionScope transactionScope { get; set; }
+        public virtual Func<SqlDbContext, ITransactionManager> createTransactionManager { set; get; }
+                    = (dbContext) => new SqlTransactionManager(dbContext);
+        protected virtual ITransactionManager transactionManager { get; set; }
 
-        public virtual IDbTransaction BeginTransaction()
+        public override ITransaction BeginTransaction()
         {
-            transactionScope ??= createTransactionScope(this);
-            return transactionScope.BeginTransaction();
+            transactionManager ??= createTransactionManager(this);
+            return transactionManager.BeginTransaction();
         }
-        public virtual IDbTransaction GetCurrentTransaction() => transactionScope?.GetCurrentTransaction();
+        public virtual IDbTransaction GetDbTransaction() => (transactionManager as SqlTransactionManager)?.GetDbTransaction();
 
         #endregion
 
@@ -108,7 +109,7 @@ namespace Vitorm.Sql
             this.Event_OnExecuting(sql, param);
 
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {
@@ -125,7 +126,7 @@ namespace Vitorm.Sql
             this.Event_OnExecuting(sql, param);
 
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {
@@ -142,7 +143,7 @@ namespace Vitorm.Sql
             this.Event_OnExecuting(sql, param);
 
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {
@@ -170,7 +171,7 @@ namespace Vitorm.Sql
         public virtual async Task<int> ExecuteAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {
@@ -185,7 +186,7 @@ namespace Vitorm.Sql
         public virtual async Task<IDataReader> ExecuteReaderAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {
@@ -200,7 +201,7 @@ namespace Vitorm.Sql
         public virtual async Task<object> ExecuteScalarAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
         {
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetCurrentTransaction();
+            var transaction = GetDbTransaction();
 
             if (useReadOnly && transaction == null)
             {

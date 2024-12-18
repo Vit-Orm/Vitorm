@@ -1,6 +1,12 @@
 ﻿# Vitorm ReleaseNotes
 
 -----------------------
+# 2.4.0
+- [Vitorm] DbContext, new method GetEntityDescriptorFromCache
+- [Vitorm] move BeginTransaction to interface and refactor Transaction
+- [Vitorm] rename GetCurrentTransaction to GetDbTransaction
+
+-----------------------
 # 2.3.0
 
 - [Vitorm] support nested entity and rename Column to Property

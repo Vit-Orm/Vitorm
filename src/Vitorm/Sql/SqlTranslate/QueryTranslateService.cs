@@ -46,16 +46,13 @@ namespace Vitorm.Sql.SqlTranslate
                     }
                 case nameof(Queryable.FirstOrDefault) or nameof(Queryable.First) or nameof(Queryable.LastOrDefault) or nameof(Queryable.Last):
                     {
-                        if (stream.skip.HasValue)
+                        if (stream.method.Contains("Last"))
                         {
-                            if (stream.method.Contains("Last"))
+                            if (stream.skip.HasValue)
                             {
                                 stream.skip = stream.skip.Value + (stream.take ?? 0) - 1;
                             }
-                        }
-                        else
-                        {
-                            if (stream.method.Contains("Last"))
+                            else
                             {
                                 ReverseOrder(arg, stream);
                             }

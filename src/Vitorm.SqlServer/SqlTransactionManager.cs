@@ -2,52 +2,52 @@
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
+using Vitorm.Transaction;
 
-using SqlTransaction = Microsoft.Data.Sqlite.SqliteTransaction;
+using SqlTransaction = Microsoft.Data.SqlClient.SqlTransaction;
 
-namespace Vitorm.Sqlite
+namespace Vitorm.SqlServer
 {
-    // sqlite/transactions  https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/transactions  
-    public class SqlTransactionScope : Vitorm.Sql.Transaction.SqlTransactionScope
+    public class SqlTransactionManager : Vitorm.Sql.Transaction.SqlTransactionManager
     {
         int savePointCount = 0;
-        public DbTransactionWrap CreateTransactionSavePoint(IDbTransaction originalTransaction)
+        public Sql.Transaction.SqlTransaction CreateTransactionSavePoint(IDbTransaction originalTransaction)
         {
             var savePointName = "tran" + savePointCount++;
-            return new DbTransactionWrapSavePoint(originalTransaction, savePointName);
+            return new TransactionSavePoint(originalTransaction, savePointName);
         }
-        public SqlTransactionScope(SqlDbContext dbContext) : base(dbContext)
+        public SqlTransactionManager(SqlDbContext dbContext) : base(dbContext)
         {
         }
 
-        public override IDbTransaction BeginTransaction()
+        public override ITransaction BeginTransaction()
         {
-            DbTransactionWrap transactionWrap;
-            IDbTransaction originalTransaction = GetCurrentTransaction();
+            Sql.Transaction.SqlTransaction transaction;
+            IDbTransaction originalTransaction = GetDbTransaction();
             if (originalTransaction == null)
             {
                 var dbConnection = dbContext.dbConnection;
                 if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
                 originalTransaction = dbConnection.BeginTransaction();
 
-                transactionWrap = new DbTransactionWrap(originalTransaction);
+                transaction = new Sql.Transaction.SqlTransaction(originalTransaction);
             }
             else
             {
-                transactionWrap = CreateTransactionSavePoint(originalTransaction);
+                transaction = CreateTransactionSavePoint(originalTransaction);
             }
 
-            transactions.Push(transactionWrap);
-            return transactionWrap;
+            transactions.Push(transaction);
+            return transaction;
         }
 
     }
 
-    public class DbTransactionWrapSavePoint : DbTransactionWrap
+    public class TransactionSavePoint : Sql.Transaction.SqlTransaction
     {
         public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
         readonly string savePointName;
-        public DbTransactionWrapSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
+        public TransactionSavePoint(IDbTransaction transaction, string savePointName) : base(transaction)
         {
             this.savePointName = savePointName;
             sqlTran.Save(savePointName);
@@ -55,7 +55,9 @@ namespace Vitorm.Sqlite
 
         public override void Commit()
         {
-            sqlTran.Release(savePointName);
+            // no need to commit savepoint for sqlserver, ref: https://learn.microsoft.com/en-us/dotnet/api/microsoft.data.sqlclient.sqltransaction.save
+
+            //sqlTran.Commit(savePointName);
             TransactionState = ETransactionState.Committed;
         }
 

@@ -5,6 +5,7 @@
 - [Vitorm] DbContext, new method GetEntityDescriptorFromCache
 - [Vitorm] move BeginTransaction to interface and refactor Transaction
 - [Vitorm] rename GetCurrentTransaction to GetDbTransaction
+- upgrade net to 8.0
 
 -----------------------
 # 2.3.0

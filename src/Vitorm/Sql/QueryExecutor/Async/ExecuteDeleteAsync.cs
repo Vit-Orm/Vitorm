@@ -30,7 +30,7 @@ namespace Vitorm.Sql.QueryExecutor
             combinedStream.method = method;
 
             // #3 Execute
-            return await dbContext.ExecuteAsync(sql: sql, param: arg.sqlParam);
+            return await dbContext.ExecuteAsync(sql: sql, parameters: arg.sqlParam);
         }
     }
 }

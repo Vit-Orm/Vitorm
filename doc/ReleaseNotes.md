@@ -6,6 +6,10 @@
 - [Vitorm] move BeginTransaction to interface and refactor Transaction
 - [Vitorm] rename GetCurrentTransaction to GetDbTransaction
 - upgrade net to 8.0
+- [Vitorm] move SqlDataProvider to namespace Vitorm.Sql.DataProvider
+- [Vitorm] move IDbDataReader to namespace Vitorm.Sql.DataReader
+- [Vitorm] support StoredProcedure in SqlExecutor and SqlDbContext
+- [Vitorm] IDataReader extension method:  ReadEntity
 
 -----------------------
 # 2.3.0

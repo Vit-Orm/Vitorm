@@ -4,6 +4,7 @@ using System.Reflection;
 
 using Vit.Linq;
 
+using Vitorm.Sql.DataReader;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 
@@ -56,7 +57,7 @@ namespace Vitorm.Sql.QueryExecutor
                 // #3 read data
                 {
                     var sql = sqlCount + " ;\r\n" + sqlToList;
-                    using var reader = dbContext.ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
+                    using var reader = dbContext.ExecuteReader(sql: sql, parameters: arg.sqlParam, useReadOnly: true);
                     reader.Read();
                     totalCount = Convert.ToInt32(reader[0]);
                     reader.NextResult();

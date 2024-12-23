@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Vit.Linq;
 
 using Vitorm.Sql.DataReader.EntityReader;
+using Vitorm.Sql.SqlExecute;
 using Vitorm.Sql.SqlTranslate;
 using Vitorm.StreamQuery;
 

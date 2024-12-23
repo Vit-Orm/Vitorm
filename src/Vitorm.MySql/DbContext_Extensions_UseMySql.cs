@@ -2,6 +2,7 @@
 
 using Vitorm.MySql;
 using Vitorm.Sql;
+using Vitorm.Sql.SqlExecute;
 using Vitorm.Transaction;
 
 using DbConnection = MySqlConnector.MySqlConnection;

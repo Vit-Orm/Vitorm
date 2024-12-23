@@ -38,7 +38,7 @@ namespace Vitorm.Sql.QueryExecutor
             combinedStream.method = method;
 
             // #3 Execute
-            using var reader = await dbContext.ExecuteReaderAsync(sql: sql, param: arg.sqlParam, useReadOnly: true);
+            using var reader = await dbContext.ExecuteReaderAsync(sql: sql, parameters: arg.sqlParam, useReadOnly: true);
 
             return (Result)arg.dataReader.ReadData(reader);
         }

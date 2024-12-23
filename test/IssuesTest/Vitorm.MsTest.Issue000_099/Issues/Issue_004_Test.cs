@@ -25,7 +25,7 @@ namespace Vitorm.MsTest.Issue000_099.Issues
             dbContext.Execute(@"
 CREATE TABLE issue004_schema.Issue004_MyUser (id int NOT NULL primary key,  name varchar(1000) DEFAULT NULL);
 insert into issue004_schema.Issue004_MyUser(id,name) values(1,@name);
-", param: new Dictionary<string, object> { ["name"] = name });
+", parameters: new Dictionary<string, object> { ["name"] = name });
 
 
             // #2 Assert
@@ -51,7 +51,7 @@ use `issue004_schema`;
 drop table if exists `issue004_schema`.`Issue004_MyUser`;
 CREATE TABLE IF NOT EXISTS `issue004_schema`.`Issue004_MyUser` (`id` int NOT NULL primary key,  `name` varchar(1000) DEFAULT NULL);
 insert into `issue004_schema`.`Issue004_MyUser`(`id`,name) values(1,@name);
-", param: new Dictionary<string, object> { ["name"] = name });
+", parameters: new Dictionary<string, object> { ["name"] = name });
 
             // #2 Assert
             {

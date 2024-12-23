@@ -32,7 +32,7 @@ namespace Vitorm.Sql.QueryExecutor
             var sql = sqlTranslateService.PrepareQuery(arg, combinedStream);
 
             // #3 Execute
-            using var reader = dbContext.ExecuteReader(sql: sql, param: arg.sqlParam, useReadOnly: true);
+            using var reader = dbContext.ExecuteReader(sql: sql, parameters: arg.sqlParam, useReadOnly: true);
             return arg.dataReader.ReadData(reader);
         }
 

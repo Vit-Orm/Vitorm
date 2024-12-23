@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
+using Vitorm.Sql.SqlExecute;
 using Vitorm.Sql.Transaction;
 using Vitorm.Transaction;
 
@@ -97,62 +98,73 @@ namespace Vitorm.Sql
 
 
         #region Sync Method
-        public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
+        public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null)
         {
+            transaction ??= GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual int Execute(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual int Execute(ExecuteArgument arg, bool useReadOnly = false)
         {
-            this.Event_OnExecuting(sql, param);
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+            return sqlExecutor.Execute(arg);
+        }
+        public virtual int Execute(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        {
+            this.Event_OnExecuting(sql, parameters);
+
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            if (useReadOnly && transaction == null)
-            {
-                return sqlExecutor.Execute(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return sqlExecutor.Execute(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
+
+
+
+        public virtual IDataReader ExecuteReader(ExecuteArgument arg, bool useReadOnly = false)
         {
-            this.Event_OnExecuting(sql, param);
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+            return sqlExecutor.ExecuteReader(arg);
+        }
+        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        {
+            this.Event_OnExecuting(sql, parameters);
+
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            if (useReadOnly && transaction == null)
-            {
-                return sqlExecutor.ExecuteReader(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return sqlExecutor.ExecuteReader(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+            return sqlExecutor.ExecuteReader(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual object ExecuteScalar(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
+
+        public virtual object ExecuteScalar(ExecuteArgument arg, bool useReadOnly = false)
         {
-            this.Event_OnExecuting(sql, param);
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+            return sqlExecutor.ExecuteScalar(arg);
+        }
+        public virtual object ExecuteScalar(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        {
+            this.Event_OnExecuting(sql, parameters);
+
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            if (useReadOnly && transaction == null)
-            {
-                return sqlExecutor.ExecuteScalar(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return sqlExecutor.ExecuteScalar(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+            return sqlExecutor.ExecuteScalar(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         #endregion
@@ -161,56 +173,58 @@ namespace Vitorm.Sql
 
         #region Async Method
 
-        public virtual async Task<int> ExecuteWithTransactionAsync(string sql, IDictionary<string, object> param = null, IDbTransaction transaction = null)
+        public virtual Task<int> ExecuteAsync(ExecuteArgument arg, bool useReadOnly = false)
         {
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return await sqlExecutor.ExecuteAsync(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteAsync(arg);
         }
 
-        public virtual async Task<int> ExecuteAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual async Task<int> ExecuteAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
         {
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            if (useReadOnly && transaction == null)
-            {
-                return await sqlExecutor.ExecuteAsync(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return await sqlExecutor.ExecuteAsync(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+            return await sqlExecutor.ExecuteAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
-        {
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetDbTransaction();
 
-            if (useReadOnly && transaction == null)
-            {
-                return await sqlExecutor.ExecuteReaderAsync(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return await sqlExecutor.ExecuteReaderAsync(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+        public virtual Task<IDataReader> ExecuteReaderAsync(ExecuteArgument arg, bool useReadOnly = false)
+        {
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+
+            return sqlExecutor.ExecuteReaderAsync(arg);
+        }
+        public virtual async Task<IDataReader> ExecuteReaderAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        {
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
+            var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+
+            return await sqlExecutor.ExecuteReaderAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        public virtual async Task<object> ExecuteScalarAsync(string sql, IDictionary<string, object> param = null, int? commandTimeout = null, bool useReadOnly = false)
-        {
-            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
-            var transaction = GetDbTransaction();
 
-            if (useReadOnly && transaction == null)
-            {
-                return await sqlExecutor.ExecuteScalarAsync(readOnlyDbConnection, sql, param: param, commandTimeout: commandTimeout);
-            }
-            else
-            {
-                return await sqlExecutor.ExecuteScalarAsync(dbConnection, sql, param: param, transaction: transaction, commandTimeout: commandTimeout);
-            }
+        public virtual Task<object> ExecuteScalarAsync(ExecuteArgument arg, bool useReadOnly = false)
+        {
+            arg.connection ??= useReadOnly ? readOnlyDbConnection : dbConnection;
+            arg.transaction ??= GetDbTransaction();
+            arg.commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+
+            return sqlExecutor.ExecuteScalarAsync(arg);
+        }
+        public virtual async Task<object> ExecuteScalarAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        {
+            var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
+            var transaction = GetDbTransaction();
+            commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
+
+            return await sqlExecutor.ExecuteScalarAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
         }
 
         #endregion

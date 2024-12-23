@@ -23,7 +23,7 @@ namespace Vitorm.Sql.QueryExecutor
             var sql = sqlTranslateService.PrepareExecuteDelete(arg, combinedStream);
 
             // #3 Execute
-            return dbContext.Execute(sql: sql, param: arg.sqlParam);
+            return dbContext.Execute(sql: sql, parameters: arg.sqlParam);
         }
 
     }

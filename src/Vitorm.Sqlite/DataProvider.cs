@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
-using Vitorm.DataProvider;
 using Vitorm.Sql;
+using Vitorm.Sql.DataProvider;
 
 namespace Vitorm.Sqlite
 {

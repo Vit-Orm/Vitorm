@@ -1,6 +1,6 @@
 ﻿
 
-namespace Vitorm.Sql
+namespace Vitorm.Sql.DataReader
 {
     public interface IDbDataReader
     {

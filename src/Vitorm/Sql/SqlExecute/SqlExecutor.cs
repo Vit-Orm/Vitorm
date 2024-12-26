@@ -9,8 +9,8 @@ namespace Vitorm.Sql.SqlExecute
         public readonly static SqlExecutor Instance = new();
 
 
-        public virtual int Execute(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-            => Execute(new(connection, sql, parameters, transaction, commandTimeout));
+        public virtual int Execute(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+            => Execute(new(connection, sql, parameters, transaction, commandTimeout, commandType: isProcedure ? CommandType.StoredProcedure : null));
 
         public virtual int Execute(ExecuteArgument arg)
         {
@@ -42,8 +42,8 @@ namespace Vitorm.Sql.SqlExecute
 
 
 
-        public virtual object ExecuteScalar(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-            => ExecuteScalar(new(connection, sql, parameters, transaction, commandTimeout));
+        public virtual object ExecuteScalar(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+            => ExecuteScalar(new(connection, sql, parameters, transaction, commandType: isProcedure ? CommandType.StoredProcedure : null));
 
         public virtual object ExecuteScalar(ExecuteArgument arg)
         {
@@ -74,8 +74,8 @@ namespace Vitorm.Sql.SqlExecute
 
 
 
-        public virtual IDataReader ExecuteReader(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-            => ExecuteReader(new(connection, sql, parameters, transaction, commandTimeout));
+        public virtual IDataReader ExecuteReader(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+            => ExecuteReader(new(connection, sql, parameters, transaction, commandTimeout, commandType: isProcedure ? CommandType.StoredProcedure : null));
 
         public virtual IDataReader ExecuteReader(ExecuteArgument arg)
         {

@@ -14,8 +14,8 @@ namespace Vitorm.Sql.SqlExecute
 
         public Func<DbConnection, Task> CloseAsync = (DbConnection conn) => { conn.Close(); return Task.CompletedTask; };
 
-        public virtual Task<int> ExecuteAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-         => ExecuteAsync(new(connection, sql, parameters, transaction, commandTimeout));
+        public virtual Task<int> ExecuteAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+         => ExecuteAsync(new(connection, sql, parameters, transaction, commandTimeout, commandType: isProcedure ? CommandType.StoredProcedure : null));
 
         public virtual async Task<int> ExecuteAsync(ExecuteArgument arg)
         {
@@ -50,8 +50,8 @@ namespace Vitorm.Sql.SqlExecute
             return await Task.Run(() => Execute(arg));
         }
 
-        public virtual Task<object> ExecuteScalarAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-            => ExecuteScalarAsync(new(connection, sql, parameters, transaction, commandTimeout));
+        public virtual Task<object> ExecuteScalarAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+            => ExecuteScalarAsync(new(connection, sql, parameters, transaction, commandTimeout, commandType: isProcedure ? CommandType.StoredProcedure : null));
         public virtual async Task<object> ExecuteScalarAsync(ExecuteArgument arg)
         {
             if (arg.connection is DbConnection connection)
@@ -85,8 +85,8 @@ namespace Vitorm.Sql.SqlExecute
             return await Task.Run(() => ExecuteScalar(arg));
         }
 
-        public Task<IDataReader> ExecuteReaderAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-             => ExecuteReaderAsync(new(connection, sql, parameters, transaction, commandTimeout));
+        public Task<IDataReader> ExecuteReaderAsync(IDbConnection connection, string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool isProcedure = false)
+             => ExecuteReaderAsync(new(connection, sql, parameters, transaction, commandTimeout, commandType: isProcedure ? CommandType.StoredProcedure : null));
         public virtual async Task<IDataReader> ExecuteReaderAsync(ExecuteArgument arg)
         {
             if (arg.connection is DbConnection connection)
@@ -98,10 +98,14 @@ namespace Vitorm.Sql.SqlExecute
                 {
                     // #1 setup command
                     cmd = connection.CreateCommand();
+                    cmd.Connection = connection;
+
                     if (arg.transaction != null) cmd.Transaction = (DbTransaction)arg.transaction;
                     if (arg.commandTimeout.HasValue) cmd.CommandTimeout = arg.commandTimeout.Value;
-                    cmd.Connection = connection;
+
+                    if (arg.commandType.HasValue) cmd.CommandType = arg.commandType.Value;
                     cmd.CommandText = arg.text;
+
                     AddParameters(cmd, arg.parameters);
 
                     // #2 execute

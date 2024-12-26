@@ -98,12 +98,12 @@ namespace Vitorm.Sql
 
 
         #region Sync Method
-        public virtual int ExecuteWithTransaction(string sql, IDictionary<string, object> parameters = null, IDbTransaction transaction = null)
+        public virtual int ExecuteWithTransaction(string sql, Dictionary<string, object> parameters = null, IDbTransaction transaction = null, bool isProcedure = false)
         {
             transaction ??= GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
         public virtual int Execute(ExecuteArgument arg, bool useReadOnly = false)
@@ -114,7 +114,7 @@ namespace Vitorm.Sql
 
             return sqlExecutor.Execute(arg);
         }
-        public virtual int Execute(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual int Execute(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             this.Event_OnExecuting(sql, parameters);
 
@@ -122,7 +122,7 @@ namespace Vitorm.Sql
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.Execute(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
 
@@ -136,7 +136,7 @@ namespace Vitorm.Sql
 
             return sqlExecutor.ExecuteReader(arg);
         }
-        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual IDataReader ExecuteReader(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             this.Event_OnExecuting(sql, parameters);
 
@@ -144,7 +144,7 @@ namespace Vitorm.Sql
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return sqlExecutor.ExecuteReader(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteReader(dbConnection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
 
@@ -156,7 +156,7 @@ namespace Vitorm.Sql
 
             return sqlExecutor.ExecuteScalar(arg);
         }
-        public virtual object ExecuteScalar(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual object ExecuteScalar(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             this.Event_OnExecuting(sql, parameters);
 
@@ -164,7 +164,7 @@ namespace Vitorm.Sql
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return sqlExecutor.ExecuteScalar(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteScalar(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
         #endregion
@@ -182,13 +182,13 @@ namespace Vitorm.Sql
             return sqlExecutor.ExecuteAsync(arg);
         }
 
-        public virtual async Task<int> ExecuteAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual Task<int> ExecuteAsync(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return await sqlExecutor.ExecuteAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
 
@@ -200,13 +200,13 @@ namespace Vitorm.Sql
 
             return sqlExecutor.ExecuteReaderAsync(arg);
         }
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual Task<IDataReader> ExecuteReaderAsync(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return await sqlExecutor.ExecuteReaderAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteReaderAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
 
@@ -218,13 +218,13 @@ namespace Vitorm.Sql
 
             return sqlExecutor.ExecuteScalarAsync(arg);
         }
-        public virtual async Task<object> ExecuteScalarAsync(string sql, IDictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false)
+        public virtual Task<object> ExecuteScalarAsync(string sql, Dictionary<string, object> parameters = null, int? commandTimeout = null, bool useReadOnly = false, bool isProcedure = false)
         {
             var connection = useReadOnly ? readOnlyDbConnection : dbConnection;
             var transaction = GetDbTransaction();
             commandTimeout ??= this.commandTimeout ?? defaultCommandTimeout;
 
-            return await sqlExecutor.ExecuteScalarAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout);
+            return sqlExecutor.ExecuteScalarAsync(connection, sql, parameters: parameters, transaction: transaction, commandTimeout: commandTimeout, isProcedure: isProcedure);
         }
 
         #endregion

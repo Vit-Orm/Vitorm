@@ -8,8 +8,9 @@
 - upgrade net to 8.0
 - [Vitorm] move SqlDataProvider to namespace Vitorm.Sql.DataProvider
 - [Vitorm] move IDbDataReader to namespace Vitorm.Sql.DataReader
-- [Vitorm] support StoredProcedure in SqlExecutor and SqlDbContext
-- [Vitorm] IDataReader extension method:  ReadEntity
+- [Vitorm] support Execute Procedure in SqlExecutor and SqlDbContext
+- [Vitorm] IDataReader extension methods: ReadValue ReadTuple ReadEntity
+
 
 -----------------------
 # 2.3.0

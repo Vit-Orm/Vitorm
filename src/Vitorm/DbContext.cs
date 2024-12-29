@@ -66,6 +66,11 @@ namespace Vitorm
             if (tryFromCache && dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;
             return entityLoader.LoadDescriptor(entityType).entityDescriptor;
         }
+        public virtual IEntityDescriptor GetEntityDescriptorFromCache(Type entityType)
+        {
+            if (dbSetMap?.TryGetValue(entityType, out var dbSet) == true) return dbSet.entityDescriptor;
+            return default;
+        }
         public virtual IEntityDescriptor GetEntityDescriptor<Entity>(bool tryFromCache = true)
             => GetEntityDescriptor(typeof(Entity), tryFromCache);
         #endregion

@@ -84,7 +84,7 @@ namespace Vitorm.Sql
             // #3 Execute
             if (addType == EAddType.identityKey)
             {
-                var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql, param: sqlParam);
+                var newKeyValue = sqlDbContext.ExecuteScalar(sql: sql, parameters: sqlParam);
 
                 // set key value to entity
                 var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
@@ -96,7 +96,7 @@ namespace Vitorm.Sql
             }
             else
             {
-                sqlDbContext.Execute(sql: sql, param: sqlParam);
+                sqlDbContext.Execute(sql: sql, parameters: sqlParam);
             }
 
             return entity;
@@ -123,7 +123,7 @@ namespace Vitorm.Sql
                 // #3 Execute
                 if (addType == EAddType.identityKey)
                 {
-                    var newKeyValue = sqlDbContext.ExecuteScalar(sql: sqlAndGetParams.sql, param: sqlParam);
+                    var newKeyValue = sqlDbContext.ExecuteScalar(sql: sqlAndGetParams.sql, parameters: sqlParam);
 
                     // set key value to entity
                     var keyType = TypeUtil.GetUnderlyingType(entityDescriptor.key.type);
@@ -136,7 +136,7 @@ namespace Vitorm.Sql
                 }
                 else
                 {
-                    sqlDbContext.Execute(sql: sqlAndGetParams.sql, param: sqlParam);
+                    sqlDbContext.Execute(sql: sqlAndGetParams.sql, parameters: sqlParam);
                     affectedRowCount++;
                 }
             }
@@ -159,7 +159,7 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            using var reader = sqlDbContext.ExecuteReader(sql: sql, param: sqlParam, useReadOnly: true);
+            using var reader = sqlDbContext.ExecuteReader(sql: sql, parameters: sqlParam, useReadOnly: true);
             if (reader.Read())
             {
                 var entity = (Entity)Activator.CreateInstance(entityDescriptor.entityType);
@@ -189,7 +189,7 @@ namespace Vitorm.Sql
             var sqlParam = GetSqlParams(entity);
 
             // #3 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: sqlParam);
+            var affectedRowCount = sqlDbContext.Execute(sql: sql, parameters: sqlParam);
 
             return affectedRowCount;
         }
@@ -207,7 +207,7 @@ namespace Vitorm.Sql
             foreach (var entity in entities)
             {
                 var sqlParam = GetSqlParams(entity);
-                affectedRowCount += sqlDbContext.Execute(sql: sql, param: sqlParam);
+                affectedRowCount += sqlDbContext.Execute(sql: sql, parameters: sqlParam);
             }
             return affectedRowCount;
         }
@@ -239,7 +239,7 @@ namespace Vitorm.Sql
             sqlParam[entityDescriptor.keyName] = keyValue;
 
             // #3 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: sqlParam);
+            var affectedRowCount = sqlDbContext.Execute(sql: sql, parameters: sqlParam);
 
             return affectedRowCount;
         }
@@ -253,7 +253,7 @@ namespace Vitorm.Sql
             var sql = sqlTranslateService.PrepareDeleteByKeys(arg, keys);
 
             // #2 execute
-            var affectedRowCount = sqlDbContext.Execute(sql: sql, param: arg.sqlParam);
+            var affectedRowCount = sqlDbContext.Execute(sql: sql, parameters: arg.sqlParam);
             return affectedRowCount;
         }
         #endregion

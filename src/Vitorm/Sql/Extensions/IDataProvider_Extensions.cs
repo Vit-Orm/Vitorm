@@ -1,5 +1,6 @@
 ﻿using Vitorm.DataProvider;
 using Vitorm.Sql;
+using Vitorm.Sql.DataProvider;
 
 namespace Vitorm
 {
@@ -9,6 +10,5 @@ namespace Vitorm
         {
             return (dataProvider as SqlDataProvider)?.CreateDbContext();
         }
-
     }
 }

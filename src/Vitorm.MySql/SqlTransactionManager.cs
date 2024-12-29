@@ -2,27 +2,28 @@
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
+using Vitorm.Transaction;
 
 using SqlTransaction = MySqlConnector.MySqlTransaction;
 
 namespace Vitorm.MySql
 {
-    public class SqlTransactionScope : Vitorm.Sql.Transaction.SqlTransactionScope
+    public class SqlTransactionManager : Vitorm.Sql.Transaction.SqlTransactionManager
     {
         int savePointCount = 0;
-        public DbTransactionWrap CreateTransactionSavePoint(IDbTransaction originalTransaction)
+        public Sql.Transaction.SqlTransaction CreateTransactionSavePoint(IDbTransaction originalTransaction)
         {
             var savePointName = "tran" + savePointCount++;
             return new DbTransactionWrapSavePoint(originalTransaction, savePointName);
         }
-        public SqlTransactionScope(SqlDbContext dbContext) : base(dbContext)
+        public SqlTransactionManager(SqlDbContext dbContext) : base(dbContext)
         {
         }
 
-        public override IDbTransaction BeginTransaction()
+        public override ITransaction BeginTransaction()
         {
-            DbTransactionWrap transactionWrap;
-            IDbTransaction originalTransaction = GetCurrentTransaction();
+            Sql.Transaction.SqlTransaction transaction;
+            IDbTransaction originalTransaction = GetDbTransaction();
             if (originalTransaction == null)
             {
                 var dbConnection = dbContext.dbConnection as MySqlConnector.MySqlConnection;
@@ -30,20 +31,20 @@ namespace Vitorm.MySql
 
                 originalTransaction = dbConnection.BeginTransaction();
                 dbContext.ExecuteWithTransaction("SET autocommit=0;", transaction: originalTransaction);
-                transactionWrap = new DbTransactionWrap(originalTransaction);
+                transaction = new Sql.Transaction.SqlTransaction(originalTransaction);
             }
             else
             {
-                transactionWrap = CreateTransactionSavePoint(originalTransaction);
+                transaction = CreateTransactionSavePoint(originalTransaction);
             }
 
-            transactions.Push(transactionWrap);
-            return transactionWrap;
+            transactions.Push(transaction);
+            return transaction;
         }
 
 
 
-        public class DbTransactionWrapSavePoint : DbTransactionWrap
+        public class DbTransactionWrapSavePoint : Sql.Transaction.SqlTransaction
         {
             public SqlTransaction sqlTran => (SqlTransaction)originalTransaction;
             readonly string savePointName;

@@ -62,8 +62,7 @@ namespace Vitorm.MsTest
         public static SqlDbContext CreateDbContextForWriting(bool autoInit = true) => CreateDbContext(autoInit);
         public static SqlDbContext CreateDbContext(bool autoInit = true)
         {
-            var guid = Guid.NewGuid().ToString();
-            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"{guid}.sqlite.db");
+            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, $"db_orm.sqlite.db");
             var connectionString = $"data source={filePath}";
 
             var dbContext = new SqlDbContext();

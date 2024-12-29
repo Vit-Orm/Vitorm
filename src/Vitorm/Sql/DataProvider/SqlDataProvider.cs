@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Vitorm.Sql;
+using Vitorm.DataProvider;
 
-namespace Vitorm.DataProvider
+namespace Vitorm.Sql.DataProvider
 {
     public abstract partial class SqlDataProvider : IDataProvider
     {

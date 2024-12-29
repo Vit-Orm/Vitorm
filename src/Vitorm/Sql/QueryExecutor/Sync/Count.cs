@@ -38,7 +38,7 @@ namespace Vitorm.Sql.QueryExecutor
             var sql = sqlTranslateService.PrepareCountQuery(arg, combinedStream);
 
             // #3 Execute
-            var countValue = dbContext.ExecuteScalar(sql: sql, param: arg.sqlParam, useReadOnly: true);
+            var countValue = dbContext.ExecuteScalar(sql: sql, parameters: arg.sqlParam, useReadOnly: true);
             var count = Convert.ToInt32(countValue);
 
             // Count and TotalCount

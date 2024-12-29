@@ -3,8 +3,8 @@ using System.Data;
 
 using Vitorm.Sql;
 using Vitorm.Sql.Transaction;
+using Vitorm.Transaction;
 
-using static Vitorm.Sql.Transaction.DbTransactionWrap;
 
 namespace Vitorm.MySql
 {
@@ -21,63 +21,60 @@ namespace Vitorm.MySql
           COMMIT;
           -- ROLLBACK;
     */
-    public class SqlTransactionScope_Command : ITransactionScope
+    public class SqlTransactionManager_Command : ITransactionManager
     {
         protected SqlDbContext dbContext;
-        protected Stack<DbTransactionWrapSavePoint> savePoints = new();
+        protected Stack<TransactionSavePoint> savePoints = new();
         int savePointCount = 0;
-        public SqlTransactionScope_Command(SqlDbContext dbContext)
+        public SqlTransactionManager_Command(SqlDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
 
-        DbTransactionWrap_Command dbTransactionWrap;
-        public virtual IDbTransaction BeginTransaction()
+        Transaction_Command transaction;
+        public virtual ITransaction BeginTransaction()
         {
-            if (dbTransactionWrap == null)
+            if (transaction == null)
             {
                 var dbConnection = dbContext.dbConnection;
                 if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
 
-                dbTransactionWrap = new DbTransactionWrap_Command(dbContext);
-                return dbTransactionWrap;
+                transaction = new Transaction_Command(dbContext);
+                return transaction;
 
             }
             var savePointName = "tran" + savePointCount++;
-            var savePoint = dbTransactionWrap.BeginSavePoint(savePointName);
+            var savePoint = transaction.BeginSavePoint(savePointName);
 
             savePoints.Push(savePoint);
             return savePoint;
         }
-
-        public virtual IDbTransaction GetCurrentTransaction() => null;
-
         public virtual void Dispose()
         {
             while (savePoints?.Count > 0)
             {
                 var transaction = savePoints.Pop();
-                if (transaction?.TransactionState != DbTransactionWrap.ETransactionState.Disposed)
+                if (transaction?.TransactionState != ETransactionState.Disposed)
                 {
                     transaction?.Dispose();
                 }
             }
             savePoints = null;
 
-            dbTransactionWrap?.Dispose();
-            dbTransactionWrap = null;
+            transaction?.Dispose();
+            transaction = null;
         }
 
 
 
-        public class DbTransactionWrap_Command : IDbTransaction
+        public class Transaction_Command : ITransaction
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
             public IDbConnection Connection => dbContext.dbConnection;
             readonly SqlDbContext dbContext;
             public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
 
-            public DbTransactionWrap_Command(SqlDbContext dbContext)
+            public Transaction_Command(SqlDbContext dbContext)
             {
                 this.dbContext = dbContext;
                 Execute($"START TRANSACTION; SET autocommit=0;");
@@ -103,9 +100,9 @@ namespace Vitorm.MySql
                 Execute($"ROLLBACK;");
                 TransactionState = ETransactionState.RolledBack;
             }
-            public DbTransactionWrapSavePoint BeginSavePoint(string savePoint)
+            public TransactionSavePoint BeginSavePoint(string savePoint)
             {
-                return new DbTransactionWrapSavePoint(dbContext, savePoint);
+                return new TransactionSavePoint(dbContext, savePoint);
             }
             protected virtual void Execute(string sql)
             {
@@ -113,7 +110,7 @@ namespace Vitorm.MySql
             }
         }
 
-        public class DbTransactionWrapSavePoint : IDbTransaction
+        public class TransactionSavePoint : ITransaction
         {
             public virtual System.Data.IsolationLevel IsolationLevel => default;
 
@@ -127,7 +124,7 @@ namespace Vitorm.MySql
             {
                 dbContext.ExecuteWithTransaction(sql);
             }
-            public DbTransactionWrapSavePoint(SqlDbContext dbContext, string savePointName)
+            public TransactionSavePoint(SqlDbContext dbContext, string savePointName)
             {
                 this.dbContext = dbContext;
                 this.savePointName = savePointName;

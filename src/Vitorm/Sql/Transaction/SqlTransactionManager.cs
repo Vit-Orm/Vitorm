@@ -1,28 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
+using Vitorm.Transaction;
+
 namespace Vitorm.Sql.Transaction
 {
-    public class SqlTransactionScope : ITransactionScope
+    public class SqlTransactionManager : ITransactionManager
     {
-        public SqlTransactionScope(SqlDbContext dbContext)
+        public SqlTransactionManager(SqlDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
 
         protected SqlDbContext dbContext;
-        protected Stack<DbTransactionWrap> transactions = new();
+        protected Stack<SqlTransaction> transactions = new();
 
 
-        public virtual IDbTransaction BeginTransaction()
+        public virtual ITransaction BeginTransaction()
         {
             var dbConnection = dbContext.dbConnection;
             if (dbConnection.State != ConnectionState.Open) dbConnection.Open();
             var transaction = dbConnection.BeginTransaction();
 
-            var transactionWrap = new DbTransactionWrap(transaction);
-            transactions.Push(transactionWrap);
-            return transactionWrap;
+            var sqlTransaction = new SqlTransaction(transaction);
+            transactions.Push(sqlTransaction);
+            return sqlTransaction;
         }
 
         public virtual void Dispose()
@@ -30,7 +32,7 @@ namespace Vitorm.Sql.Transaction
             while (transactions?.Count > 0)
             {
                 var transaction = transactions.Pop();
-                if (transaction?.TransactionState != DbTransactionWrap.ETransactionState.Disposed)
+                if (transaction?.TransactionState != ETransactionState.Disposed)
                 {
                     transaction?.Dispose();
                 }
@@ -38,12 +40,12 @@ namespace Vitorm.Sql.Transaction
             transactions = null;
         }
 
-        public virtual IDbTransaction GetCurrentTransaction()
+        public virtual IDbTransaction GetDbTransaction()
         {
             while (transactions?.Count > 0)
             {
                 var tran = transactions.Peek();
-                if (tran?.TransactionState == DbTransactionWrap.ETransactionState.Active) return tran.originalTransaction;
+                if (tran?.TransactionState == ETransactionState.Active) return tran.originalTransaction;
                 transactions.Pop();
             }
             return null;

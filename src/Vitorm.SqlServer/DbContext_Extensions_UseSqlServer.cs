@@ -1,6 +1,6 @@
 ﻿using Vitorm.Sql;
-using Vitorm.Sql.Transaction;
 using Vitorm.SqlServer;
+using Vitorm.Transaction;
 
 namespace Vitorm
 {
@@ -16,14 +16,14 @@ namespace Vitorm
                 dbConnectionProvider: config.ToDbConnectionProvider()
                 );
 
-            dbContext.createTransactionScope = createTransactionScope;
+            dbContext.createTransactionManager = createTransactionManager;
 
             if (config.commandTimeout.HasValue) dbContext.commandTimeout = config.commandTimeout.Value;
 
             return dbContext;
         }
 
-        static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.SqlServer.SqlTransactionScope(dbContext);
+        static ITransactionManager createTransactionManager(SqlDbContext dbContext) => new Vitorm.SqlServer.SqlTransactionManager(dbContext);
 
     }
 }

@@ -37,7 +37,7 @@ namespace Vitorm
         public static bool IsArrayType(Type type)
         {
             if (type.IsArray) return true;
-            if (type.IsGenericType && typeof(ICollection).IsAssignableFrom(type)) return true;
+            if (type.IsGenericType && typeof(IEnumerable).IsAssignableFrom(type)) return true;
             return false;
         }
 

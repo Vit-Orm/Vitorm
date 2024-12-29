@@ -4,6 +4,8 @@ using System.Linq;
 
 using Vit.Linq.ExpressionNodes.ComponentModel;
 
+using Vitorm.Sql.DataReader;
+
 namespace Vitorm.Sql.SqlTranslate
 {
     public class QueryTranslateArgument

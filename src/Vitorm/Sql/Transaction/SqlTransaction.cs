@@ -1,23 +1,21 @@
 ﻿using System.Data;
 
+using Vitorm.Transaction;
+
 namespace Vitorm.Sql.Transaction
 {
-    public class DbTransactionWrap : IDbTransaction
+    public partial class SqlTransaction : ITransaction
     {
-        public enum ETransactionState
-        {
-            Active, Committed, RolledBack, Disposed
-        }
         public virtual ETransactionState TransactionState { get; protected set; } = ETransactionState.Active;
-        public DbTransactionWrap(IDbTransaction transaction)
+        public SqlTransaction(IDbTransaction transaction)
         {
             originalTransaction = transaction;
         }
         public IDbTransaction originalTransaction;
 
-        public virtual IDbConnection Connection => originalTransaction.Connection;
+        //public virtual IDbConnection Connection => originalTransaction.Connection;
 
-        public virtual System.Data.IsolationLevel IsolationLevel => originalTransaction.IsolationLevel;
+        //public virtual System.Data.IsolationLevel IsolationLevel => originalTransaction.IsolationLevel;
 
         public virtual void Commit()
         {

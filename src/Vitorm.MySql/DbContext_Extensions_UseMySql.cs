@@ -2,7 +2,8 @@
 
 using Vitorm.MySql;
 using Vitorm.Sql;
-using Vitorm.Sql.Transaction;
+using Vitorm.Sql.SqlExecute;
+using Vitorm.Transaction;
 
 using DbConnection = MySqlConnector.MySqlConnection;
 
@@ -21,7 +22,7 @@ namespace Vitorm
                 sqlExecutor: sqlExecutor
                 );
 
-            dbContext.createTransactionScope = createTransactionScope;
+            dbContext.createTransactionManager = createTransactionManager;
 
 
             if (config.commandTimeout.HasValue) dbContext.commandTimeout = config.commandTimeout.Value;
@@ -44,8 +45,8 @@ namespace Vitorm
         #endregion
 
 
-        static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionScope(dbContext);
-        //static ITransactionScope createTransactionScope(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionScope_Command(dbContext);
+        static ITransactionManager createTransactionManager(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionManager(dbContext);
+        static ITransactionManager createTransactionManager2(SqlDbContext dbContext) => new Vitorm.MySql.SqlTransactionManager_Command(dbContext);
 
 
     }

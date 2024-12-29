@@ -6,6 +6,7 @@ namespace Vitorm
 {
     public partial interface IDbContext
     {
+
         #region Sync Method
 
         // #0 Schema :  Create Drop

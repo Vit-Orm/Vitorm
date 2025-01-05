@@ -1,6 +1,10 @@
 ﻿# Vitorm ReleaseNotes
 
 -----------------------
+# 2.5.0
+- [Vitorm] remove EntityPropertyReader.cs(Not useful)
+
+-----------------------
 # 2.4.0
 - [Vitorm] DbContext, new method GetEntityDescriptorFromCache
 - [Vitorm] move BeginTransaction to interface and refactor Transaction

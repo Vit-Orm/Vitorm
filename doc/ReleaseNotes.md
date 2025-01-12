@@ -3,6 +3,7 @@
 -----------------------
 # 2.5.0
 - [Vitorm] remove EntityPropertyReader.cs(Not useful)
+- [Vitorm] add orderBy to test case
 
 -----------------------
 # 2.4.0

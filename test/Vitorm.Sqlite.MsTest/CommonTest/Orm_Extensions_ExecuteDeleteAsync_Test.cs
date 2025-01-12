@@ -29,7 +29,7 @@ namespace Vitorm.MsTest.CommonTest
 
                 Assert.AreEqual(3, rowCount);
 
-                var newUsers = userQuery.ToList();
+                var newUsers = userQuery.OrderBy(m => m.id).ToList();
                 Assert.AreEqual(3, newUsers.Count());
                 Assert.AreEqual(4, newUsers.First().id);
                 Assert.AreEqual(6, newUsers.Last().id);
@@ -43,7 +43,7 @@ namespace Vitorm.MsTest.CommonTest
 
                 Assert.AreEqual(2, rowCount);
 
-                var newUsers = userQuery.ToList();
+                var newUsers = userQuery.OrderBy(m => m.id).ToList();
                 Assert.AreEqual(4, newUsers.Count());
                 Assert.AreEqual(1, newUsers.First().id);
                 Assert.AreEqual(3, newUsers[1].id);

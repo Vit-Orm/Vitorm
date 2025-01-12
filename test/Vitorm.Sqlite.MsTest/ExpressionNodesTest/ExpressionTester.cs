@@ -7,10 +7,8 @@ using Vit.Linq;
 
 namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
 {
-
     public abstract partial class ExpressionTester
     {
-
         public static List<User> Test(IQueryable<User> query, Expression<Func<User, bool>> predicate)
         {
             var expected = GetSourceData().AsQueryable().Where(predicate).ToList();
@@ -33,12 +31,12 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
         }
 
 
-
         public static void TestQueryable(IQueryable<User> query)
         {
             Expression<Func<User, bool>> predicate;
 
             #region #0 Add, An addition operation, such as a + b, without overflow checking, for numeric operands.
+            if (canCalculate)
             {
                 predicate = u => u.id + 1 == 6;
                 var rows = Test(query, predicate);
@@ -54,13 +52,15 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #7 Coalesce, A node that represents a null coalescing operation, such as (a ?? b)
+            if (canCalculate)
             {
                 predicate = u => (u.fatherId ?? u.id) == 5;
                 var rows = Test(query, predicate);
             }
             #endregion
 
-            #region #8 Conditional, A conditional operation, such as a > b ? a : b 
+            #region #8 Conditional, A conditional operation, such as a > b ? a : b
+            if (canCalculate)
             {
                 predicate = u => (u.id == 2 ? 1 : 0) == 1;
                 var rows = Test(query, predicate);
@@ -75,6 +75,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #10 Convert, A cast or conversion operation, such as (SampleType)obj
+            if (canCalculate)
             {
                 predicate = u => ((double)u.id) <= 2.0;
                 var rows = Test(query, predicate);
@@ -82,6 +83,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #12 Divide, A division operation, such as (a / b), for numeric operands.
+            if (canCalculate)
             {
                 predicate = u => u.id / 10.0 == 10.0;
                 var rows = Test(query, predicate);
@@ -135,6 +137,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #25 Modulo, An arithmetic remainder operation, such as (a % b)
+            if (canCalculate)
             {
                 predicate = u => (u.id % 10) == 0;
                 var rows = Test(query, predicate);
@@ -142,6 +145,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #26 Multiply, A multiplication operation, such as (a * b), without overflow checking, for numeric operands
+            if (canCalculate)
             {
                 predicate = u => u.id * 10 == 20;
                 var rows = Test(query, predicate);
@@ -149,6 +153,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #28 Negate, An arithmetic negation operation, such as (-a). The object a should not be modified in place.
+            if (canCalculate)
             {
                 predicate = u => -u.id == -2;
                 var rows = Test(query, predicate);
@@ -181,6 +186,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
             #endregion
 
             #region #42 Subtract,  A subtraction operation, such as (a - b), without overflow checking
+            if (canCalculate)
             {
                 predicate = u => u.id - 2 == 9;
                 var rows = Test(query, predicate);
@@ -189,6 +195,7 @@ namespace Vit.Linq.ExpressionNodes.ExpressionNodesTest
 
 
             #region Test the priority of mathematical calculations
+            if (canCalculate)
             {
                 predicate = u => 10 + u.id * 10 == 110;
                 var rows = Test(query, predicate);

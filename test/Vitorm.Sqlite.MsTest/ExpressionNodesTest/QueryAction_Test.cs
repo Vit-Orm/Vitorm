@@ -20,7 +20,7 @@ namespace Vitorm.MsTest.ExpressionNodesTest
             dbSet.AddRange(initUsers);
             DataSource.WaitForUpdate();
 
-            var query = dbSet.Query();
+            var query = dbSet.Query().OrderBy(m => m.id);
             ExpressionTester.TestQueryable(query);
         }
     }

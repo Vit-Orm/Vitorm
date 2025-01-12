@@ -3,6 +3,8 @@
 
     public abstract partial class ExpressionTester
     {
+        static bool canCalculate = true;
+
         [System.ComponentModel.DataAnnotations.Schema.Table("User2")]
         public class User : Vitorm.MsTest.User
         {
